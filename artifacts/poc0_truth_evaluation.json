@@ -1,0 +1,179 @@
+{
+  "scope": "POST-FIT SYNTHETIC TRUTH EVALUATION ONLY; never an inference input",
+  "cases": [
+    {
+      "case": "no_fault",
+      "params": {
+        "length_m": 0.72,
+        "g": 9.80665,
+        "gamma_per_s": 0.06,
+        "quadratic_drag_per_m": 0.02,
+        "peg": null
+      },
+      "trial_ids": [
+        "trial_000",
+        "trial_001",
+        "trial_002"
+      ],
+      "seeds": [
+        1619730685,
+        1701635912,
+        2343293170
+      ],
+      "peg_error_mm": null,
+      "contact_event_counts": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "case": "parameter_fault",
+      "params": {
+        "length_m": 0.76,
+        "g": 9.80665,
+        "gamma_per_s": 0.11,
+        "quadratic_drag_per_m": 0.05,
+        "peg": null
+      },
+      "trial_ids": [
+        "trial_003",
+        "trial_004",
+        "trial_005"
+      ],
+      "seeds": [
+        197775100,
+        1655949615,
+        3530295028
+      ],
+      "peg_error_mm": null,
+      "contact_event_counts": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "case": "vertical_peg",
+      "params": {
+        "length_m": 0.72,
+        "g": 9.80665,
+        "gamma_per_s": 0.06,
+        "quadratic_drag_per_m": 0.02,
+        "peg": {
+          "distance_m": 0.16,
+          "angle_rad": 0.0,
+          "contact_side": -1,
+          "kappa_in": 1.0,
+          "kappa_out": 1.0
+        }
+      },
+      "trial_ids": [
+        "trial_006",
+        "trial_007",
+        "trial_008"
+      ],
+      "seeds": [
+        2969964490,
+        2513806003,
+        2130319431
+      ],
+      "peg_error_mm": 2.4935623910091413,
+      "contact_event_counts": [
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "case": "off_vertical_peg",
+      "params": {
+        "length_m": 0.72,
+        "g": 9.80665,
+        "gamma_per_s": 0.06,
+        "quadratic_drag_per_m": 0.02,
+        "peg": {
+          "distance_m": 0.16,
+          "angle_rad": -0.18,
+          "contact_side": -1,
+          "kappa_in": 1.0,
+          "kappa_out": 1.0
+        }
+      },
+      "trial_ids": [
+        "trial_009",
+        "trial_010",
+        "trial_011"
+      ],
+      "seeds": [
+        3393958962,
+        1188955202,
+        1708224020
+      ],
+      "peg_error_mm": 16.771152639082615,
+      "contact_event_counts": [
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "case": "unexcited_peg",
+      "params": {
+        "length_m": 0.72,
+        "g": 9.80665,
+        "gamma_per_s": 0.06,
+        "quadratic_drag_per_m": 0.02,
+        "peg": {
+          "distance_m": 0.16,
+          "angle_rad": -0.8,
+          "contact_side": -1,
+          "kappa_in": 1.0,
+          "kappa_out": 1.0
+        }
+      },
+      "trial_ids": [
+        "trial_012",
+        "trial_013",
+        "trial_014"
+      ],
+      "seeds": [
+        1016943822,
+        755395289,
+        3240127280
+      ],
+      "peg_error_mm": null,
+      "contact_event_counts": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "case": "short_arc",
+      "params": {
+        "length_m": 0.72,
+        "g": 9.80665,
+        "gamma_per_s": 0.06,
+        "quadratic_drag_per_m": 0.02,
+        "peg": null
+      },
+      "trial_ids": [
+        "trial_015",
+        "trial_016",
+        "trial_017"
+      ],
+      "seeds": [
+        733661959,
+        2933340061,
+        1862776149
+      ],
+      "peg_error_mm": null,
+      "contact_event_counts": [
+        0,
+        0,
+        0
+      ]
+    }
+  ]
+}

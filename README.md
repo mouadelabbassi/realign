@@ -1,12 +1,12 @@
-# REALIGN — POC-0/G1 Starter Repository
+# REALIGN — G1 Physics and POC-0 Classical Baselines
 
-**Status: working physics reference kernel; not yet the completed REALIGN AI investigator.**
+**Status: verified physics kernel and synthetic B0/B1/B2 baselines; not yet the completed REALIGN AI investigator.**
 
 REALIGN aims to audit physics simulations against phone-measured reality,
 request discriminating experiments, propose typed structural corrections and
 validate them using sealed independent evidence.
 
-This starter repository implements the **first tested scientific foundation**:
+Implemented and tested:
 
 - Ideal ordinary pendulum and exact nonlinear period oracle (elliptic integral).
 - Hybrid peg-contact pendulum using SciPy `solve_ivp`, directed event guards,
@@ -18,6 +18,15 @@ This starter repository implements the **first tested scientific foundation**:
 - Automated physics tests and deterministic randomized configuration sweep.
 - Synthetic-only comparison of an original fixed-pivot simulator with a peg
   reference, clearly labeled as *not* real measurements or AI model repair.
+- Validated observation/experiment records with explicit px, px², s and plane frames.
+- Seeded synthetic localization noise, optional stationary AR(1) correlation and
+  missing samples, with separate observation and evaluation-only truth records.
+- B0 nominal free-pendulum prediction; B1 bounded multistart nonlinear fitting of
+  length, viscous and quadratic drag using complete trajectory rollouts.
+- B2 recurring one-circle/two-circle geometry, with short-arc rejection and
+  leave-one-whole-training-trial-out comparison.
+- Disjoint synthetic development trials, no-fault and unexcited controls, explicit
+  ambiguous cases, solver-failure tests and truth dependency/input checks.
 - A **not-yet-executed** Meta Muse API connectivity smoke-test script.
 
 ## Install and run
@@ -27,13 +36,45 @@ python -m venv .venv
 # Linux/macOS: source .venv/bin/activate
 # Windows PowerShell: .venv\\Scripts\\Activate.ps1
 python -m pip install -e '.[dev]'
-pytest -q
+python -m pytest -q
 python scripts/verify_g1.py
+python scripts/verify_baselines.py
 ```
 
 Outputs: `artifacts/G1_REPORT.md`, `artifacts/g1_verification.json`,
 `artifacts/synthetic_trajectory_comparison.csv`, and (with matplotlib)
 `artifacts/synthetic_discrepancy.png`.
+
+The baseline command produces [POC0_BASELINES.md](artifacts/POC0_BASELINES.md),
+`poc0_baselines.json`, `poc0_baselines.png`, `poc0_observations.npz` and the separate
+post-fit `poc0_truth_evaluation.json`. It exits nonzero when its acceptance checks fail.
+Use `--output-dir PATH` to write a separate evidence run; the named default seed is
+`20261031`. The integration test reproduces JSON, Markdown, plot and observation
+archive bytes twice in the same environment.
+
+## Actual synthetic results
+
+**SYNTHETIC ONLY — NO META API / REAL-WORLD VALIDATION**
+
+Two training trials and one unseen whole development trial per case; 4 s at 60 Hz;
+assumed localization SD 0.5 px per coordinate; known scale 600 px/m.
+
+| Case | B0 held-out xy RMSE (px) | B1 held-out xy RMSE (px) | B2 geometry |
+|---|---:|---:|---|
+| No fault | 0.7204 | 0.7215 | One circle only |
+| Parameter fault | 40.7895 | 0.6890 | One circle only |
+| Vertical peg | 72.2366 | 39.7715 | Two circles; peg error 2.49 mm |
+| Off-vertical peg, 10% missing samples | 40.2429 | 22.8737 | Two circles; peg error 16.77 mm |
+| Unexcited peg | 0.6975 | 0.6968 | One circle only; peg presence remains ambiguous |
+| Short noisy arc | 0.6752 | 0.6774 | Ambiguous |
+
+B2 measures observation-conditioned radial reconstruction, **not** a time-trajectory
+prediction. Its residual is reported separately in the evidence report. Near-floor
+B0/B1 differences in no-fault data do not establish improvement. A low radial
+residual does not guarantee precise center recovery or a unique physical cause.
+
+Methods, verification results, scope resolutions and limitations are documented in
+[POC0_BASELINES_IMPLEMENTATION.md](docs/POC0_BASELINES_IMPLEMENTATION.md).
 
 ## Scientific scope
 
@@ -43,13 +84,22 @@ contact side. A peg on both sides, flexible or slack string, finite-size peg,
 is enforced for ideal point-peg contact; the angular speed changes with the
 radius. These constraints are scientific scope boundaries, not hidden features.
 
+This phase assumes known projection, gravity, release angle, release velocity and
+release time. It has no measured phone noise, camera calibration or fitted camera
+nuisances. A single observed circle cannot rule out an unexcited peg. B2 uses a
+fixed bearing-boundary hypothesis family and an uncalibrated conservative CV
+penalty. MDE/power studies, parameter CI coverage, causal identification, sealed
+evaluation and G3 acceptance remain unfinished. No agent, compiler or frontend is
+implemented. Synthetic truth isolation here is a tested dependency/input boundary,
+not the future storage/permission-enforced vault.
+
 ## What's next
 
 1. Independently calibrate the physical rig and camera.
 2. Run a real SAM 3.1 uploaded-MP4 video smoke test using the official parser.
-3. Implement timestamped observation and covariance contracts.
-4. Implement parameter-only and geometric two-circle baselines, then G2/G3.
-5. Only then integrate Muse tool-use and the sealed model-revision evaluation.
+3. Extract real frame PTS and measure stationary/dynamic localization uncertainty.
+4. Apply B0/B1/B2 to calibrated real observations, then establish G2/G3 evidence.
+5. Only after the required gates, integrate Muse tool-use and sealed validation.
 
 See `docs/ENGINEERING_DECISIONS.md` and `docs/META_SMOKE.md`.
 

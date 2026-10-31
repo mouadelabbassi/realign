@@ -7,13 +7,17 @@
 - Check Git status; preserve user changes. Verify any failures independently.
 - Ensure realistic claims in README and artifact provenance.
 
-## Phase 1 — POC-0 mathematical baselines (NEXT)
+## Phase 1 — POC-0 mathematical baselines
 - Implement deterministic synthetic observation generation, well-defined noise and experiment conditions, B0/B1 fixed-structure fitting, B2 one-versus-two-circle geometric fitting.
 - Include unexcited/ambiguous and no-fault cases; do not leak true fault labels into algorithms.
 - Write a reproducible baseline report and comprehensive test coverage.
 - Task: `tasks/CODEX_TASK_01_POC0_BASELINES.md`.
+- Implemented Task 01 evidence: `artifacts/POC0_BASELINES.md`, reproduced by
+  `python scripts/verify_baselines.py`. This completes the bounded synthetic
+  baseline slice, not the full POC-0/G3 research program. See
+  `docs/POC0_BASELINES_IMPLEMENTATION.md` for verification and limitations.
 
-## Phase 2 — G2 perception with real SAM 3.1
+## Phase 2 — G2 perception with real SAM 3.1 (NEXT)
 - Test actual Meta access with `MODEL_API_KEY` locally: Muse response, structured output and tool call; separately SAM MP4 tracking using the documented parser.
 - Add frame-PTS extraction, calibration/coordinate frames, localization uncertainty, track QA and explicit missing frame handling.
 - Obtain a real stationary recording, free pendulum video, and peg video from the user; no invented media or claims.

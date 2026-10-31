@@ -5,4 +5,10 @@
 - Original code in this starter repository implements only the G1 scientific kernel and local synthetic verification.
 - The owner should check official competition rules before making claims about authorship, licensing, and required disclosure.
 - Generated G1 verification uses a deterministic NumPy seed, `20261031`.
+- Task 01 adds synthetic observations and classical B0/B1/B2 baselines, with
+  protocol seed `20261031`, per-trial seeds, observation fingerprints, source
+  SHA-256 and dependency versions recorded in `artifacts/poc0_baselines.json`.
+- Synthetic ground truth is generated independently of fitters and consulted only
+  after fitting for the explicitly labeled evaluation fields. Development trials
+  are disjoint whole synthetic trials; these are not the future sealed trials.
 - No Meta API request or real hardware experiment was performed in this environment.

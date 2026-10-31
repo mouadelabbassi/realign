@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "realign-poc0"
 version = "0.1.0"
-description = "REALIGN: verified hybrid pendulum physics kernel (POC-0 / G1)"
+description = "REALIGN: verified pendulum physics and synthetic classical baselines (POC-0)"
 requires-python = ">=3.11"
 dependencies = ["numpy>=1.26", "scipy>=1.11"]
 

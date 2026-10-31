@@ -1,6 +1,6 @@
 # REALIGN POC-0 — Implementation Decisions (2026-10-31)
 
-Source basis: `REALIGN_Build_Spec_v1_Full.md`, amended after independent review.
+Source basis: `REALIGN_Build_Spec_v1.md`, overridden by `IMPLEMENTATION_CORRECTIONS.md`.
 
 | ID | Decision | Verification |
 |---|---|---|
@@ -19,4 +19,8 @@ The current POC-0 does **not** discover physics. It establishes a mechanically v
 
 ## Original detailed plan
 
-The full Build Spec is preserved separately in the user's conversation attachments. This starter repository intentionally contains only the implemented G1 layer and an unexecuted Muse connectivity script; other packages in that plan are not claimed to exist.
+The full Build Spec is checked in at `docs/REALIGN_Build_Spec_v1.md`. Task 01 adds
+observation contracts, synthetic generation, B0/B1/B2 fitting and reproducible
+synthetic evidence without changing G1. See `POC0_BASELINES_IMPLEMENTATION.md`
+for the precise scope, measured results and remaining G2/G3 work. Later packages
+in the plan are not claimed to exist.
