@@ -1,0 +1,8 @@
+# Implementation provenance
+
+- Creation date: 2026-10-31 (hackathon event window as supplied by project owner).
+- This starter implementation was generated collaboratively with ChatGPT, based on the REALIGN Build Spec v1 document provided by the project owner.
+- Original code in this starter repository implements only the G1 scientific kernel and local synthetic verification.
+- The owner should check official competition rules before making claims about authorship, licensing, and required disclosure.
+- Generated G1 verification uses a deterministic NumPy seed, `20261031`.
+- No Meta API request or real hardware experiment was performed in this environment.
