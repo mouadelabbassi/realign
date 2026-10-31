@@ -93,16 +93,6 @@ evaluation and G3 acceptance remain unfinished. No agent, compiler or frontend i
 implemented. Synthetic truth isolation here is a tested dependency/input boundary,
 not the future storage/permission-enforced vault.
 
-## What's next
-
-1. Independently calibrate the physical rig and camera.
-2. Run a real SAM 3.1 uploaded-MP4 video smoke test using the official parser.
-3. Extract real frame PTS and measure stationary/dynamic localization uncertainty.
-4. Apply B0/B1/B2 to calibrated real observations, then establish G2/G3 evidence.
-5. Only after the required gates, integrate Muse tool-use and sealed validation.
-
-See `docs/ENGINEERING_DECISIONS.md` and `docs/META_SMOKE.md`.
-
 ## Meta API and eligibility
 
 Task 02 adds original-PTS video ingestion, the official SAM 3.1 streamed parser,
