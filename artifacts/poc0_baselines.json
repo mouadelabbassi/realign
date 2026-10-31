@@ -1,7 +1,7 @@
 {
   "scope": "SYNTHETIC ONLY \u2014 NO META API / REAL-WORLD VALIDATION",
   "seed": 20261031,
-  "source_sha256": "8943a230a601a368cc09ccaedc09aae7dc4ab699928699db623c4fae6cc44c5d",
+  "source_sha256": "1fcfc766885563d23716971a4d69e9a0e4dcec84b78330459119755290e96dec",
   "versions": {
     "python": "3.14.0",
     "numpy": "2.3.4",

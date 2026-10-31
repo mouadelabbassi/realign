@@ -1,6 +1,6 @@
-# REALIGN — G1 Physics and POC-0 Classical Baselines
+# REALIGN — Scientific Baselines and G2 Perception Pipeline
 
-**Status: verified physics kernel and synthetic B0/B1/B2 baselines; not yet the completed REALIGN AI investigator.**
+**Status: verified physics/baselines and an offline-tested video/SAM pipeline. G2 is NOT PASSED: actual SAM processing and real recordings remain pending.**
 
 REALIGN aims to audit physics simulations against phone-measured reality,
 request discriminating experiments, propose typed structural corrections and
@@ -35,7 +35,7 @@ Implemented and tested:
 python -m venv .venv
 # Linux/macOS: source .venv/bin/activate
 # Windows PowerShell: .venv\\Scripts\\Activate.ps1
-python -m pip install -e '.[dev]'
+python -m pip install -e '.[dev,perception]'
 python -m pytest -q
 python scripts/verify_g1.py
 python scripts/verify_baselines.py
@@ -104,6 +104,32 @@ not the future storage/permission-enforced vault.
 See `docs/ENGINEERING_DECISIONS.md` and `docs/META_SMOKE.md`.
 
 ## Meta API and eligibility
+
+Task 02 adds original-PTS video ingestion, the official SAM 3.1 streamed parser,
+mask contour centers and tracking QA, planar/lens calibration, independent release
+timing, uncertainty and calibrated B0/B1/B2 interfaces. Original synthetic
+contracts and G1 physics are preserved. Real and synthetic evidence are separate.
+GitHub Actions is configured to run offline tests and verifiers on pushes/pull requests without keys.
+
+    python scripts/verify_g2.py
+
+Read [G2_READINESS.md](artifacts/G2_READINESS.md),
+[G2_IMPLEMENTATION.md](docs/G2_IMPLEMENTATION.md) and the
+[real data collection protocol](docs/REAL_DATA_COLLECTION_PROTOCOL.md).
+The protocol specifies rig construction, phone placement, measured fiducials/pivot,
+stationary/repeated recordings, independent annotations and the frozen split.
+Tracked data folders contain empty markers; example inputs contain no invented
+footage, coordinates or measured length.
+
+Separate actual SAM verification and real processing:
+
+    python scripts/smoke_sam.py data/raw/free/run_001.mp4 --standard-tier-confirmed --output-dir data/processed/sam_smoke
+    python scripts/process_recordings.py configs/g2_manifest.local.json --run-api --output-dir data/processed/g2
+
+Configure local access and complete the example manifest/measurements first.
+Missing inputs produce a pending report. Run without --run-api to reuse matching
+completed real SAM caches. Fixture caches are rejected. No Muse agent, compiler,
+frontend or sealed evaluator was added.
 
 Models have not been called by this package. Use `MODEL_API_KEY` locally for
 the Muse connectivity script and consult Meta's official SAM cookbook for the

@@ -12,3 +12,9 @@
   after fitting for the explicitly labeled evaluation fields. Development trials
   are disjoint whole synthetic trials; these are not the future sealed trials.
 - No Meta API request or real hardware experiment was performed in this environment.
+- Task 02 adds an offline-tested physical observation pipeline, official SAM
+  parser integration and separately executable live commands. Synthetic rendered
+  MP4s and simulated API events remain labeled fixtures. They are not SAM output,
+  human annotations or physical measurements. G2 remains pending real evidence.
+- Original G1 source and numerical baseline algorithms are preserved; video
+  records use separate validated contracts and calibrated fitting dispatch.

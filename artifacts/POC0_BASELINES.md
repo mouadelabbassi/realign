@@ -71,7 +71,7 @@ This small fixed-seed matrix is not an MDE/power study, false-positive calibrati
 
 Observations are exported separately to `poc0_observations.npz`, with public metadata and per-trial SHA-256 fingerprints in JSON. Synthetic truth is written to `poc0_truth_evaluation.json` only for post-fit evaluation. Inference packages have no truth imports or file reads; tests also run fitting in a subprocess denying synthetic imports. This is a dependency/input boundary, not the future OS-enforced sealed vault.
 
-Source SHA-256: `8943a230a601a368cc09ccaedc09aae7dc4ab699928699db623c4fae6cc44c5d`.
+Source SHA-256: `1fcfc766885563d23716971a4d69e9a0e4dcec84b78330459119755290e96dec`.
 
 Environment: `{"matplotlib": "3.10.8", "numpy": "2.3.4", "python": "3.14.0", "scipy": "1.16.3"}`.
 

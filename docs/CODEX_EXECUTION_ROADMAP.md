@@ -17,11 +17,15 @@
   baseline slice, not the full POC-0/G3 research program. See
   `docs/POC0_BASELINES_IMPLEMENTATION.md` for verification and limitations.
 
-## Phase 2 — G2 perception with real SAM 3.1 (NEXT)
+## Phase 2 — G2 perception with real SAM 3.1 (offline implemented; real checks pending)
 - Test actual Meta access with `MODEL_API_KEY` locally: Muse response, structured output and tool call; separately SAM MP4 tracking using the documented parser.
 - Add frame-PTS extraction, calibration/coordinate frames, localization uncertainty, track QA and explicit missing frame handling.
 - Obtain a real stationary recording, free pendulum video, and peg video from the user; no invented media or claims.
 - Integrate observations and simulator predictions in one coordinate frame and measure noise.
+- Task 02 implements offline ingestion/calibration/tracking/uncertainty and real
+  baseline interfaces. Reproduce fixture evidence with python scripts/verify_g2.py.
+  G2 is NOT PASSED: actual phone recordings, measured references, manual reviews
+  and live SAM verification remain pending. Follow REAL_DATA_COLLECTION_PROTOCOL.md.
 
 ## Phase 3 — G3 structural distinguishability
 - Compare B0/B1/B2 and bounded structural B3 on disjoint trials, controlled configurations and noise sweeps.

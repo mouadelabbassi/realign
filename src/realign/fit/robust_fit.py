@@ -4,8 +4,9 @@ import math
 import numpy as np
 from scipy.optimize import least_squares
 from realign.contracts import Trial
+from realign.contracts.video import VideoTrial
 from realign.observation.camera import project
-from realign.observation.noise import whiten
+from realign.observation.noise import whiten,whiten_video
 from realign.physics import PendulumParams, simulate
 
 
@@ -49,6 +50,16 @@ def predict_free(params: PendulumParams, trial: Trial):
     if params.peg is not None:
         raise ValueError('B0/B1 require the original fixed free-pendulum structure')
     exp = trial.experiment
+    if isinstance(trial,VideoTrial):
+        relative=trial.observation.t_s-trial.release.time_s
+        initial=params.length_m*np.array([np.sin(exp.release_angle_rad),-np.cos(exp.release_angle_rad)])
+        xy=np.tile(initial,(len(relative),1))
+        post=relative>=0.
+        times=np.unique(np.r_[0.,relative[post]])
+        if len(times)>1:
+            out=simulate(params,exp.release_angle_rad,exp.release_velocity_rad_per_s,times)
+            xy[post]=out.xy_m[np.searchsorted(times,relative[post])]
+        return project(xy,trial.projection)
     out = simulate(params, exp.release_angle_rad, exp.release_velocity_rad_per_s, trial.observation.t_s)
     return project(out.xy_m, trial.projection)
 
@@ -58,8 +69,12 @@ def residuals_free(params, trials):
     for trial in trials:
         obs = trial.observation
         indices = np.flatnonzero(obs.valid)
-        residual = predict_free(params, trial)[indices]-obs.xy_px[indices]
-        residuals.append(whiten(residual, indices, obs.covariance_px2, obs.ar1_phi).ravel())
+        prediction=predict_free(params,trial)
+        residual = prediction[indices]-obs.xy_px[indices]
+        if isinstance(trial,VideoTrial):
+            residuals.append(whiten_video(residual,trial,prediction).ravel())
+        else:
+            residuals.append(whiten(residual, indices, obs.covariance_px2, obs.ar1_phi).ravel())
     return np.concatenate(residuals)
 
 
@@ -67,6 +82,10 @@ def fit_free(trials, nominal: PendulumParams, options: FitOptions = FitOptions()
     trials = tuple(trials)
     if not trials or nominal.peg is not None:
         raise FitError('B1 needs exploration trials and a nominal free model')
+    if len({t.observation.provenance for t in trials})!=1:
+        raise FitError('cannot mix synthetic and real training data')
+    if any(isinstance(t,VideoTrial) and t.zone!='exploration' for t in trials):
+        raise FitError('video fitting is restricted to exploration recordings')
     if len({t.trial_id for t in trials}) != len(trials):
         raise FitError('duplicate training trial IDs')
     if any(t.observation.valid.sum() < 12 for t in trials):

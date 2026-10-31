@@ -1,0 +1,49 @@
+name: REALIGN scientific regression
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  offline-verification:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.11", "3.12"]
+    env:
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      MPLBACKEND: Agg
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+      - name: Install FFmpeg and offline test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          python -m pip install -e ".[dev,perception]"
+      - name: Unit and integration tests (no credentials)
+        run: python -m pytest -q
+      - name: Reproduce numerical and offline perception evidence
+        run: |
+          python scripts/verify_g1.py
+          python scripts/verify_baselines.py
+          python scripts/verify_g2.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: synthetic-evidence-python-${{ matrix.python }}
+          path: |
+            artifacts/G1_REPORT.md
+            artifacts/g1_verification.json
+            artifacts/POC0_BASELINES.md
+            artifacts/poc0_baselines.json
+            artifacts/G2_READINESS.md
+            artifacts/g2_readiness.json
+            artifacts/g2_fixture_comparison.png

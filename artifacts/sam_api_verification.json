@@ -1,0 +1,11 @@
+{
+  "scope": "ACTUAL SAM API VERIFICATION ONLY; fixtures excluded",
+  "status": "not_run",
+  "successful_calls": 0,
+  "failed_calls": 0,
+  "blockers": [
+    "MODEL_API_KEY is not configured locally",
+    "actual local phone MP4 not supplied",
+    "Standard tier has not been confirmed"
+  ]
+}

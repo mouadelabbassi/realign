@@ -7,7 +7,8 @@ passes share the same geometry. This is geometric reconstruction, not dynamics.
 from dataclasses import dataclass
 import numpy as np
 from scipy.optimize import least_squares
-from realign.observation.camera import unproject
+from realign.observation.camera import unproject,camera_jacobian
+from realign.contracts.video import VideoTrial
 
 
 class CircleFitError(RuntimeError):
@@ -91,6 +92,12 @@ def _points(trials):
     for trial in trials:
         obs = trial.observation
         points.append(unproject(obs.xy_px[obs.valid], trial.projection))
+        if isinstance(trial,VideoTrial):
+            jac=camera_jacobian(obs.xy_px[obs.valid],trial.projection)
+            metric_cov=jac@obs.frame_covariance_px2[obs.valid]@jac.transpose(0,2,1)
+            sigmas.extend(np.sqrt(np.maximum(np.linalg.eigvalsh(metric_cov)[:,-1],1e-18)))
+            scales.extend(1/np.sqrt(np.abs(np.linalg.det(jac))))
+            continue
         scales.extend([trial.projection.scale_px_per_m]*int(obs.valid.sum()))
         # Conservative largest localization standard deviation for anisotropic noise.
         sigma = np.sqrt(max(0., np.linalg.eigvalsh(obs.covariance_px2).max()))/trial.projection.scale_px_per_m
@@ -133,6 +140,10 @@ def _fit_two(trials):
 
 def fit_geometry(trials):
     trials = tuple(trials)
+    if len({t.observation.provenance for t in trials})>1:
+        raise ValueError('cannot mix synthetic and real geometry')
+    if any(isinstance(t,VideoTrial) and t.zone!='exploration' for t in trials):
+        raise ValueError('video geometry fitting is restricted to exploration recordings')
     if not trials or any(t.observation.valid.sum() < 24 for t in trials):
         return GeometryFit('ambiguous', 'insufficient valid geometry samples')
     if len({t.trial_id for t in trials}) != len(trials):
@@ -187,4 +198,9 @@ def score_geometry(fit: GeometryFit, trials):
         return {'radial_rmse_px': None, 'valid_samples': 0}
     points, scales, _ = _points(trials)
     distance_px = _distances(points, fit.first_circle, fit.second_circle, fit.threshold_rad, fit.second_side)*scales
-    return {'radial_rmse_px': float(np.sqrt(np.mean(distance_px**2))), 'valid_samples': len(points)}
+    score={'radial_rmse_px': float(np.sqrt(np.mean(distance_px**2))), 'valid_samples': len(points)}
+    if trials and isinstance(trials[0],VideoTrial):
+        distance_m=_distances(points,fit.first_circle,fit.second_circle,fit.threshold_rad,fit.second_side)
+        score['radial_rmse_m']=float(np.sqrt(np.mean(distance_m**2)))
+        score['pixel_score_note']='local-area-scale equivalent; metric radial reconstruction is primary'
+    return score

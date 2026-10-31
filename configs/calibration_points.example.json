@@ -1,0 +1,16 @@
+{
+  "source": "TO_BE_MEASURED",
+  "calibration_id": "camera_setup_01",
+  "unit": "m",
+  "image_size": null,
+  "board_xy_m": [],
+  "image_xy_px": [],
+  "pivot_px": null,
+  "hanging_px": null,
+  "check_board_xy_m": [],
+  "check_image_xy_px": [],
+  "camera_matrix": null,
+  "distortion": null,
+  "intrinsics_id": null,
+  "lens_rms_px": null
+}

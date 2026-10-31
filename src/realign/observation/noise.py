@@ -35,3 +35,31 @@ def whiten(residual_px, sample_indices, covariance_px2, ar1_phi):
         a = ar1_phi**np.diff(indices)
         innovations[1:] = (z[1:]-a[:, None]*z[:-1])/np.sqrt(1-a[:, None]**2)
     return innovations
+
+
+def whiten_video(residual_px,trial,prediction_px):
+    """Heteroscedastic localization + PTS rounding + COMMON release-time error.
+
+    Release covariance is a rank-one term across the entire recording, not N
+    independent timing errors. This is a linearized uncertainty calculation.
+    """
+    obs=trial.observation
+    indices=np.flatnonzero(obs.valid)
+    velocity=np.gradient(prediction_px,obs.t_s,axis=0)[indices]
+    c=obs.frame_covariance_px2[indices].copy()
+    c+=obs.timestamp_sigma_s**2*velocity[:,:,None]*velocity[:,None,:]
+    roots=np.linalg.cholesky(c)
+    z=np.linalg.solve(roots,np.asarray(residual_px)[...,None])[...,0]
+    a=np.linalg.solve(roots,(-velocity*trial.release.sigma_s)[...,None])[...,0]
+    if obs.ar1_phi and len(indices)>1:
+        correlation=obs.ar1_phi**(np.diff(obs.t_s[indices])/obs.noise.reference_dt_s)
+        def innovations(value):
+            v=value.copy()
+            v[1:]=(value[1:]-correlation[:,None]*value[:-1])/np.sqrt(1-correlation[:,None]**2)
+            return v
+        z=innovations(z); a=innovations(a)
+    flat=z.ravel(); sensitivity=a.ravel()
+    norm=float(sensitivity@sensitivity)
+    if norm>1e-20:
+        flat=flat-(1-1/np.sqrt(1+norm))*sensitivity*(sensitivity@flat)/norm
+    return flat.reshape(-1,2)

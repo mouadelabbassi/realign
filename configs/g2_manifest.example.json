@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "source_kind": "REAL_PHONE",
+  "standard_tier_confirmed": false,
+  "calibration_file": "../data/calibration/points.json",
+  "manual_reviews": "../data/reviews/annotations.json",
+  "nominal_params": {
+    "length_m": null,
+    "g": 9.80665,
+    "gamma_per_s": 0.06,
+    "quadratic_drag_per_m": 0.0
+  },
+  "stationary": {
+    "id": "stationary_01",
+    "video": "../data/raw/stationary/stationary_01.mp4",
+    "object_id": null
+  },
+  "exploration": [
+    {"id": "run_001", "video": "../data/raw/free/run_001.mp4", "comparison_group": "setup_01", "repeat_group": "angle_a"},
+    {"id": "run_002", "video": "../data/raw/free/run_002.mp4", "comparison_group": "setup_01", "repeat_group": "angle_a"},
+    {"id": "run_003", "video": "../data/raw/free/run_003.mp4", "comparison_group": "setup_01", "repeat_group": "angle_a"},
+    {"id": "run_004", "video": "../data/raw/free/run_004.mp4", "comparison_group": "setup_01"},
+    {"id": "run_101", "video": "../data/raw/peg/run_101.mp4", "comparison_group": "setup_02"},
+    {"id": "run_102", "video": "../data/raw/peg/run_102.mp4", "comparison_group": "setup_02"}
+  ],
+  "development": [
+    {"id": "dev_001", "video": "../data/raw/development/dev_001.mp4", "comparison_group": "setup_01"},
+    {"id": "dev_101", "video": "../data/raw/development/dev_101.mp4", "comparison_group": "setup_02"}
+  ]
+}
