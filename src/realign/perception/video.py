@@ -21,7 +21,7 @@ def file_sha256(path):
     return h.hexdigest()
 
 
-def metadata_from_ffprobe(data, *, video_sha256, source_kind,recording_start_utc=None):
+def metadata_from_ffprobe(data, *, video_sha256, source_kind,recording_start_utc=None,external_source=None):
     try:
         stream=data['streams'][0]
         pts=[]
@@ -43,12 +43,12 @@ def metadata_from_ffprobe(data, *, video_sha256, source_kind,recording_start_utc
         width,height=(h,w) if rotation%180 else (w,h)
         return VideoMetadata(video_sha256,source_kind,width,height,w,h,tuple(pts),time_base,
                              stream.get('codec_name','unknown'),rotation,recording_start_utc,
-                             stream.get('tags',{}).get('creation_time',data.get('format',{}).get('tags',{}).get('creation_time')))
+                             stream.get('tags',{}).get('creation_time',data.get('format',{}).get('tags',{}).get('creation_time')),external_source)
     except (KeyError,IndexError,TypeError,ValueError,ZeroDivisionError) as exc:
         raise VideoError(f'invalid video metadata/PTS: {exc}') from exc
 
 
-def probe_video(path, *, source_kind='REAL_PHONE',recording_start_utc=None):
+def probe_video(path, *, source_kind='REAL_PHONE',recording_start_utc=None,external_source=None):
     path=Path(path).resolve()
     if not path.is_file():
         raise VideoError('video file does not exist')
@@ -60,7 +60,7 @@ def probe_video(path, *, source_kind='REAL_PHONE',recording_start_utc=None):
         if float(data.get('format',{}).get('duration',0))>60.1:
             raise VideoError('recordings must be <=60 seconds')
         return metadata_from_ffprobe(data,video_sha256=file_sha256(path),source_kind=source_kind,
-                                     recording_start_utc=recording_start_utc)
+                                     recording_start_utc=recording_start_utc,external_source=external_source)
     except (OSError,subprocess.SubprocessError,json.JSONDecodeError) as exc:
         raise VideoError(f'ffprobe failed ({type(exc).__name__}); install FFmpeg and use a valid local clip') from exc
 

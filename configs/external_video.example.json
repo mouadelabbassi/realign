@@ -1,0 +1,17 @@
+{
+  "source_kind": "REAL_EXTERNAL",
+  "provenance": {
+    "source_page_url": "https://commons.wikimedia.org/wiki/File:Blocked-pendulum-slow-motion.webm",
+    "original_video_url": "https://upload.wikimedia.org/wikipedia/commons/b/b7/Blocked-pendulum-slow-motion.webm",
+    "creator": "MikeRun",
+    "license_id": "CC-BY-SA-4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "attribution": "Blocked-pendulum-slow-motion.webm by MikeRun, Wikimedia Commons, CC BY-SA 4.0, original dated 2025-10-28.",
+    "original_sha256": "b51517e260e620b306a91f8b2dbd1cc8c2fa8d74250cc05e5210cfe7f8f4315a",
+    "processed_sha256": "8989ec961c6bcfd86edb6826a0b1b9569cb8bb4d11d5097904afd4aa5ad82213",
+    "modifications": "Local FFmpeg H.264 CRF18 yuv420p MP4 transcode, audio removed, presentation timestamps preserved within time-base quantization. No crop, resampling or change of playback rate. Derived media remains CC BY-SA 4.0. Hash is specific to the recorded encoder build; other encoders must record a new processed hash.",
+    "physical_recording": true,
+    "capture_time_scale_verified": false
+  },
+  "limitations": ["Slow-motion playback; physical capture time scale unverified", "No measured planar calibration, pivot, bob length or tracking annotations", "External tracking integration only; cannot satisfy phone G2 or real dynamics validation"]
+}

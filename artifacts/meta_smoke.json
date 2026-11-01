@@ -1,0 +1,12 @@
+{
+  "status": "NOT_RUN",
+  "source": "REAL_API",
+  "model": "muse-spark-1.3",
+  "successful_calls": 0,
+  "failed_calls": 0,
+  "calls": [],
+  "blockers": [
+    "MODEL_API_KEY is not configured locally"
+  ],
+  "documentation_mismatch": "NOT_ASSESSED: no live request"
+}

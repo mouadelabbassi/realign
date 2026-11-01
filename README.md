@@ -27,7 +27,7 @@ Implemented and tested:
   leave-one-whole-training-trial-out comparison.
 - Disjoint synthetic development trials, no-fault and unexcited controls, explicit
   ambiguous cases, solver-failure tests and truth dependency/input checks.
-- A **not-yet-executed** Meta Muse API connectivity smoke-test script.
+- Separately executable Meta capability probes; actual network verification remains pending.
 
 ## Install and run
 
@@ -39,6 +39,7 @@ python -m pip install -e '.[dev,perception]'
 python -m pytest -q
 python scripts/verify_g1.py
 python scripts/verify_baselines.py
+python scripts/verify_structural.py
 ```
 
 Outputs: `artifacts/G1_REPORT.md`, `artifacts/g1_verification.json`,
@@ -121,6 +122,39 @@ Missing inputs produce a pending report. Run without --run-api to reuse matching
 completed real SAM caches. Fixture caches are rejected. No Muse agent, compiler,
 frontend or sealed evaluator was added.
 
-Models have not been called by this package. Use `MODEL_API_KEY` locally for
-the Muse connectivity script and consult Meta's official SAM cookbook for the
-video API. Full accepted-participant hackathon rules must still be checked.
+Models have not been called by this package. Keep MODEL_API_KEY local and use
+the separate smoke commands. Full accepted-participant hackathon rules must
+still be checked.
+
+## Task 03 structural dynamics and API readiness
+
+B3 fits the validated peg-contact dynamics with deterministic bounded multistart
+least squares, directed events, complete trajectories, explicit failed starts
+and local sensitivity diagnostics. Run python scripts/verify_structural.py for
+the fixed synthetic comparison on whole exploration/development trials. See
+[B3_BASELINES.md](artifacts/B3_BASELINES.md) and
+[TASK03_IMPLEMENTATION.md](docs/TASK03_IMPLEMENTATION.md). B2 radial error remains
+a separate geometric statistic. Predictive accuracy alone does not identify a
+physical mechanism. Full null-calibrated structural selection and G3 remain pending.
+
+Muse structured output and a validated local numerical tool round trip are
+implemented as separate probes, not an investigator:
+
+    python scripts/smoke_meta.py --standard-tier-confirmed
+
+External physical video ingestion has its own REAL_EXTERNAL provenance with
+source URLs, creator, open license and original/processed hashes:
+
+    python scripts/prepare_external_video.py --download
+    python scripts/smoke_sam.py data/raw/external/blocked-pendulum.mp4 --external-source artifacts/external_source_verified.json --standard-tier-confirmed
+
+The attributed MikeRun CC BY-SA 4.0 example is slow motion. It has no verified
+physical time scale or measured camera calibration and cannot supply dynamics
+metrics or satisfy the phone G2 gate. Actual SAM/Muse API checks remain NOT_RUN
+without a locally configured key. No external clip is classified as self-recorded
+phone footage. Public external provenance is separate from synthetic test fixtures.
+
+The next investigator phase has five closed typed schema pairs in
+[INVESTIGATOR_TOOL_CONTRACTS.md](docs/INVESTIGATOR_TOOL_CONTRACTS.md) and
+[investigator_tool_schemas.json](docs/investigator_tool_schemas.json).
+These are schemas only; tool handlers, agent, compiler and frontend are not implemented.

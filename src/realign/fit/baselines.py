@@ -25,6 +25,8 @@ def check_split(training, heldout):
     if any(isinstance(t,VideoTrial) for t in all_trials):
         if not all(isinstance(t,VideoTrial) for t in all_trials):
             raise ValueError('video and direct synthetic observations require separate comparisons')
+        if len({t.observation.metadata.source_kind for t in all_trials}) != 1:
+            raise ValueError('phone and external recordings require separate comparisons')
         if any(t.zone!='exploration' for t in training) or any(t.zone!='development' for t in heldout):
             raise ValueError('video fitting uses exploration; heldout scoring uses disjoint development recordings')
         if len({t.observation.metadata.video_sha256 for t in all_trials})!=len(all_trials):

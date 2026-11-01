@@ -1,0 +1,209 @@
+{
+  "scope": "Task03 verified synthetic science, external ingestion, and explicit live/physical evidence boundaries",
+  "git_head": "5bdc734cffedb904b986d56895c0507e1fe787fd",
+  "source_sha256": "7cb6d4326db273a41803e88e6cde5710f784c5602187c3d00f18bd93a52e0e21",
+  "versions": {
+    "python": "3.14.0",
+    "numpy": "2.5.4",
+    "scipy": "1.18.1",
+    "matplotlib": "3.11.2",
+    "pydantic": "2.14.2",
+    "pytest": "9.2.0",
+    "openai": "2.54.0",
+    "meta-sam-parser": "0.1.0",
+    "opencv-python-headless": "4.14.0.94"
+  },
+  "numerical_environment": {
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "commands": [
+    ".\\.venv\\Scripts\\python.exe -m pytest -q --junitxml=data/processed/task03_full_tests.xml",
+    ".\\.venv\\Scripts\\python.exe scripts/verify_g1.py",
+    ".\\.venv\\Scripts\\python.exe scripts/verify_baselines.py --output-dir data/processed/task03_regression/baselines",
+    ".\\.venv\\Scripts\\python.exe scripts/verify_g2.py --output-dir data/processed/task03_regression/g2",
+    ".\\.venv\\Scripts\\python.exe scripts/verify_structural.py",
+    ".\\.venv\\Scripts\\python.exe scripts/prepare_external_video.py",
+    ".\\.venv\\Scripts\\python.exe scripts/prepare_external_video.py --processed data/raw/external/reencoded-task03.mp4 --output-dir data/processed/task03_external_reencode",
+    ".\\.venv\\Scripts\\python.exe scripts/smoke_meta.py --standard-tier-confirmed",
+    ".\\.venv\\Scripts\\python.exe scripts/smoke_sam.py data/raw/external/blocked-pendulum.mp4 --external-source artifacts/external_source_verified.json --standard-tier-confirmed --output-dir data/processed/task03_api_external"
+  ],
+  "initial_suite": {
+    "passed": 72,
+    "elapsed_s": 783.61
+  },
+  "initial_structural_tests": {
+    "passed": 18,
+    "failed": 2,
+    "reported_elapsed_s": 45742.99,
+    "note": "Raw reported elapsed spans a long session gap; not a runtime benchmark. Missing failure-branch uncertainty field and incorrect slack-test assumption were fixed."
+  },
+  "corrected_selected_tests": {
+    "passed": 26,
+    "deselected": 17,
+    "elapsed_s": 412.22
+  },
+  "final_suite": {
+    "tests": 115,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "junit_time_s": 3065.118,
+    "reported_elapsed_s": 3065.21
+  },
+  "G1": {
+    "cases": 250,
+    "failures": 0,
+    "transitions": 1516,
+    "physics_source_unchanged": true,
+    "latest_observed_elapsed_s": 30.85
+  },
+  "previous_baselines": {
+    "acceptance_checks": 13,
+    "passed": true,
+    "preservation": {
+      "old_versions": {
+        "python": "3.14.0",
+        "numpy": "2.3.4",
+        "scipy": "1.16.3",
+        "matplotlib": "3.10.8"
+      },
+      "new_versions": {
+        "python": "3.14.0",
+        "numpy": "2.5.4",
+        "scipy": "1.18.1",
+        "matplotlib": "3.11.2"
+      },
+      "rows": [
+        {
+          "case": "no_fault",
+          "old_B1_rmse_px": 0.7215312716487441,
+          "new_B1_rmse_px": 0.7215225280268615,
+          "delta_B1_rmse_px": -8.743621882634223e-06,
+          "B2_decision_unchanged": true
+        },
+        {
+          "case": "parameter_fault",
+          "old_B1_rmse_px": 0.6890414482478886,
+          "new_B1_rmse_px": 0.6890414117937302,
+          "delta_B1_rmse_px": -3.645415835862309e-08,
+          "B2_decision_unchanged": true
+        },
+        {
+          "case": "vertical_peg",
+          "old_B1_rmse_px": 39.771478191013166,
+          "new_B1_rmse_px": 39.76485781267117,
+          "delta_B1_rmse_px": -0.006620378341999356,
+          "B2_decision_unchanged": true
+        },
+        {
+          "case": "off_vertical_peg",
+          "old_B1_rmse_px": 22.87373550018189,
+          "new_B1_rmse_px": 22.873987650055746,
+          "delta_B1_rmse_px": 0.00025214987385524523,
+          "B2_decision_unchanged": true
+        },
+        {
+          "case": "unexcited_peg",
+          "old_B1_rmse_px": 0.6968073715372259,
+          "new_B1_rmse_px": 0.6968049428852056,
+          "delta_B1_rmse_px": -2.4286520203808948e-06,
+          "B2_decision_unchanged": true
+        },
+        {
+          "case": "short_arc",
+          "old_B1_rmse_px": 0.6774236778029878,
+          "new_B1_rmse_px": 0.6774236768227482,
+          "delta_B1_rmse_px": -9.802396672142777e-10,
+          "B2_decision_unchanged": true
+        }
+      ]
+    }
+  },
+  "offline_G2": {
+    "acceptance_checks": 8,
+    "passed": true,
+    "physical_gate_passed": false,
+    "fixture_tracking_rmse_px": 0.38947215951743375
+  },
+  "B3": {
+    "cases": 8,
+    "acceptance_checks": 9,
+    "passed": true,
+    "full_matrix_numerical_reproduction_excluding_source_hash": true,
+    "full_G3_passed": false
+  },
+  "Meta": {
+    "muse": {
+      "status": "NOT_RUN",
+      "source": "REAL_API",
+      "model": "muse-spark-1.3",
+      "successful_calls": 0,
+      "failed_calls": 0,
+      "calls": [],
+      "blockers": [
+        "MODEL_API_KEY is not configured locally"
+      ],
+      "documentation_mismatch": "NOT_ASSESSED: no live request"
+    },
+    "SAM_external": {
+      "status": "not_run",
+      "successful_calls": 0,
+      "failed_calls": 0
+    },
+    "documentation_vs_live_behavior": "NOT_ASSESSED; no local MODEL_API_KEY"
+  },
+  "external_video": {
+    "status": "PASS",
+    "source_kind": "REAL_EXTERNAL",
+    "decoded_frames": 600,
+    "timestamp_difference_s": 0.0003333333333337407,
+    "provenance": {
+      "source_page_url": "https://commons.wikimedia.org/wiki/File:Blocked-pendulum-slow-motion.webm",
+      "original_video_url": "https://upload.wikimedia.org/wikipedia/commons/b/b7/Blocked-pendulum-slow-motion.webm",
+      "creator": "MikeRun",
+      "license_id": "CC-BY-SA-4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "attribution": "Blocked-pendulum-slow-motion.webm by MikeRun, Wikimedia Commons, CC BY-SA 4.0, original dated 2025-10-28.",
+      "original_sha256": "b51517e260e620b306a91f8b2dbd1cc8c2fa8d74250cc05e5210cfe7f8f4315a",
+      "processed_sha256": "8989ec961c6bcfd86edb6826a0b1b9569cb8bb4d11d5097904afd4aa5ad82213",
+      "modifications": "Local FFmpeg H.264 CRF18 yuv420p MP4 transcode, audio removed, presentation timestamps preserved within time-base quantization. No crop, resampling or change of playback rate. Derived media remains CC BY-SA 4.0. Hash is specific to the recorded encoder build; other encoders must record a new processed hash.",
+      "physical_recording": true,
+      "capture_time_scale_verified": false
+    },
+    "fresh_cli_transcode_and_decode_status": "PASS",
+    "reencoded_sha256": "8989ec961c6bcfd86edb6826a0b1b9569cb8bb4d11d5097904afd4aa5ad82213",
+    "SAM_tracking": "NOT_RUN",
+    "physical_time_scale_verified": false,
+    "metric_dynamics_validated": false,
+    "phone_G2_evidence": false
+  },
+  "CI": {
+    "existing_run": "https://github.com/mouadelabbassi/realign/actions/runs/41249571396",
+    "existing_conclusion": "success",
+    "updated_workflow_hosted_run": "NOT_RUN; uncommitted local changes",
+    "timeout_minutes": 90
+  },
+  "pending": [
+    "Authorized local Meta API access and Standard tier",
+    "Actual SAM masks and live Muse capability evidence",
+    "Phone stationary/repeated free/peg videos",
+    "Measured camera/pivot/scale calibration and independent frame review",
+    "Monte Carlo null calibration, power/CI coverage and interventions before structural identification"
+  ],
+  "not_implemented": [
+    "Muse investigator",
+    "General structural compiler",
+    "Frontend",
+    "Sealed evaluator",
+    "Experiment scoring handlers"
+  ],
+  "offline_installation": {
+    "status": "PASS",
+    "method": "Built editable wheel with installed global setuptools 80.9.0, installed locally with --no-index --no-deps; pip check passed",
+    "initial_network_installation": "PASS",
+    "repeat_isolated_build_download": "FAILED_DNS",
+    "runtime_and_source_location_verified": true
+  }
+}

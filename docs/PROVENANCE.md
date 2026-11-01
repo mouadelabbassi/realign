@@ -18,3 +18,15 @@
   human annotations or physical measurements. G2 remains pending real evidence.
 - Original G1 source and numerical baseline algorithms are preserved; video
   records use separate validated contracts and calibrated fitting dispatch.
+- Task 03 adds observation-only B3 fitting and a fixed synthetic comparison
+  protocol with seed 20261101, disjoint whole trials and no automatic repair claim.
+  Actual source hashes and dependency versions accompany each generated report.
+- The third-party physical clip is MikeRun's Blocked-pendulum-slow-motion.webm
+  (2025-10-28), CC BY-SA 4.0, attributed in configs/external_video.example.json.
+  Original/derivative hashes, URLs and modifications remain REAL_EXTERNAL, never
+  REAL_PHONE or SYNTHETIC_RENDER. The local transcode removes audio and retains
+  the share-alike license. No verified capture time scale or metric calibration
+  exists, so the clip supplies ingestion/tracking-integration media only.
+- No live Meta API request occurred in Task 03: no local key is configured.
+  Muse structured/tool probes and SAM network processing remain NOT_RUN.
+  Simulated API fixtures do not count as actual calls or physical measurements.

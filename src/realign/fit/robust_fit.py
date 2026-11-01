@@ -84,6 +84,8 @@ def fit_free(trials, nominal: PendulumParams, options: FitOptions = FitOptions()
         raise FitError('B1 needs exploration trials and a nominal free model')
     if len({t.observation.provenance for t in trials})!=1:
         raise FitError('cannot mix synthetic and real training data')
+    if len({getattr(getattr(t.observation, 'metadata', None), 'source_kind', None) for t in trials}) != 1:
+        raise FitError('phone and external training recordings must stay separate')
     if any(isinstance(t,VideoTrial) and t.zone!='exploration' for t in trials):
         raise FitError('video fitting is restricted to exploration recordings')
     if len({t.trial_id for t in trials}) != len(trials):

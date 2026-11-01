@@ -1,0 +1,5580 @@
+{
+  "scope": "SYNTHETIC ONLY - NO LIVE META OR REAL DYNAMICS VALIDATION",
+  "seed": 20261101,
+  "source_sha256": "7cb6d4326db273a41803e88e6cde5710f784c5602187c3d00f18bd93a52e0e21",
+  "versions": {
+    "python": "3.14.0",
+    "numpy": "2.5.4",
+    "scipy": "1.18.1"
+  },
+  "cases": [
+    {
+      "training_trial_ids": [
+        "obs-0-0",
+        "obs-0-1"
+      ],
+      "heldout_trial_ids": [
+        "obs-0-2",
+        "obs-0-3",
+        "obs-0-4",
+        "obs-0-5",
+        "obs-0-6"
+      ],
+      "B0": {
+        "params": {
+          "length_m": 0.72,
+          "g": 9.80665,
+          "gamma_per_s": 0.06,
+          "quadratic_drag_per_m": 0.02,
+          "peg": null
+        },
+        "training": {
+          "rmse_xy_px": 0.702616816976238,
+          "mse_xy_px2": 0.4936703914978203,
+          "assumed_noise_floor_mse_px2": 0.5,
+          "nrmse": 0.0016264278170746254,
+          "excess_nrmse": 0.0,
+          "innovation_mean_square_per_coordinate": 0.9873407829956408,
+          "lag1_x": -0.1092382174239211,
+          "valid_samples": 126
+        },
+        "heldout": {
+          "rmse_xy_px": 0.7223112636371533,
+          "mse_xy_px2": 0.521733561577101,
+          "assumed_noise_floor_mse_px2": 0.5,
+          "nrmse": 0.0016720168139748917,
+          "excess_nrmse": 0.0003412571065511672,
+          "innovation_mean_square_per_coordinate": 1.043467123154202,
+          "lag1_x": 0.0057669615655929415,
+          "valid_samples": 315
+        }
+      },
+      "B1": {
+        "success": true,
+        "params": {
+          "length_m": 0.7200189975265309,
+          "g": 9.80665,
+          "gamma_per_s": 0.059042729141791775,
+          "quadratic_drag_per_m": 0.020905818382026573,
+          "peg": null
+        },
+        "starts": [
+          {
+            "initial": {
+              "length_m": 0.72,
+              "g": 9.80665,
+              "gamma_per_s": 0.06,
+              "quadratic_drag_per_m": 0.02,
+              "peg": null
+            },
+            "success": true,
+            "cost": 89.77712473322576,
+            "nfev": 13,
+            "status": 4,
+            "message": "Both `ftol` and `xtol` termination conditions are satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7200188053899051,
+              "g": 9.80665,
+              "gamma_per_s": 0.059045329884443075,
+              "quadratic_drag_per_m": 0.020905158443987146,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7474506578910146,
+              "g": 9.80665,
+              "gamma_per_s": 0.248528137422,
+              "quadratic_drag_per_m": 0.439230484542,
+              "peg": null
+            },
+            "success": true,
+            "cost": 89.77726392467198,
+            "nfev": 24,
+            "status": 3,
+            "message": "`xtol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7200187508497107,
+              "g": 9.80665,
+              "gamma_per_s": 0.05909397437337454,
+              "quadratic_drag_per_m": 0.020863407621161692,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.5078931690742823,
+              "g": 9.80665,
+              "gamma_per_s": 0.497056274844,
+              "quadratic_drag_per_m": 0.2784609690839999,
+              "peg": null
+            },
+            "success": true,
+            "cost": 89.77730506982877,
+            "nfev": 20,
+            "status": 2,
+            "message": "`ftol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7200193138940775,
+              "g": 9.80665,
+              "gamma_per_s": 0.0589744768693491,
+              "quadratic_drag_per_m": 0.02095965409272727,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.9490627084073112,
+              "g": 9.80665,
+              "gamma_per_s": 0.14558441226599997,
+              "quadratic_drag_per_m": 0.11769145362599999,
+              "peg": null
+            },
+            "success": true,
+            "cost": 89.77713064818661,
+            "nfev": 24,
+            "status": 2,
+            "message": "`ftol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7200188892257025,
+              "g": 9.80665,
+              "gamma_per_s": 0.059057835438843326,
+              "quadratic_drag_per_m": 0.020892942701404387,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.6448886779807936,
+              "g": 9.80665,
+              "gamma_per_s": 0.394112549688,
+              "quadratic_drag_per_m": 0.5569219381679998,
+              "peg": null
+            },
+            "success": true,
+            "cost": 89.77711282769931,
+            "nfev": 26,
+            "status": 3,
+            "message": "`xtol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7200189975265309,
+              "g": 9.80665,
+              "gamma_per_s": 0.059042729141791775,
+              "quadratic_drag_per_m": 0.020905818382026573,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.43820224238473715,
+              "g": 9.80665,
+              "gamma_per_s": 0.04264068710999993,
+              "quadratic_drag_per_m": 0.3961524227099998,
+              "peg": null
+            },
+            "success": true,
+            "cost": 89.7779760387514,
+            "nfev": 25,
+            "status": 2,
+            "message": "`ftol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7200195744235538,
+              "g": 9.80665,
+              "gamma_per_s": 0.058903821772777844,
+              "quadratic_drag_per_m": 0.021015495704515677,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.8188363858994737,
+              "g": 9.80665,
+              "gamma_per_s": 0.29116882453199994,
+              "quadratic_drag_per_m": 0.23538290725199998,
+              "peg": null
+            },
+            "success": true,
+            "cost": 89.77722743458679,
+            "nfev": 18,
+            "status": 4,
+            "message": "Both `ftol` and `xtol` termination conditions are satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7200192071021635,
+              "g": 9.80665,
+              "gamma_per_s": 0.0589892087515647,
+              "quadratic_drag_per_m": 0.020948785616068034,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.5563998139506023,
+              "g": 9.80665,
+              "gamma_per_s": 0.539696961954,
+              "quadratic_drag_per_m": 0.07461339179399963,
+              "peg": null
+            },
+            "success": true,
+            "cost": 89.77717586608603,
+            "nfev": 26,
+            "status": 4,
+            "message": "Both `ftol` and `xtol` termination conditions are satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7200188465549529,
+              "g": 9.80665,
+              "gamma_per_s": 0.059073969865723365,
+              "quadratic_drag_per_m": 0.020879330422591554,
+              "peg": null
+            }
+          }
+        ],
+        "robust_cost": 89.77711282769931,
+        "f_scale": 1.0158519448465575,
+        "jacobian_singular_values": [
+          10525.6452315028,
+          2778.587080855511,
+          348.51615347507163
+        ],
+        "warnings": [],
+        "training": {
+          "rmse_xy_px": 0.7024304831461673,
+          "mse_xy_px2": 0.4934085836529581,
+          "assumed_noise_floor_mse_px2": 0.5,
+          "nrmse": 0.0016259964887642762,
+          "excess_nrmse": 0.0,
+          "innovation_mean_square_per_coordinate": 0.9868171673059164,
+          "lag1_x": -0.11125777871440162,
+          "valid_samples": 126
+        },
+        "heldout": {
+          "rmse_xy_px": 0.7204903671050962,
+          "mse_xy_px2": 0.5191063690912362,
+          "assumed_noise_floor_mse_px2": 0.5,
+          "nrmse": 0.001667801775706241,
+          "excess_nrmse": 0.0003199671070685515,
+          "innovation_mean_square_per_coordinate": 1.0382127381824722,
+          "lag1_x": -7.498485542803013e-05,
+          "valid_samples": 315
+        }
+      },
+      "B2": {
+        "decision": "one_circle_only",
+        "reason": "no supported second pivot; unexcited mechanisms remain possible",
+        "first_circle": {
+          "center_m": [
+            0.0,
+            0.0
+          ],
+          "radius_m": 0.7200730297890957,
+          "arc_span_rad": 1.2559135771150958,
+          "radial_rmse_m": 0.000804414934523054
+        },
+        "second_circle": null,
+        "threshold_rad": null,
+        "second_side": null,
+        "cv_one_score": 117.56834820539135,
+        "cv_two_score": 123.07130780240249,
+        "complexity_penalty": 27.169173638662205,
+        "failed_candidates": 35,
+        "training": {
+          "radial_rmse_px": 0.48264896071383245,
+          "valid_samples": 126
+        },
+        "heldout": {
+          "radial_rmse_px": 0.5028028476275005,
+          "valid_samples": 315
+        }
+      },
+      "comparison_scope": "predefined FREE versus ideal one-peg dynamics; no automatic repair/discovery claim",
+      "B3": {
+        "success": true,
+        "params": {
+          "length_m": 0.7200780419948409,
+          "g": 9.80665,
+          "gamma_per_s": 0.059235294542052216,
+          "quadratic_drag_per_m": 0.020701569628643824,
+          "peg": {
+            "distance_m": 0.003949160921701453,
+            "angle_rad": -0.49086521126854016,
+            "contact_side": -1,
+            "kappa_in": 1.0,
+            "kappa_out": 1.0
+          }
+        },
+        "starts": [
+          {
+            "initial": {
+              "length_m": 0.7200189975265309,
+              "g": 9.80665,
+              "gamma_per_s": 0.059042729141791775,
+              "quadratic_drag_per_m": 0.020905818382026573,
+              "peg": {
+                "distance_m": 0.1584041794558368,
+                "angle_rad": 0.0,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 117,
+            "status": 3,
+            "nfev": 32,
+            "cost": 89.77711092563229,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7200189745462363,
+              "g": 9.80665,
+              "gamma_per_s": 0.059044250453352286,
+              "quadratic_drag_per_m": 0.02090283257840058,
+              "peg": {
+                "distance_m": 0.03897916695220587,
+                "angle_rad": -0.6957287624960177,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7200189975265309,
+              "g": 9.80665,
+              "gamma_per_s": 0.059042729141791775,
+              "quadratic_drag_per_m": 0.020905818382026573,
+              "peg": {
+                "distance_m": 0.24612303108195124,
+                "angle_rad": -0.35365231123397,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 81,
+            "status": 2,
+            "nfev": 21,
+            "cost": 89.77711189416686,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7200189796853702,
+              "g": 9.80665,
+              "gamma_per_s": 0.05903876702596203,
+              "quadratic_drag_per_m": 0.02090828611413931,
+              "peg": {
+                "distance_m": 0.03081863954636259,
+                "angle_rad": -0.7222533444085459,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7200189975265309,
+              "g": 9.80665,
+              "gamma_per_s": 0.059042729141791775,
+              "quadratic_drag_per_m": 0.020905818382026573,
+              "peg": {
+                "distance_m": 0.09623561352431048,
+                "angle_rad": 0.19269537753206,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 98,
+            "status": 3,
+            "nfev": 28,
+            "cost": 89.77713295156408,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7200190706839443,
+              "g": 9.80665,
+              "gamma_per_s": 0.059017038527250446,
+              "quadratic_drag_per_m": 0.020925997853738904,
+              "peg": {
+                "distance_m": 0.04615953228396724,
+                "angle_rad": -0.8422291604652992,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7200189975265309,
+              "g": 9.80665,
+              "gamma_per_s": 0.059042729141791775,
+              "quadratic_drag_per_m": 0.020905818382026573,
+              "peg": {
+                "distance_m": 0.338758549618629,
+                "angle_rad": -0.5799569337019101,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 79,
+            "status": 2,
+            "nfev": 24,
+            "cost": 89.77711742782522,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.720019029819059,
+              "g": 9.80665,
+              "gamma_per_s": 0.059027028185483256,
+              "quadratic_drag_per_m": 0.020917764494614265,
+              "peg": {
+                "distance_m": 0.19266849017732224,
+                "angle_rad": -0.7176280387194145,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7200189975265309,
+              "g": 9.80665,
+              "gamma_per_s": 0.059042729141791775,
+              "quadratic_drag_per_m": 0.020905818382026573,
+              "peg": {
+                "distance_m": 0.1888711320609883,
+                "angle_rad": -0.03360924493588002,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 161,
+            "status": 3,
+            "nfev": 41,
+            "cost": 89.77710624837826,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.720019003728037,
+              "g": 9.80665,
+              "gamma_per_s": 0.05903714690856509,
+              "quadratic_drag_per_m": 0.020909244993430175,
+              "peg": {
+                "distance_m": 0.04162752142038652,
+                "angle_rad": -0.6742618382279927,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7200189975265309,
+              "g": 9.80665,
+              "gamma_per_s": 0.059042729141791775,
+              "quadratic_drag_per_m": 0.020905818382026573,
+              "peg": {
+                "distance_m": 0.038983714503347554,
+                "angle_rad": -0.8062615561698502,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 9,
+            "status": 3,
+            "nfev": 4,
+            "cost": 89.77711282769933,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7200189975265309,
+              "g": 9.80665,
+              "gamma_per_s": 0.059042729141791775,
+              "quadratic_drag_per_m": 0.020905818382026573,
+              "peg": {
+                "distance_m": 0.038983714503347554,
+                "angle_rad": -0.8062615561698502,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7200189975265309,
+              "g": 9.80665,
+              "gamma_per_s": 0.059042729141791775,
+              "quadratic_drag_per_m": 0.020905818382026573,
+              "peg": {
+                "distance_m": 0.281506650597666,
+                "angle_rad": -0.25991386740382016,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 119,
+            "status": 3,
+            "nfev": 34,
+            "cost": 89.77710741641731,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7200189674726849,
+              "g": 9.80665,
+              "gamma_per_s": 0.05903846794958793,
+              "quadratic_drag_per_m": 0.020909307262265794,
+              "peg": {
+                "distance_m": 0.025649462649524873,
+                "angle_rad": -0.8324687170142521,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7200189975265309,
+              "g": 9.80665,
+              "gamma_per_s": 0.059042729141791775,
+              "quadratic_drag_per_m": 0.020905818382026573,
+              "peg": {
+                "distance_m": 0.13161923304002549,
+                "angle_rad": 0.28643382136220985,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 231,
+            "status": 3,
+            "nfev": 51,
+            "cost": 89.03892404986456,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7200780419948409,
+              "g": 9.80665,
+              "gamma_per_s": 0.059235294542052216,
+              "quadratic_drag_per_m": 0.020701569628643824,
+              "peg": {
+                "distance_m": 0.003949160921701453,
+                "angle_rad": -0.49086521126854016,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          }
+        ],
+        "robust_cost": 89.03892404986456,
+        "f_scale": 1.0158519448465575,
+        "identifiability": {
+          "parameter_coordinates": [
+            "log_length",
+            "gamma_per_s",
+            "quadratic_per_m",
+            "peg_fraction",
+            "peg_angle_rad"
+          ],
+          "scaled_singular_values": [
+            13639.575604938316,
+            2268.4893455683764,
+            196.28408322446464,
+            163.66429190141397,
+            0.8222978613189237
+          ],
+          "numerical_rank": 5,
+          "rank_threshold_relative": 1e-05,
+          "condition_number": 16587.147123380735,
+          "weakest_scaled_direction": [
+            -1.0617905526687056e-05,
+            -0.00017758387342097672,
+            0.00021672067261585724,
+            0.15554695947763708,
+            -0.9878284591874444
+          ],
+          "near_bound": false,
+          "conditional_gaussian_std": [
+            6.568803439810112e-05,
+            0.0024010731169821398,
+            0.0019491642165574855,
+            0.07427237908972717,
+            1.5845184614070966
+          ],
+          "std_parameter_units": [
+            "m",
+            "s^-1",
+            "m^-1",
+            "m",
+            "rad"
+          ],
+          "locally_identifiable": true,
+          "uncertainty_scope": "local linear sensitivity only; no calibrated confidence interval or global uniqueness claim",
+          "near_optimal_multistart_coordinate_range": [
+            8.110156834562713e-05,
+            0.0003637600246696182,
+            0.0003740470418251337,
+            0.48092422302014953,
+            0.26638661804151553
+          ],
+          "near_optimal_starts": 8,
+          "profile_likelihood": "NOT_RUN; multistart spread is not a confidence interval"
+        },
+        "warnings": [],
+        "options": {
+          "n_starts": 8,
+          "max_nfev": 60,
+          "length_bounds_m": [
+            0.4,
+            1.1
+          ],
+          "gamma_bounds_per_s": [
+            0.0,
+            0.6
+          ],
+          "quadratic_bounds_per_m": [
+            0.0,
+            0.6
+          ],
+          "peg_fraction_bounds": [
+            0.005,
+            0.55
+          ],
+          "peg_angle_bounds_rad": [
+            -0.9,
+            0.9
+          ],
+          "contact_side": -1
+        },
+        "training": {
+          "rmse_xy_px": 0.7006499337066912,
+          "mse_xy_px2": 0.4909103296031907,
+          "rmse_xy_m": 0.0011677498895111549,
+          "assumed_localization_floor_mse_px2": 0.5,
+          "valid_samples": 126,
+          "per_trial": [
+            {
+              "trial_id": "obs-0-0",
+              "mse_xy_px2": 0.4850113666587541
+            },
+            {
+              "trial_id": "obs-0-1",
+              "mse_xy_px2": 0.49680929254762723
+            }
+          ]
+        },
+        "heldout": {
+          "rmse_xy_px": 0.7237490119286911,
+          "mse_xy_px2": 0.5238126322677568,
+          "rmse_xy_m": 0.0012062483532144879,
+          "assumed_localization_floor_mse_px2": 0.5,
+          "valid_samples": 315,
+          "per_trial": [
+            {
+              "trial_id": "obs-0-2",
+              "mse_xy_px2": 0.4834316751729018
+            },
+            {
+              "trial_id": "obs-0-3",
+              "mse_xy_px2": 0.5157071398703265
+            },
+            {
+              "trial_id": "obs-0-4",
+              "mse_xy_px2": 0.6379423178021195
+            },
+            {
+              "trial_id": "obs-0-5",
+              "mse_xy_px2": 0.48605716984072367
+            },
+            {
+              "trial_id": "obs-0-6",
+              "mse_xy_px2": 0.49592485865271213
+            }
+          ]
+        },
+        "prediction_status": "completed"
+      },
+      "paired_development": {
+        "trial_mse_improvements_px2": [
+          -0.0030621417661039763,
+          -0.0017554637559209496,
+          0.0008691704347955076,
+          -0.0028723363766898213,
+          -0.01671054441868358
+        ],
+        "mean_mse_improvement_px2": -0.004706263176520564,
+        "paired_trial_bootstrap_95_interval_px2": [
+          -0.010951886677732304,
+          -0.000665393367681455
+        ],
+        "trial_count": 5,
+        "bootstrap_resamples": 2000,
+        "B1_trial_mse_standard_error_px2": 0.030608954254234627,
+        "prediction_disagreement_rmse_px": 0.04924027517341328,
+        "interpretation": "descriptive development comparison, conditional on fixed exploration fits; not a null-calibrated structural decision"
+      },
+      "exploration_leave_one_trial_out": [
+        {
+          "held_exploration_trial": "obs-0-0",
+          "B1_mse_px2": 1.005446038458768,
+          "B3_mse_px2": 0.7869492520291232
+        },
+        {
+          "held_exploration_trial": "obs-0-1",
+          "B1_mse_px2": 0.8784682675586172,
+          "B3_mse_px2": 0.8733215251582189
+        }
+      ],
+      "structural_decision": "NOT_ASSESSED: Monte Carlo null calibration and mechanism interventions remain pending",
+      "case": "no_fault",
+      "observation_sha256": {
+        "obs-0-0": "284988f9dd0a986627ad6805579cebaf9d008e074f4e848acb3ccefe024e5ce6",
+        "obs-0-1": "4fab618d9965aecd35055d564b48bae17c57251a4d390bede44726c24cb3303f",
+        "obs-0-2": "b90f85b2d31f6bbedd9e50e4085bcd1c63cba170f9be66b90edbd12dc846aab8",
+        "obs-0-3": "1276894ad13a04ef545d98bd60218e88b44835df99085cefc9515ef148bec19d",
+        "obs-0-4": "d3dacf08a3a87f186db291cd0226fb0822932c3299c5e0a6ea75fb2504ed9b4d",
+        "obs-0-5": "b079102ce7cd9a9bd5ec224f19ec1feeb461db8f63ee82b540656cbb6c29793c",
+        "obs-0-6": "9caa4edbe4048c2b4dd5b6f96af32668f969ac8b626acbdc01a523db80e55b13"
+      },
+      "noise_assumptions": {
+        "covariance_px2": [
+          [
+            0.25,
+            0.0
+          ],
+          [
+            0.0,
+            0.25
+          ]
+        ],
+        "ar1_phi": 0.0,
+        "dropout_probability": 0.0
+      }
+    },
+    {
+      "training_trial_ids": [
+        "obs-1-0",
+        "obs-1-1"
+      ],
+      "heldout_trial_ids": [
+        "obs-1-2",
+        "obs-1-3",
+        "obs-1-4",
+        "obs-1-5",
+        "obs-1-6"
+      ],
+      "B0": {
+        "params": {
+          "length_m": 0.72,
+          "g": 9.80665,
+          "gamma_per_s": 0.06,
+          "quadratic_drag_per_m": 0.02,
+          "peg": null
+        },
+        "training": {
+          "rmse_xy_px": 34.89102424587885,
+          "mse_xy_px2": 1217.3835729265058,
+          "assumed_noise_floor_mse_px2": 0.5,
+          "nrmse": 0.08076625982842325,
+          "excess_nrmse": 0.08074967209133999,
+          "innovation_mean_square_per_coordinate": 2434.7671458530112,
+          "lag1_x": 0.9920931637773942,
+          "valid_samples": 126
+        },
+        "heldout": {
+          "rmse_xy_px": 34.7483050530642,
+          "mse_xy_px2": 1207.4447040608072,
+          "assumed_noise_floor_mse_px2": 0.5,
+          "nrmse": 0.08043589132653751,
+          "excess_nrmse": 0.08041923544576327,
+          "innovation_mean_square_per_coordinate": 2414.8894081216145,
+          "lag1_x": 0.9920671447376654,
+          "valid_samples": 315
+        }
+      },
+      "B1": {
+        "success": true,
+        "params": {
+          "length_m": 0.7599628853107255,
+          "g": 9.80665,
+          "gamma_per_s": 0.10998568997127404,
+          "quadratic_drag_per_m": 0.05001384656896638,
+          "peg": null
+        },
+        "starts": [
+          {
+            "initial": {
+              "length_m": 0.72,
+              "g": 9.80665,
+              "gamma_per_s": 0.06,
+              "quadratic_drag_per_m": 0.02,
+              "peg": null
+            },
+            "success": true,
+            "cost": 130.9499677230277,
+            "nfev": 18,
+            "status": 3,
+            "message": "`xtol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7599631777352615,
+              "g": 9.80665,
+              "gamma_per_s": 0.10968916274851874,
+              "quadratic_drag_per_m": 0.050263273337831205,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7474506578910146,
+              "g": 9.80665,
+              "gamma_per_s": 0.248528137422,
+              "quadratic_drag_per_m": 0.439230484542,
+              "peg": null
+            },
+            "success": true,
+            "cost": 130.94325022712962,
+            "nfev": 16,
+            "status": 4,
+            "message": "Both `ftol` and `xtol` termination conditions are satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7599630713233758,
+              "g": 9.80665,
+              "gamma_per_s": 0.10994954841504403,
+              "quadratic_drag_per_m": 0.05004409844157159,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.5078931690742823,
+              "g": 9.80665,
+              "gamma_per_s": 0.497056274844,
+              "quadratic_drag_per_m": 0.2784609690839999,
+              "peg": null
+            },
+            "success": true,
+            "cost": 130.9461978640522,
+            "nfev": 21,
+            "status": 3,
+            "message": "`xtol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7599637137623981,
+              "g": 9.80665,
+              "gamma_per_s": 0.10977867519012643,
+              "quadratic_drag_per_m": 0.05018407013854649,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.9490627084073112,
+              "g": 9.80665,
+              "gamma_per_s": 0.14558441226599997,
+              "quadratic_drag_per_m": 0.11769145362599999,
+              "peg": null
+            },
+            "success": true,
+            "cost": 130.94394582756075,
+            "nfev": 32,
+            "status": 4,
+            "message": "Both `ftol` and `xtol` termination conditions are satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7599625243569587,
+              "g": 9.80665,
+              "gamma_per_s": 0.11007331694776079,
+              "quadratic_drag_per_m": 0.049943484750203784,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.6448886779807936,
+              "g": 9.80665,
+              "gamma_per_s": 0.394112549688,
+              "quadratic_drag_per_m": 0.5569219381679998,
+              "peg": null
+            },
+            "success": true,
+            "cost": 130.9439519344011,
+            "nfev": 22,
+            "status": 3,
+            "message": "`xtol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7599626078911454,
+              "g": 9.80665,
+              "gamma_per_s": 0.1100737997968698,
+              "quadratic_drag_per_m": 0.04994468383542654,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.43820224238473715,
+              "g": 9.80665,
+              "gamma_per_s": 0.04264068710999993,
+              "quadratic_drag_per_m": 0.3961524227099998,
+              "peg": null
+            },
+            "success": true,
+            "cost": 130.94383523170896,
+            "nfev": 20,
+            "status": 2,
+            "message": "`ftol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7599631953039125,
+              "g": 9.80665,
+              "gamma_per_s": 0.10988411619087565,
+              "quadratic_drag_per_m": 0.05009638946895564,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.8188363858994737,
+              "g": 9.80665,
+              "gamma_per_s": 0.29116882453199994,
+              "quadratic_drag_per_m": 0.23538290725199998,
+              "peg": null
+            },
+            "success": true,
+            "cost": 130.94353245902195,
+            "nfev": 17,
+            "status": 3,
+            "message": "`xtol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.759962674481643,
+              "g": 9.80665,
+              "gamma_per_s": 0.1100415995034349,
+              "quadratic_drag_per_m": 0.04996890438156593,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.5563998139506023,
+              "g": 9.80665,
+              "gamma_per_s": 0.539696961954,
+              "quadratic_drag_per_m": 0.07461339179399963,
+              "peg": null
+            },
+            "success": true,
+            "cost": 130.94320709573478,
+            "nfev": 19,
+            "status": 2,
+            "message": "`ftol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7599628853107255,
+              "g": 9.80665,
+              "gamma_per_s": 0.10998568997127404,
+              "quadratic_drag_per_m": 0.05001384656896638,
+              "peg": null
+            }
+          }
+        ],
+        "robust_cost": 130.94320709573478,
+        "f_scale": 27.448269791753496,
+        "jacobian_singular_values": [
+          13698.571218639241,
+          3522.3789632100156,
+          303.7457111338327
+        ],
+        "warnings": [],
+        "training": {
+          "rmse_xy_px": 0.7212227401537604,
+          "mse_xy_px2": 0.5201622409148986,
+          "assumed_noise_floor_mse_px2": 0.5,
+          "nrmse": 0.0016694970836892602,
+          "excess_nrmse": 0.000328689365516854,
+          "innovation_mean_square_per_coordinate": 1.0403244818297974,
+          "lag1_x": -0.09730468212291976,
+          "valid_samples": 126
+        },
+        "heldout": {
+          "rmse_xy_px": 0.7192872199809797,
+          "mse_xy_px2": 0.5173741048279662,
+          "assumed_noise_floor_mse_px2": 0.5,
+          "nrmse": 0.0016650167129189342,
+          "excess_nrmse": 0.000305117749166286,
+          "innovation_mean_square_per_coordinate": 1.0347482096559324,
+          "lag1_x": 0.060793519853332575,
+          "valid_samples": 315
+        }
+      },
+      "B2": {
+        "decision": "one_circle_only",
+        "reason": "no supported second pivot; unexcited mechanisms remain possible",
+        "first_circle": {
+          "center_m": [
+            0.0,
+            0.0
+          ],
+          "radius_m": 0.7599285291762123,
+          "arc_span_rad": 1.2282287318621776,
+          "radial_rmse_m": 0.000864031564112547
+        },
+        "second_circle": null,
+        "threshold_rad": null,
+        "second_side": null,
+        "cv_one_score": 135.93517924958493,
+        "cv_two_score": 840.2012898630003,
+        "complexity_penalty": 27.169173638662205,
+        "failed_candidates": 29,
+        "training": {
+          "radial_rmse_px": 0.5184189384675282,
+          "valid_samples": 126
+        },
+        "heldout": {
+          "radial_rmse_px": 0.5113813608432007,
+          "valid_samples": 315
+        }
+      },
+      "comparison_scope": "predefined FREE versus ideal one-peg dynamics; no automatic repair/discovery claim",
+      "B3": {
+        "success": true,
+        "params": {
+          "length_m": 0.7599871953302194,
+          "g": 9.80665,
+          "gamma_per_s": 0.11015429353691292,
+          "quadratic_drag_per_m": 0.04986094164781773,
+          "peg": {
+            "distance_m": 0.0037999359808965467,
+            "angle_rad": -0.5162812031699029,
+            "contact_side": -1,
+            "kappa_in": 1.0,
+            "kappa_out": 1.0
+          }
+        },
+        "starts": [
+          {
+            "initial": {
+              "length_m": 0.7596797512176523,
+              "g": 9.80665,
+              "gamma_per_s": 0.10998568997127404,
+              "quadratic_drag_per_m": 0.05001384656896638,
+              "peg": {
+                "distance_m": 0.0050027956540407235,
+                "angle_rad": 0.41899999,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 75,
+            "status": 2,
+            "nfev": 15,
+            "cost": 130.69538942387385,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              -1,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7599871953302194,
+              "g": 9.80665,
+              "gamma_per_s": 0.11015429353691292,
+              "quadratic_drag_per_m": 0.04986094164781773,
+              "peg": {
+                "distance_m": 0.0037999359808965467,
+                "angle_rad": -0.5162812031699029,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7596797512176523,
+              "g": 9.80665,
+              "gamma_per_s": 0.10998568997127404,
+              "quadratic_drag_per_m": 0.05001384656896638,
+              "peg": {
+                "distance_m": 0.2596802079717094,
+                "angle_rad": -0.35365231123397,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 109,
+            "status": 2,
+            "nfev": 24,
+            "cost": 130.71243855831395,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7599856700627717,
+              "g": 9.80665,
+              "gamma_per_s": 0.11013858562331397,
+              "quadratic_drag_per_m": 0.04987573963607818,
+              "peg": {
+                "distance_m": 0.06198918154020224,
+                "angle_rad": -0.5791524368935168,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7596797512176523,
+              "g": 9.80665,
+              "gamma_per_s": 0.10998568997127404,
+              "quadratic_drag_per_m": 0.05001384656896638,
+              "peg": {
+                "distance_m": 0.10153655277370992,
+                "angle_rad": 0.19269537753206,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 97,
+            "status": 4,
+            "nfev": 27,
+            "cost": 130.70417121431245,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7599865651679206,
+              "g": 9.80665,
+              "gamma_per_s": 0.11015064330426777,
+              "quadratic_drag_per_m": 0.049864854976388956,
+              "peg": {
+                "distance_m": 0.008488623432972577,
+                "angle_rad": -0.5475638549437538,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7596797512176523,
+              "g": 9.80665,
+              "gamma_per_s": 0.10998568997127404,
+              "quadratic_drag_per_m": 0.05001384656896638,
+              "peg": {
+                "distance_m": 0.35741836198933097,
+                "angle_rad": -0.5799569337019101,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 63,
+            "status": 2,
+            "nfev": 18,
+            "cost": 130.71403764756093,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7599854836883183,
+              "g": 9.80665,
+              "gamma_per_s": 0.11013885462153977,
+              "quadratic_drag_per_m": 0.049875632054416114,
+              "peg": {
+                "distance_m": 0.3674955101802114,
+                "angle_rad": -0.5873451024732987,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7596797512176523,
+              "g": 9.80665,
+              "gamma_per_s": 0.10998568997127404,
+              "quadratic_drag_per_m": 0.05001384656896638,
+              "peg": {
+                "distance_m": 0.19927470679133158,
+                "angle_rad": -0.03360924493588002,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 120,
+            "status": 2,
+            "nfev": 35,
+            "cost": 130.94320433887617,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7599629835254919,
+              "g": 9.80665,
+              "gamma_per_s": 0.10996562534271899,
+              "quadratic_drag_per_m": 0.05003030246078427,
+              "peg": {
+                "distance_m": 0.03633859874843404,
+                "angle_rad": -0.7228465929650473,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7596797512176523,
+              "g": 9.80665,
+              "gamma_per_s": 0.10998568997127404,
+              "quadratic_drag_per_m": 0.05001384656896638,
+              "peg": {
+                "distance_m": 0.04113105159333218,
+                "angle_rad": -0.8062615561698502,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 22,
+            "status": 3,
+            "nfev": 7,
+            "cost": 130.94361314905774,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7599628710955275,
+              "g": 9.80665,
+              "gamma_per_s": 0.10999142264918209,
+              "quadratic_drag_per_m": 0.050019712141698765,
+              "peg": {
+                "distance_m": 0.04114638044510863,
+                "angle_rad": -0.8062615561698502,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7596797512176523,
+              "g": 9.80665,
+              "gamma_per_s": 0.10998568997127404,
+              "quadratic_drag_per_m": 0.05001384656896638,
+              "peg": {
+                "distance_m": 0.2970128608089531,
+                "angle_rad": -0.25991386740382016,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": false,
+            "residual_calls": 360,
+            "status": 0,
+            "nfev": 60,
+            "cost": 153.4803035541678,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7600568477974605,
+              "g": 9.80665,
+              "gamma_per_s": 0.09317917274622174,
+              "quadratic_drag_per_m": 0.06405255295365819,
+              "peg": {
+                "distance_m": 0.3282676413209108,
+                "angle_rad": -0.6347879111636721,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7596797512176523,
+              "g": 9.80665,
+              "gamma_per_s": 0.10998568997127404,
+              "quadratic_drag_per_m": 0.05001384656896638,
+              "peg": {
+                "distance_m": 0.13886920561095395,
+                "angle_rad": 0.28643382136220985,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": false,
+            "residual_calls": 360,
+            "status": 0,
+            "nfev": 60,
+            "cost": 132.88486290405223,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7599917581512005,
+              "g": 9.80665,
+              "gamma_per_s": 0.1050005799415391,
+              "quadratic_drag_per_m": 0.0541178042381403,
+              "peg": {
+                "distance_m": 0.011876375270228614,
+                "angle_rad": -0.6058732246778884,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          }
+        ],
+        "robust_cost": 130.69538942387385,
+        "f_scale": 27.448269791753496,
+        "identifiability": {
+          "parameter_coordinates": [
+            "log_length",
+            "gamma_per_s",
+            "quadratic_per_m",
+            "peg_fraction",
+            "peg_angle_rad"
+          ],
+          "scaled_singular_values": [
+            13869.817928134064,
+            2118.125290239561,
+            183.3422887018658,
+            81.30692596469184,
+            0.4102111598830653
+          ],
+          "numerical_rank": 5,
+          "rank_threshold_relative": 1e-05,
+          "condition_number": 33811.410523516206,
+          "weakest_scaled_direction": [
+            -4.543748544259266e-06,
+            -0.00011605781405943412,
+            0.00012769492885980144,
+            0.2381647301338958,
+            -0.971224758500416
+          ],
+          "near_bound": true,
+          "conditional_gaussian_std": null,
+          "std_parameter_units": [
+            "m",
+            "s^-1",
+            "m^-1",
+            "m",
+            "rad"
+          ],
+          "locally_identifiable": false,
+          "uncertainty_scope": "local linear sensitivity only; no calibrated confidence interval or global uniqueness claim",
+          "near_optimal_multistart_coordinate_range": [
+            3.163957549553463e-05,
+            0.000314446990323213,
+            0.00028226802161090275,
+            0.8780843303355802,
+            0.2198486376042057
+          ],
+          "near_optimal_starts": 6,
+          "profile_likelihood": "NOT_RUN; multistart spread is not a confidence interval"
+        },
+        "warnings": [
+          "peg mechanism/parameters not identified by this local fit",
+          "some deterministic starts failed; all attempts retained"
+        ],
+        "options": {
+          "n_starts": 8,
+          "max_nfev": 60,
+          "length_bounds_m": [
+            0.4,
+            1.1
+          ],
+          "gamma_bounds_per_s": [
+            0.0,
+            0.6
+          ],
+          "quadratic_bounds_per_m": [
+            0.0,
+            0.6
+          ],
+          "peg_fraction_bounds": [
+            0.005,
+            0.55
+          ],
+          "peg_angle_bounds_rad": [
+            -0.9,
+            0.9
+          ],
+          "contact_side": -1
+        },
+        "training": {
+          "rmse_xy_px": 0.7205416824594043,
+          "mse_xy_px2": 0.519180316161429,
+          "rmse_xy_m": 0.0012009028040990057,
+          "assumed_localization_floor_mse_px2": 0.5,
+          "valid_samples": 126,
+          "per_trial": [
+            {
+              "trial_id": "obs-1-0",
+              "mse_xy_px2": 0.5210688626079081
+            },
+            {
+              "trial_id": "obs-1-1",
+              "mse_xy_px2": 0.5172917697149498
+            }
+          ]
+        },
+        "heldout": {
+          "rmse_xy_px": 0.7185662167721648,
+          "mse_xy_px2": 0.5163374078862617,
+          "rmse_xy_m": 0.001197610361286941,
+          "assumed_localization_floor_mse_px2": 0.5,
+          "valid_samples": 315,
+          "per_trial": [
+            {
+              "trial_id": "obs-1-2",
+              "mse_xy_px2": 0.5068620882252906
+            },
+            {
+              "trial_id": "obs-1-3",
+              "mse_xy_px2": 0.4747411718306304
+            },
+            {
+              "trial_id": "obs-1-4",
+              "mse_xy_px2": 0.5508030868011957
+            },
+            {
+              "trial_id": "obs-1-5",
+              "mse_xy_px2": 0.5428353903142732
+            },
+            {
+              "trial_id": "obs-1-6",
+              "mse_xy_px2": 0.506445302259919
+            }
+          ]
+        },
+        "prediction_status": "completed"
+      },
+      "paired_development": {
+        "trial_mse_improvements_px2": [
+          0.0011716315693622859,
+          0.003354105917808714,
+          -0.001151050158528788,
+          0.0016455271874390442,
+          0.0001632701924414448
+        ],
+        "mean_mse_improvement_px2": 0.0010366969417045402,
+        "paired_trial_bootstrap_95_interval_px2": [
+          -0.00022197746737235847,
+          0.0023289586795869122
+        ],
+        "trial_count": 5,
+        "bootstrap_resamples": 2000,
+        "B1_trial_mse_standard_error_px2": 0.013271416488469075,
+        "prediction_disagreement_rmse_px": 0.01989961237344664,
+        "interpretation": "descriptive development comparison, conditional on fixed exploration fits; not a null-calibrated structural decision"
+      },
+      "exploration_leave_one_trial_out": [
+        {
+          "held_exploration_trial": "obs-1-0",
+          "B1_mse_px2": 0.6005697282346553,
+          "B3_mse_px2": 0.6003011937388533
+        },
+        {
+          "held_exploration_trial": "obs-1-1",
+          "B1_mse_px2": 2.2418711991105504,
+          "B3_mse_px2": 3.8644700888346524
+        }
+      ],
+      "structural_decision": "NOT_ASSESSED: Monte Carlo null calibration and mechanism interventions remain pending",
+      "case": "parameter_fault",
+      "observation_sha256": {
+        "obs-1-0": "19357ae93271ebfddea14091db9fe5149458569820ce07ae268dfa69af20c8e8",
+        "obs-1-1": "4eab412b46cd51144b65ff3e6ebb722e1ab8b126d28a7cc0926ea2a696a30be1",
+        "obs-1-2": "8a5bcbe3fd66e528cfdc428e9d1517cf52b88e0919b19170a8ab5db5d6a37a9b",
+        "obs-1-3": "00ae3c80a46bae81a32727c451938f0aed808682ca6bc39100b35368798b1ee9",
+        "obs-1-4": "482ec921b5b17e09bb78d1ba94442ac4305a54d14b0cb99c22a81387f0782f3d",
+        "obs-1-5": "e957b28ae6ff7cce2240c11745e8df6ea4c2fb3af412076082067e081ae77b16",
+        "obs-1-6": "81445bdc23f4665132105bf162ff24a32f24082a273bf180658663db0d98928b"
+      },
+      "noise_assumptions": {
+        "covariance_px2": [
+          [
+            0.25,
+            0.0
+          ],
+          [
+            0.0,
+            0.25
+          ]
+        ],
+        "ar1_phi": 0.0,
+        "dropout_probability": 0.0
+      }
+    },
+    {
+      "training_trial_ids": [
+        "obs-2-0",
+        "obs-2-1"
+      ],
+      "heldout_trial_ids": [
+        "obs-2-2",
+        "obs-2-3",
+        "obs-2-4",
+        "obs-2-5",
+        "obs-2-6"
+      ],
+      "B0": {
+        "params": {
+          "length_m": 0.72,
+          "g": 9.80665,
+          "gamma_per_s": 0.06,
+          "quadratic_drag_per_m": 0.02,
+          "peg": null
+        },
+        "training": {
+          "rmse_xy_px": 44.993406594537284,
+          "mse_xy_px2": 2024.4066369813509,
+          "assumed_noise_floor_mse_px2": 0.5,
+          "nrmse": 0.10415140415402149,
+          "excess_nrmse": 0.10413854139290064,
+          "innovation_mean_square_per_coordinate": 4048.8132739627026,
+          "lag1_x": 0.9882576133110903,
+          "valid_samples": 126
+        },
+        "heldout": {
+          "rmse_xy_px": 44.627801681925234,
+          "mse_xy_px2": 1991.6406829612486,
+          "assumed_noise_floor_mse_px2": 0.5,
+          "nrmse": 0.10330509648593804,
+          "excess_nrmse": 0.10329212833587816,
+          "innovation_mean_square_per_coordinate": 3983.281365922497,
+          "lag1_x": 0.9882610770492622,
+          "valid_samples": 315
+        }
+      },
+      "B1": {
+        "success": true,
+        "params": {
+          "length_m": 0.6921953017217154,
+          "g": 9.80665,
+          "gamma_per_s": 1.7745114384352376e-06,
+          "quadratic_drag_per_m": 0.14199648209460053,
+          "peg": null
+        },
+        "starts": [
+          {
+            "initial": {
+              "length_m": 0.72,
+              "g": 9.80665,
+              "gamma_per_s": 0.06,
+              "quadratic_drag_per_m": 0.02,
+              "peg": null
+            },
+            "success": true,
+            "cost": 154320.1357966528,
+            "nfev": 20,
+            "status": 3,
+            "message": "`xtol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.6921619256844379,
+              "g": 9.80665,
+              "gamma_per_s": 3.0732478478708372e-06,
+              "quadratic_drag_per_m": 0.14200629057696626,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7474506578910146,
+              "g": 9.80665,
+              "gamma_per_s": 0.248528137422,
+              "quadratic_drag_per_m": 0.439230484542,
+              "peg": null
+            },
+            "success": true,
+            "cost": 154353.02716529442,
+            "nfev": 23,
+            "status": 2,
+            "message": "`ftol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.6921880869515197,
+              "g": 9.80665,
+              "gamma_per_s": 0.0048872255242658445,
+              "quadratic_drag_per_m": 0.13796094426409564,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.5078931690742823,
+              "g": 9.80665,
+              "gamma_per_s": 0.497056274844,
+              "quadratic_drag_per_m": 0.2784609690839999,
+              "peg": null
+            },
+            "success": true,
+            "cost": 154320.0609930143,
+            "nfev": 20,
+            "status": 3,
+            "message": "`xtol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.6921953017217154,
+              "g": 9.80665,
+              "gamma_per_s": 1.7745114384352376e-06,
+              "quadratic_drag_per_m": 0.14199648209460053,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.9490627084073112,
+              "g": 9.80665,
+              "gamma_per_s": 0.14558441226599997,
+              "quadratic_drag_per_m": 0.11769145362599999,
+              "peg": null
+            },
+            "success": true,
+            "cost": 154320.16813948564,
+            "nfev": 18,
+            "status": 2,
+            "message": "`ftol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.69218220972259,
+              "g": 9.80665,
+              "gamma_per_s": 1.7195326854301217e-06,
+              "quadratic_drag_per_m": 0.1423354687641158,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.6448886779807936,
+              "g": 9.80665,
+              "gamma_per_s": 0.394112549688,
+              "quadratic_drag_per_m": 0.5569219381679998,
+              "peg": null
+            },
+            "success": true,
+            "cost": 154320.14866595564,
+            "nfev": 15,
+            "status": 2,
+            "message": "`ftol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.692190540930797,
+              "g": 9.80665,
+              "gamma_per_s": 3.4662264984950168e-06,
+              "quadratic_drag_per_m": 0.14179882178969583,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.43820224238473715,
+              "g": 9.80665,
+              "gamma_per_s": 0.04264068710999993,
+              "quadratic_drag_per_m": 0.3961524227099998,
+              "peg": null
+            },
+            "success": true,
+            "cost": 154320.428848226,
+            "nfev": 25,
+            "status": 3,
+            "message": "`xtol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.6921683192705232,
+              "g": 9.80665,
+              "gamma_per_s": 4.8278822586054015e-05,
+              "quadratic_drag_per_m": 0.14187767947954777,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.8188363858994737,
+              "g": 9.80665,
+              "gamma_per_s": 0.29116882453199994,
+              "quadratic_drag_per_m": 0.23538290725199998,
+              "peg": null
+            },
+            "success": true,
+            "cost": 154328.06775681634,
+            "nfev": 23,
+            "status": 4,
+            "message": "Both `ftol` and `xtol` termination conditions are satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.6922332505128913,
+              "g": 9.80665,
+              "gamma_per_s": 0.0009462704801925511,
+              "quadratic_drag_per_m": 0.14005820995907198,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.5563998139506023,
+              "g": 9.80665,
+              "gamma_per_s": 0.539696961954,
+              "quadratic_drag_per_m": 0.07461339179399963,
+              "peg": null
+            },
+            "success": true,
+            "cost": 155780.8728937914,
+            "nfev": 20,
+            "status": 2,
+            "message": "`ftol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.6922844876277514,
+              "g": 9.80665,
+              "gamma_per_s": 0.1275123136629347,
+              "quadratic_drag_per_m": 0.028738307362296583,
+              "peg": null
+            }
+          }
+        ],
+        "robust_cost": 154320.0609930143,
+        "f_scale": 30.93747940781793,
+        "jacobian_singular_values": [
+          7689.923829305778,
+          2048.5350483447055,
+          186.05775794381742
+        ],
+        "warnings": [
+          "best fit is at or near physical bounds; no unconstrained parameter/CI claim"
+        ],
+        "training": {
+          "rmse_xy_px": 32.931376035870464,
+          "mse_xy_px2": 1084.4755276159033,
+          "assumed_noise_floor_mse_px2": 0.5,
+          "nrmse": 0.07623003712007051,
+          "excess_nrmse": 0.07621246207487252,
+          "innovation_mean_square_per_coordinate": 2168.951055231806,
+          "lag1_x": 0.9886437478462896,
+          "valid_samples": 126
+        },
+        "heldout": {
+          "rmse_xy_px": 32.77771036708086,
+          "mse_xy_px2": 1074.37829690824,
+          "assumed_noise_floor_mse_px2": 0.5,
+          "nrmse": 0.0758743295534279,
+          "excess_nrmse": 0.07585667209526621,
+          "innovation_mean_square_per_coordinate": 2148.756593816479,
+          "lag1_x": 0.9886543099964441,
+          "valid_samples": 315
+        }
+      },
+      "B2": {
+        "decision": "two_circle",
+        "reason": "two recurring arcs improve whole-trial CV beyond the design penalty",
+        "first_circle": {
+          "center_m": [
+            0.0,
+            0.0
+          ],
+          "radius_m": 0.7200589299939791,
+          "arc_span_rad": 0.5315754136154762,
+          "radial_rmse_m": 0.0007936142441160208
+        },
+        "second_circle": {
+          "center_m": [
+            -1.2322670845989238e-05,
+            -0.15981868920847214
+          ],
+          "radius_m": 0.5601635169348775,
+          "arc_span_rad": 0.8379505366342865,
+          "radial_rmse_m": 0.0007487627197528372
+        },
+        "threshold_rad": 0.10551760501415101,
+        "second_side": -1,
+        "cv_one_score": 15458.998004756262,
+        "cv_two_score": 133.38441938369473,
+        "complexity_penalty": 27.169173638662205,
+        "failed_candidates": 39,
+        "training": {
+          "radial_rmse_px": 0.4614118475424619,
+          "valid_samples": 126
+        },
+        "heldout": {
+          "radial_rmse_px": 0.4885577247004673,
+          "valid_samples": 315
+        }
+      },
+      "comparison_scope": "predefined FREE versus ideal one-peg dynamics; no automatic repair/discovery claim",
+      "B3": {
+        "success": true,
+        "params": {
+          "length_m": 0.7199961169201073,
+          "g": 9.80665,
+          "gamma_per_s": 0.0633159107548021,
+          "quadratic_drag_per_m": 0.01736278384040903,
+          "peg": {
+            "distance_m": 0.16095289916728286,
+            "angle_rad": -0.0026584995339389256,
+            "contact_side": -1,
+            "kappa_in": 1.0,
+            "kappa_out": 1.0
+          }
+        },
+        "starts": [
+          {
+            "initial": {
+              "length_m": 0.7200589299939791,
+              "g": 9.80665,
+              "gamma_per_s": 1.7745114384352376e-06,
+              "quadratic_drag_per_m": 0.14199648209460053,
+              "peg": {
+                "distance_m": 0.15981868968353616,
+                "angle_rad": -7.710406638046949e-05,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 155,
+            "status": 2,
+            "nfev": 30,
+            "cost": 138.5761466280983,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7199961169201073,
+              "g": 9.80665,
+              "gamma_per_s": 0.0633159107548021,
+              "quadratic_drag_per_m": 0.01736278384040903,
+              "peg": {
+                "distance_m": 0.16095289916728286,
+                "angle_rad": -0.0026584995339389256,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7200589299939791,
+              "g": 9.80665,
+              "gamma_per_s": 1.7745114384352376e-06,
+              "quadratic_drag_per_m": 0.14199648209460053,
+              "peg": {
+                "distance_m": 0.24613668113835352,
+                "angle_rad": -0.35365231123397,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 68,
+            "status": 3,
+            "nfev": 18,
+            "cost": 138.57615171369827,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7199961343582063,
+              "g": 9.80665,
+              "gamma_per_s": 0.0633079722338128,
+              "quadratic_drag_per_m": 0.017369224444701237,
+              "peg": {
+                "distance_m": 0.16095216839200052,
+                "angle_rad": -0.002656649449200697,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7200589299939791,
+              "g": 9.80665,
+              "gamma_per_s": 1.7745114384352376e-06,
+              "quadratic_drag_per_m": 0.14199648209460053,
+              "peg": {
+                "distance_m": 0.09624095078001849,
+                "angle_rad": 0.19269537753206,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 105,
+            "status": 3,
+            "nfev": 25,
+            "cost": 138.57614812479684,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7199961296498604,
+              "g": 9.80665,
+              "gamma_per_s": 0.06331825371927478,
+              "quadratic_drag_per_m": 0.01736079031895056,
+              "peg": {
+                "distance_m": 0.1609519201427394,
+                "angle_rad": -0.002655681725546166,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7200589299939791,
+              "g": 9.80665,
+              "gamma_per_s": 1.7745114384352376e-06,
+              "quadratic_drag_per_m": 0.14199648209460053,
+              "peg": {
+                "distance_m": 0.33877733726840203,
+                "angle_rad": -0.5799569337019101,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 67,
+            "status": 3,
+            "nfev": 17,
+            "cost": 138.57614692273108,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7199961136416063,
+              "g": 9.80665,
+              "gamma_per_s": 0.06331694258795577,
+              "quadratic_drag_per_m": 0.017361965478864625,
+              "peg": {
+                "distance_m": 0.16095309308859967,
+                "angle_rad": -0.0026590095624307217,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7200589299939791,
+              "g": 9.80665,
+              "gamma_per_s": 1.7745114384352376e-06,
+              "quadratic_drag_per_m": 0.14199648209460053,
+              "peg": {
+                "distance_m": 0.18888160691006706,
+                "angle_rad": -0.03360924493588002,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 59,
+            "status": 2,
+            "nfev": 14,
+            "cost": 138.57614704669967,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7199961184521178,
+              "g": 9.80665,
+              "gamma_per_s": 0.063313526867082,
+              "quadratic_drag_per_m": 0.017364719866293666,
+              "peg": {
+                "distance_m": 0.16095272115802245,
+                "angle_rad": -0.002658124531202534,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7200589299939791,
+              "g": 9.80665,
+              "gamma_per_s": 1.7745114384352376e-06,
+              "quadratic_drag_per_m": 0.14199648209460053,
+              "peg": {
+                "distance_m": 0.038985876551732065,
+                "angle_rad": -0.8062615561698502,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 96,
+            "status": 3,
+            "nfev": 26,
+            "cost": 154320.06059847074,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.6921798987076585,
+              "g": 9.80665,
+              "gamma_per_s": 2.816568490206437e-07,
+              "quadratic_drag_per_m": 0.14205516697710927,
+              "peg": {
+                "distance_m": 0.037476432773124305,
+                "angle_rad": -0.8062615561698502,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7200589299939791,
+              "g": 9.80665,
+              "gamma_per_s": 1.7745114384352376e-06,
+              "quadratic_drag_per_m": 0.14199648209460053,
+              "peg": {
+                "distance_m": 0.2815222630401156,
+                "angle_rad": -0.25991386740382016,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 64,
+            "status": 2,
+            "nfev": 14,
+            "cost": 138.57614684421773,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7199961150856659,
+              "g": 9.80665,
+              "gamma_per_s": 0.06331459137833771,
+              "quadratic_drag_per_m": 0.017363879391841988,
+              "peg": {
+                "distance_m": 0.16095292180005305,
+                "angle_rad": -0.002658627062463085,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7200589299939791,
+              "g": 9.80665,
+              "gamma_per_s": 1.7745114384352376e-06,
+              "quadratic_drag_per_m": 0.14199648209460053,
+              "peg": {
+                "distance_m": 0.13162653268178076,
+                "angle_rad": 0.28643382136220985,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 69,
+            "status": 3,
+            "nfev": 19,
+            "cost": 138.57623252921098,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7199961507106234,
+              "g": 9.80665,
+              "gamma_per_s": 0.06328436154522707,
+              "quadratic_drag_per_m": 0.017388543896251926,
+              "peg": {
+                "distance_m": 0.1609517230437761,
+                "angle_rad": -0.0026561559141108407,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          }
+        ],
+        "robust_cost": 138.5761466280983,
+        "f_scale": 30.93747940781793,
+        "identifiability": {
+          "parameter_coordinates": [
+            "log_length",
+            "gamma_per_s",
+            "quadratic_per_m",
+            "peg_fraction",
+            "peg_angle_rad"
+          ],
+          "scaled_singular_values": [
+            13485.475585959322,
+            3156.810892120383,
+            2218.121323309881,
+            482.06975022454,
+            191.5763101927259
+          ],
+          "numerical_rank": 5,
+          "rank_threshold_relative": 1e-05,
+          "condition_number": 70.39218769999758,
+          "weakest_scaled_direction": [
+            -0.0013146932340093384,
+            0.7764504207300132,
+            -0.6226012611345539,
+            0.07930727801393649,
+            -0.05657774312898482
+          ],
+          "near_bound": false,
+          "conditional_gaussian_std": [
+            7.552082699734263e-05,
+            0.002438225653413941,
+            0.001964324013823761,
+            0.0006630751853514157,
+            0.0017558973328804799
+          ],
+          "std_parameter_units": [
+            "m",
+            "s^-1",
+            "m^-1",
+            "m",
+            "rad"
+          ],
+          "locally_identifiable": true,
+          "uncertainty_scope": "local linear sensitivity only; no calibrated confidence interval or global uniqueness claim",
+          "near_optimal_multistart_coordinate_range": [
+            5.089459883259926e-08,
+            5.648695674619064e-05,
+            4.625596216894142e-05,
+            3.5125863056127346e-06,
+            2.522999912475812e-06
+          ],
+          "near_optimal_starts": 7,
+          "profile_likelihood": "NOT_RUN; multistart spread is not a confidence interval"
+        },
+        "warnings": [],
+        "options": {
+          "n_starts": 8,
+          "max_nfev": 60,
+          "length_bounds_m": [
+            0.4,
+            1.1
+          ],
+          "gamma_bounds_per_s": [
+            0.0,
+            0.6
+          ],
+          "quadratic_bounds_per_m": [
+            0.0,
+            0.6
+          ],
+          "peg_fraction_bounds": [
+            0.005,
+            0.55
+          ],
+          "peg_angle_bounds_rad": [
+            -0.9,
+            0.9
+          ],
+          "contact_side": -1
+        },
+        "training": {
+          "rmse_xy_px": 0.7418316944210546,
+          "mse_xy_px2": 0.5503142628476129,
+          "rmse_xy_m": 0.001236386157368428,
+          "assumed_localization_floor_mse_px2": 0.5,
+          "valid_samples": 126,
+          "per_trial": [
+            {
+              "trial_id": "obs-2-0",
+              "mse_xy_px2": 0.5044247888972475
+            },
+            {
+              "trial_id": "obs-2-1",
+              "mse_xy_px2": 0.5962037367979784
+            }
+          ]
+        },
+        "heldout": {
+          "rmse_xy_px": 0.6802841502293052,
+          "mse_xy_px2": 0.46278652505320794,
+          "rmse_xy_m": 0.0011338069170488436,
+          "assumed_localization_floor_mse_px2": 0.5,
+          "valid_samples": 315,
+          "per_trial": [
+            {
+              "trial_id": "obs-2-2",
+              "mse_xy_px2": 0.4656783765852936
+            },
+            {
+              "trial_id": "obs-2-3",
+              "mse_xy_px2": 0.5736589858183987
+            },
+            {
+              "trial_id": "obs-2-4",
+              "mse_xy_px2": 0.4361554201380847
+            },
+            {
+              "trial_id": "obs-2-5",
+              "mse_xy_px2": 0.3803384821211994
+            },
+            {
+              "trial_id": "obs-2-6",
+              "mse_xy_px2": 0.4581013606030636
+            }
+          ]
+        },
+        "prediction_status": "completed"
+      },
+      "paired_development": {
+        "trial_mse_improvements_px2": [
+          852.0159571814262,
+          963.3614781712433,
+          1070.733033267999,
+          1179.8007810862994,
+          1303.6663022089645
+        ],
+        "mean_mse_improvement_px2": 1073.9155103831865,
+        "paired_trial_bootstrap_95_interval_px2": [
+          939.8420261603642,
+          1207.5334399717053
+        ],
+        "trial_count": 5,
+        "bootstrap_resamples": 2000,
+        "B1_trial_mse_standard_error_px2": 79.19079145919376,
+        "prediction_disagreement_rmse_px": 32.721905105284215,
+        "interpretation": "descriptive development comparison, conditional on fixed exploration fits; not a null-calibrated structural decision"
+      },
+      "exploration_leave_one_trial_out": [
+        {
+          "held_exploration_trial": "obs-2-0",
+          "B1_mse_px2": 842.9231396931795,
+          "B3_mse_px2": 0.514503134919293
+        },
+        {
+          "held_exploration_trial": "obs-2-1",
+          "B1_mse_px2": 1823.0159678408831,
+          "B3_mse_px2": 0.7738193131870206
+        }
+      ],
+      "structural_decision": "NOT_ASSESSED: Monte Carlo null calibration and mechanism interventions remain pending",
+      "case": "vertical_peg",
+      "observation_sha256": {
+        "obs-2-0": "97ff2b1646a652a8183e70204f179bb4e7e3992e0fa56e67987bae365a532d92",
+        "obs-2-1": "33e5c440a37c6b975fe76aac8c7d772f2fe11b38aa694b56d7d76279e3ed6ad0",
+        "obs-2-2": "2208d85fda5f9d7520346fe6ad5d0ccd1be04ec064a4dd12861f51daa6926d06",
+        "obs-2-3": "f3d9e709942c42faf88909c4217e3f9f63ed6b29997d128e541bd498edc9bd4c",
+        "obs-2-4": "9e28fae5cfa5575377c04e75b709f8813b6971348980f8e7dc136972647cad4c",
+        "obs-2-5": "8501d28edde5c215558c0144b79defe18eefbd80441c26cd4c1fc7d2aca15e50",
+        "obs-2-6": "c5f33db1170bdba15e5534eb80ec306775f2652e534251fb6b96398623903338"
+      },
+      "noise_assumptions": {
+        "covariance_px2": [
+          [
+            0.25,
+            0.0
+          ],
+          [
+            0.0,
+            0.25
+          ]
+        ],
+        "ar1_phi": 0.0,
+        "dropout_probability": 0.0
+      }
+    },
+    {
+      "training_trial_ids": [
+        "obs-3-0",
+        "obs-3-1"
+      ],
+      "heldout_trial_ids": [
+        "obs-3-2",
+        "obs-3-3",
+        "obs-3-4",
+        "obs-3-5",
+        "obs-3-6"
+      ],
+      "B0": {
+        "params": {
+          "length_m": 0.72,
+          "g": 9.80665,
+          "gamma_per_s": 0.06,
+          "quadratic_drag_per_m": 0.02,
+          "peg": null
+        },
+        "training": {
+          "rmse_xy_px": 26.013247562550834,
+          "mse_xy_px2": 676.6890487505569,
+          "assumed_noise_floor_mse_px2": 0.5,
+          "nrmse": 0.06021585083923804,
+          "excess_nrmse": 0.06019360022859508,
+          "innovation_mean_square_per_coordinate": 1353.378097501114,
+          "lag1_x": 0.9869637880905681,
+          "valid_samples": 114
+        },
+        "heldout": {
+          "rmse_xy_px": 25.8027553777119,
+          "mse_xy_px2": 665.7821850820404,
+          "assumed_noise_floor_mse_px2": 0.5,
+          "nrmse": 0.05972860041137014,
+          "excess_nrmse": 0.059706168218096885,
+          "innovation_mean_square_per_coordinate": 1331.5643701640809,
+          "lag1_x": 0.9883889161677751,
+          "valid_samples": 290
+        }
+      },
+      "B1": {
+        "success": true,
+        "params": {
+          "length_m": 0.7054520870043217,
+          "g": 9.80665,
+          "gamma_per_s": 3.1912224736785476e-06,
+          "quadratic_drag_per_m": 0.09390838816348128,
+          "peg": null
+        },
+        "starts": [
+          {
+            "initial": {
+              "length_m": 0.72,
+              "g": 9.80665,
+              "gamma_per_s": 0.06,
+              "quadratic_drag_per_m": 0.02,
+              "peg": null
+            },
+            "success": true,
+            "cost": 41147.933420303925,
+            "nfev": 18,
+            "status": 3,
+            "message": "`xtol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7054983078343651,
+              "g": 9.80665,
+              "gamma_per_s": 0.0013963237751719896,
+              "quadratic_drag_per_m": 0.09541198595093126,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7474506578910146,
+              "g": 9.80665,
+              "gamma_per_s": 0.248528137422,
+              "quadratic_drag_per_m": 0.439230484542,
+              "peg": null
+            },
+            "success": true,
+            "cost": 41136.38437911872,
+            "nfev": 22,
+            "status": 4,
+            "message": "Both `ftol` and `xtol` termination conditions are satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7054520870043217,
+              "g": 9.80665,
+              "gamma_per_s": 3.1912224736785476e-06,
+              "quadratic_drag_per_m": 0.09390838816348128,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.5078931690742823,
+              "g": 9.80665,
+              "gamma_per_s": 0.497056274844,
+              "quadratic_drag_per_m": 0.2784609690839999,
+              "peg": null
+            },
+            "success": true,
+            "cost": 41137.37273431573,
+            "nfev": 21,
+            "status": 3,
+            "message": "`xtol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7055577964688956,
+              "g": 9.80665,
+              "gamma_per_s": 0.00011534572195926108,
+              "quadratic_drag_per_m": 0.09428556648979933,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.9490627084073112,
+              "g": 9.80665,
+              "gamma_per_s": 0.14558441226599997,
+              "quadratic_drag_per_m": 0.11769145362599999,
+              "peg": null
+            },
+            "success": true,
+            "cost": 41139.75564364397,
+            "nfev": 20,
+            "status": 3,
+            "message": "`xtol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7054151306142167,
+              "g": 9.80665,
+              "gamma_per_s": 0.0006848267007757731,
+              "quadratic_drag_per_m": 0.09448386333966809,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.6448886779807936,
+              "g": 9.80665,
+              "gamma_per_s": 0.394112549688,
+              "quadratic_drag_per_m": 0.5569219381679998,
+              "peg": null
+            },
+            "success": true,
+            "cost": 41203.06807761551,
+            "nfev": 24,
+            "status": 3,
+            "message": "`xtol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7054318789536659,
+              "g": 9.80665,
+              "gamma_per_s": 0.017231652765447,
+              "quadratic_drag_per_m": 0.08063713422037956,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.43820224238473715,
+              "g": 9.80665,
+              "gamma_per_s": 0.04264068710999993,
+              "quadratic_drag_per_m": 0.3961524227099998,
+              "peg": null
+            },
+            "success": true,
+            "cost": 41181.31617323262,
+            "nfev": 23,
+            "status": 3,
+            "message": "`xtol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7055366276079913,
+              "g": 9.80665,
+              "gamma_per_s": 0.012513343673232476,
+              "quadratic_drag_per_m": 0.0834147598420886,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.8188363858994737,
+              "g": 9.80665,
+              "gamma_per_s": 0.29116882453199994,
+              "quadratic_drag_per_m": 0.23538290725199998,
+              "peg": null
+            },
+            "success": true,
+            "cost": 41137.43931178134,
+            "nfev": 21,
+            "status": 2,
+            "message": "`ftol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7053705194875475,
+              "g": 9.80665,
+              "gamma_per_s": 0.00015377924853208626,
+              "quadratic_drag_per_m": 0.09441996688033182,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.5563998139506023,
+              "g": 9.80665,
+              "gamma_per_s": 0.539696961954,
+              "quadratic_drag_per_m": 0.07461339179399963,
+              "peg": null
+            },
+            "success": true,
+            "cost": 41141.417879409695,
+            "nfev": 22,
+            "status": 3,
+            "message": "`xtol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7057008971104276,
+              "g": 9.80665,
+              "gamma_per_s": 0.0007280618570035386,
+              "quadratic_drag_per_m": 0.09287968766965089,
+              "peg": null
+            }
+          }
+        ],
+        "robust_cost": 41136.38437911872,
+        "f_scale": 13.984983737811485,
+        "jacobian_singular_values": [
+          6551.06537496336,
+          1822.3908027826474,
+          180.8415422241213
+        ],
+        "warnings": [
+          "best fit is at or near physical bounds; no unconstrained parameter/CI claim"
+        ],
+        "training": {
+          "rmse_xy_px": 19.907278382751265,
+          "mse_xy_px2": 396.29973260835584,
+          "assumed_noise_floor_mse_px2": 0.5,
+          "nrmse": 0.04608166292303534,
+          "excess_nrmse": 0.04605258379221308,
+          "innovation_mean_square_per_coordinate": 792.5994652167117,
+          "lag1_x": 0.9885596893728177,
+          "valid_samples": 114
+        },
+        "heldout": {
+          "rmse_xy_px": 19.572740225184454,
+          "mse_xy_px2": 383.0921599225536,
+          "assumed_noise_floor_mse_px2": 0.5,
+          "nrmse": 0.04530726903977882,
+          "excess_nrmse": 0.045277692565207625,
+          "innovation_mean_square_per_coordinate": 766.1843198451073,
+          "lag1_x": 0.98841650336733,
+          "valid_samples": 290
+        }
+      },
+      "B2": {
+        "decision": "two_circle",
+        "reason": "two recurring arcs improve whole-trial CV beyond the design penalty",
+        "first_circle": {
+          "center_m": [
+            0.0,
+            0.0
+          ],
+          "radius_m": 0.7199737138743546,
+          "arc_span_rad": 0.8133301508099846,
+          "radial_rmse_m": 0.0009288398679430411
+        },
+        "second_circle": {
+          "center_m": [
+            -0.03995169814037085,
+            -0.18100572917790234
+          ],
+          "radius_m": 0.5341114079992088,
+          "arc_span_rad": 0.5265758193181336,
+          "radial_rmse_m": 0.0006504906826217673
+        },
+        "threshold_rad": -0.18377509749873375,
+        "second_side": -1,
+        "cv_one_score": 2515.9394554027413,
+        "cv_two_score": 212.08950831521463,
+        "complexity_penalty": 26.768839804434275,
+        "failed_candidates": 43,
+        "training": {
+          "radial_rmse_px": 0.5064057542700164,
+          "valid_samples": 114
+        },
+        "heldout": {
+          "radial_rmse_px": 0.5042225138562311,
+          "valid_samples": 290
+        }
+      },
+      "comparison_scope": "predefined FREE versus ideal one-peg dynamics; no automatic repair/discovery claim",
+      "B3": {
+        "success": true,
+        "params": {
+          "length_m": 0.720021077597308,
+          "g": 9.80665,
+          "gamma_per_s": 0.06467894757098307,
+          "quadratic_drag_per_m": 0.01641194179100828,
+          "peg": {
+            "distance_m": 0.16079983624285152,
+            "angle_rad": -0.18140113478872766,
+            "contact_side": -1,
+            "kappa_in": 1.0,
+            "kappa_out": 1.0
+          }
+        },
+        "starts": [
+          {
+            "initial": {
+              "length_m": 0.7199737138743546,
+              "g": 9.80665,
+              "gamma_per_s": 3.1912224736785476e-06,
+              "quadratic_drag_per_m": 0.09390838816348128,
+              "peg": {
+                "distance_m": 0.18536238070202765,
+                "angle_rad": -0.21723756033090802,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 48,
+            "status": 2,
+            "nfev": 8,
+            "cost": 110.06317121005576,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7200210776453434,
+              "g": 9.80665,
+              "gamma_per_s": 0.06467896206577957,
+              "quadratic_drag_per_m": 0.016411929682745678,
+              "peg": {
+                "distance_m": 0.1607998307692651,
+                "angle_rad": -0.18140112410607015,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7199737138743546,
+              "g": 9.80665,
+              "gamma_per_s": 3.1912224736785476e-06,
+              "quadratic_drag_per_m": 0.09390838816348128,
+              "peg": {
+                "distance_m": 0.24610755183797245,
+                "angle_rad": -0.35365231123397,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 80,
+            "status": 4,
+            "nfev": 15,
+            "cost": 110.06317120891497,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.720021077597308,
+              "g": 9.80665,
+              "gamma_per_s": 0.06467894757098307,
+              "quadratic_drag_per_m": 0.01641194179100828,
+              "peg": {
+                "distance_m": 0.16079983624285152,
+                "angle_rad": -0.18140113478872766,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7199737138743546,
+              "g": 9.80665,
+              "gamma_per_s": 3.1912224736785476e-06,
+              "quadratic_drag_per_m": 0.09390838816348128,
+              "peg": {
+                "distance_m": 0.09622956104504983,
+                "angle_rad": 0.19269537753206,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 61,
+            "status": 2,
+            "nfev": 11,
+            "cost": 110.0631712131779,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7200210781892976,
+              "g": 9.80665,
+              "gamma_per_s": 0.06467897586889933,
+              "quadratic_drag_per_m": 0.016411917517682235,
+              "peg": {
+                "distance_m": 0.16079980048037473,
+                "angle_rad": -0.18140106414368895,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7199737138743546,
+              "g": 9.80665,
+              "gamma_per_s": 3.1912224736785476e-06,
+              "quadratic_drag_per_m": 0.09390838816348128,
+              "peg": {
+                "distance_m": 0.33873724431365043,
+                "angle_rad": -0.5799569337019101,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 67,
+            "status": 2,
+            "nfev": 12,
+            "cost": 110.06317121167982,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7200210777833671,
+              "g": 9.80665,
+              "gamma_per_s": 0.0646789667468895,
+              "quadratic_drag_per_m": 0.016411925904067957,
+              "peg": {
+                "distance_m": 0.16079981923690587,
+                "angle_rad": -0.18140110201624401,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7199737138743546,
+              "g": 9.80665,
+              "gamma_per_s": 3.1912224736785476e-06,
+              "quadratic_drag_per_m": 0.09390838816348128,
+              "peg": {
+                "distance_m": 0.18885925352072788,
+                "angle_rad": -0.03360924493588002,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 61,
+            "status": 2,
+            "nfev": 11,
+            "cost": 110.06317121140688,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7200210777191206,
+              "g": 9.80665,
+              "gamma_per_s": 0.06467902949289964,
+              "quadratic_drag_per_m": 0.016411873533917123,
+              "peg": {
+                "distance_m": 0.160799821132753,
+                "angle_rad": -0.1814011037769808,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7199737138743546,
+              "g": 9.80665,
+              "gamma_per_s": 3.1912224736785476e-06,
+              "quadratic_drag_per_m": 0.09390838816348128,
+              "peg": {
+                "distance_m": 0.038981262727805284,
+                "angle_rad": -0.8062615561698502,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 52,
+            "status": 2,
+            "nfev": 17,
+            "cost": 41175.090897681934,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7054669330889956,
+              "g": 9.80665,
+              "gamma_per_s": 0.01101292562958579,
+              "quadratic_drag_per_m": 0.0841991715761857,
+              "peg": {
+                "distance_m": 0.03819582761784036,
+                "angle_rad": -0.8062615561698502,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7199737138743546,
+              "g": 9.80665,
+              "gamma_per_s": 3.1912224736785476e-06,
+              "quadratic_drag_per_m": 0.09390838816348128,
+              "peg": {
+                "distance_m": 0.28148894599640584,
+                "angle_rad": -0.25991386740382016,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 48,
+            "status": 2,
+            "nfev": 8,
+            "cost": 110.06317121716575,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7200210766151139,
+              "g": 9.80665,
+              "gamma_per_s": 0.06467902376213797,
+              "quadratic_drag_per_m": 0.016411883754084807,
+              "peg": {
+                "distance_m": 0.16079997127136608,
+                "angle_rad": -0.18140137738826762,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7199737138743546,
+              "g": 9.80665,
+              "gamma_per_s": 3.1912224736785476e-06,
+              "quadratic_drag_per_m": 0.09390838816348128,
+              "peg": {
+                "distance_m": 0.13161095520348343,
+                "angle_rad": 0.28643382136220985,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 66,
+            "status": 2,
+            "nfev": 11,
+            "cost": 110.06317121097764,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.72002107759462,
+              "g": 9.80665,
+              "gamma_per_s": 0.06467894242280071,
+              "quadratic_drag_per_m": 0.016411944708178684,
+              "peg": {
+                "distance_m": 0.1607998386548046,
+                "angle_rad": -0.18140113976817637,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          }
+        ],
+        "robust_cost": 110.06317120891497,
+        "f_scale": 13.984983737811485,
+        "identifiability": {
+          "parameter_coordinates": [
+            "log_length",
+            "gamma_per_s",
+            "quadratic_per_m",
+            "peg_fraction",
+            "peg_angle_rad"
+          ],
+          "scaled_singular_values": [
+            12829.067731026338,
+            2354.7673210327303,
+            2205.67337357418,
+            407.26935918003267,
+            195.15635718574998
+          ],
+          "numerical_rank": 5,
+          "rank_threshold_relative": 1e-05,
+          "condition_number": 65.73738061125839,
+          "weakest_scaled_direction": [
+            0.0005884975479063555,
+            -0.7750078909930316,
+            0.6302934327119873,
+            0.034583778764495206,
+            -0.029942837134736926
+          ],
+          "near_bound": false,
+          "conditional_gaussian_std": [
+            7.785183552533784e-05,
+            0.002389722856757937,
+            0.0019493910034883584,
+            0.0008697365999118956,
+            0.0015366527908744843
+          ],
+          "std_parameter_units": [
+            "m",
+            "s^-1",
+            "m^-1",
+            "m",
+            "rad"
+          ],
+          "locally_identifiable": true,
+          "uncertainty_scope": "local linear sensitivity only; no calibrated confidence interval or global uniqueness claim",
+          "near_optimal_multistart_coordinate_range": [
+            2.161229902117336e-09,
+            1.451168315375062e-07,
+            1.1862376926805955e-07,
+            4.361303225801373e-07,
+            2.3748641293757547e-07
+          ],
+          "near_optimal_starts": 7,
+          "profile_likelihood": "NOT_RUN; multistart spread is not a confidence interval"
+        },
+        "warnings": [],
+        "options": {
+          "n_starts": 8,
+          "max_nfev": 60,
+          "length_bounds_m": [
+            0.4,
+            1.1
+          ],
+          "gamma_bounds_per_s": [
+            0.0,
+            0.6
+          ],
+          "quadratic_bounds_per_m": [
+            0.0,
+            0.6
+          ],
+          "peg_fraction_bounds": [
+            0.005,
+            0.55
+          ],
+          "peg_angle_bounds_rad": [
+            -0.9,
+            0.9
+          ],
+          "contact_side": -1
+        },
+        "training": {
+          "rmse_xy_px": 0.6960984372399535,
+          "mse_xy_px2": 0.48455303432790536,
+          "rmse_xy_m": 0.0011601640620665927,
+          "assumed_localization_floor_mse_px2": 0.5,
+          "valid_samples": 114,
+          "per_trial": [
+            {
+              "trial_id": "obs-3-0",
+              "mse_xy_px2": 0.5392511375084489
+            },
+            {
+              "trial_id": "obs-3-1",
+              "mse_xy_px2": 0.4237773641273016
+            }
+          ]
+        },
+        "heldout": {
+          "rmse_xy_px": 0.7070996570864135,
+          "mse_xy_px2": 0.49998992505172357,
+          "rmse_xy_m": 0.0011784994284773568,
+          "assumed_localization_floor_mse_px2": 0.5,
+          "valid_samples": 290,
+          "per_trial": [
+            {
+              "trial_id": "obs-3-2",
+              "mse_xy_px2": 0.4124859110124214
+            },
+            {
+              "trial_id": "obs-3-3",
+              "mse_xy_px2": 0.6200011979339257
+            },
+            {
+              "trial_id": "obs-3-4",
+              "mse_xy_px2": 0.46727043452290995
+            },
+            {
+              "trial_id": "obs-3-5",
+              "mse_xy_px2": 0.6128971440823614
+            },
+            {
+              "trial_id": "obs-3-6",
+              "mse_xy_px2": 0.39193572798302845
+            }
+          ]
+        },
+        "prediction_status": "completed"
+      },
+      "paired_development": {
+        "trial_mse_improvements_px2": [
+          209.06505089184526,
+          296.8309543126974,
+          357.85483537853577,
+          472.9961584376508,
+          559.5961379044201
+        ],
+        "mean_mse_improvement_px2": 379.26862738502984,
+        "paired_trial_bootstrap_95_interval_px2": [
+          273.9293691575242,
+          489.4899205019051
+        ],
+        "trial_count": 5,
+        "bootstrap_resamples": 2000,
+        "B1_trial_mse_standard_error_px2": 62.25764318044005,
+        "prediction_disagreement_rmse_px": 19.553824089404248,
+        "interpretation": "descriptive development comparison, conditional on fixed exploration fits; not a null-calibrated structural decision"
+      },
+      "exploration_leave_one_trial_out": [
+        {
+          "held_exploration_trial": "obs-3-0",
+          "B1_mse_px2": 245.38081849189163,
+          "B3_mse_px2": 1.0439239415911312
+        },
+        {
+          "held_exploration_trial": "obs-3-1",
+          "B1_mse_px2": 818.6434427476146,
+          "B3_mse_px2": 1.71334082721052
+        }
+      ],
+      "structural_decision": "NOT_ASSESSED: Monte Carlo null calibration and mechanism interventions remain pending",
+      "case": "off_vertical_peg",
+      "observation_sha256": {
+        "obs-3-0": "39254cf27985e4561eee5380181dd6260958462905b928e500e0ac6a6c0b3fd1",
+        "obs-3-1": "163cc9eeb60c6d390c2bd37a242763ec8d0ecbca4f7a5d6ececc4712eb7510d2",
+        "obs-3-2": "7c7e9cb11454d7a1715b77bcafd75bac0be1f963f329ad4670cdc6c7727ba0f4",
+        "obs-3-3": "187c05f386baef42effeb10c04816e3134e6ce7f1a868c738793be84165d0a1b",
+        "obs-3-4": "04a626ad606f497b48ce66a516b540b6bdc437018aa6d5d92fad09ff68b9dd9c",
+        "obs-3-5": "0bc3dd56e7c7a2a0cea56ce02ca7e70b47fc0f3d3c1fb21408d21e869897d8d8",
+        "obs-3-6": "50ee287edb479b3d596b6d51bb2424ca3618304276cdff722652cfe2d9ccf684"
+      },
+      "noise_assumptions": {
+        "covariance_px2": [
+          [
+            0.25,
+            0.0
+          ],
+          [
+            0.0,
+            0.25
+          ]
+        ],
+        "ar1_phi": 0.0,
+        "dropout_probability": 0.1
+      }
+    },
+    {
+      "training_trial_ids": [
+        "obs-4-0",
+        "obs-4-1"
+      ],
+      "heldout_trial_ids": [
+        "obs-4-2",
+        "obs-4-3",
+        "obs-4-4",
+        "obs-4-5",
+        "obs-4-6"
+      ],
+      "B0": {
+        "params": {
+          "length_m": 0.72,
+          "g": 9.80665,
+          "gamma_per_s": 0.06,
+          "quadratic_drag_per_m": 0.02,
+          "peg": null
+        },
+        "training": {
+          "rmse_xy_px": 0.599104177243552,
+          "mse_xy_px2": 0.3589258151906734,
+          "assumed_noise_floor_mse_px2": 0.5,
+          "nrmse": 0.0013868152251008147,
+          "excess_nrmse": 0.0,
+          "innovation_mean_square_per_coordinate": 0.7178516303813467,
+          "lag1_x": -0.039838842604671645,
+          "valid_samples": 126
+        },
+        "heldout": {
+          "rmse_xy_px": 0.6940528544109708,
+          "mse_xy_px2": 0.4817093647160161,
+          "assumed_noise_floor_mse_px2": 0.5,
+          "nrmse": 0.0016066038296550249,
+          "excess_nrmse": 0.0,
+          "innovation_mean_square_per_coordinate": 0.9634187294320323,
+          "lag1_x": -0.0012557093811789487,
+          "valid_samples": 315
+        }
+      },
+      "B1": {
+        "success": true,
+        "params": {
+          "length_m": 0.719851023375874,
+          "g": 9.80665,
+          "gamma_per_s": 0.06100812538507384,
+          "quadratic_drag_per_m": 0.018618748913695353,
+          "peg": null
+        },
+        "starts": [
+          {
+            "initial": {
+              "length_m": 0.72,
+              "g": 9.80665,
+              "gamma_per_s": 0.06,
+              "quadratic_drag_per_m": 0.02,
+              "peg": null
+            },
+            "success": true,
+            "cost": 66.41575864941089,
+            "nfev": 14,
+            "status": 2,
+            "message": "`ftol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7198510183924002,
+              "g": 9.80665,
+              "gamma_per_s": 0.060993624754619565,
+              "quadratic_drag_per_m": 0.01864260976907204,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7474506578910146,
+              "g": 9.80665,
+              "gamma_per_s": 0.248528137422,
+              "quadratic_drag_per_m": 0.439230484542,
+              "peg": null
+            },
+            "success": true,
+            "cost": 66.41588914909417,
+            "nfev": 27,
+            "status": 3,
+            "message": "`xtol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7198511122663651,
+              "g": 9.80665,
+              "gamma_per_s": 0.0609079211433426,
+              "quadratic_drag_per_m": 0.018775834995945123,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.5078931690742823,
+              "g": 9.80665,
+              "gamma_per_s": 0.497056274844,
+              "quadratic_drag_per_m": 0.2784609690839999,
+              "peg": null
+            },
+            "success": true,
+            "cost": 66.41604420829941,
+            "nfev": 20,
+            "status": 2,
+            "message": "`ftol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7198509727307887,
+              "g": 9.80665,
+              "gamma_per_s": 0.0611495445175204,
+              "quadratic_drag_per_m": 0.018390033266361884,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.9490627084073112,
+              "g": 9.80665,
+              "gamma_per_s": 0.14558441226599997,
+              "quadratic_drag_per_m": 0.11769145362599999,
+              "peg": null
+            },
+            "success": true,
+            "cost": 66.41575795589209,
+            "nfev": 30,
+            "status": 4,
+            "message": "Both `ftol` and `xtol` termination conditions are satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7198510068636695,
+              "g": 9.80665,
+              "gamma_per_s": 0.06100195428229592,
+              "quadratic_drag_per_m": 0.01863127159546799,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.6448886779807936,
+              "g": 9.80665,
+              "gamma_per_s": 0.394112549688,
+              "quadratic_drag_per_m": 0.5569219381679998,
+              "peg": null
+            },
+            "success": true,
+            "cost": 66.41575577490462,
+            "nfev": 26,
+            "status": 4,
+            "message": "Both `ftol` and `xtol` termination conditions are satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.719851023375874,
+              "g": 9.80665,
+              "gamma_per_s": 0.06100812538507384,
+              "quadratic_drag_per_m": 0.018618748913695353,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.43820224238473715,
+              "g": 9.80665,
+              "gamma_per_s": 0.04264068710999993,
+              "quadratic_drag_per_m": 0.3961524227099998,
+              "peg": null
+            },
+            "success": true,
+            "cost": 66.4160027920164,
+            "nfev": 27,
+            "status": 2,
+            "message": "`ftol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7198509139181508,
+              "g": 9.80665,
+              "gamma_per_s": 0.06114167252490922,
+              "quadratic_drag_per_m": 0.01840813554990008,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.8188363858994737,
+              "g": 9.80665,
+              "gamma_per_s": 0.29116882453199994,
+              "quadratic_drag_per_m": 0.23538290725199998,
+              "peg": null
+            },
+            "success": true,
+            "cost": 66.41575827920644,
+            "nfev": 29,
+            "status": 3,
+            "message": "`xtol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7198509894711164,
+              "g": 9.80665,
+              "gamma_per_s": 0.061016170588945894,
+              "quadratic_drag_per_m": 0.0186087076159873,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.5563998139506023,
+              "g": 9.80665,
+              "gamma_per_s": 0.539696961954,
+              "quadratic_drag_per_m": 0.07461339179399963,
+              "peg": null
+            },
+            "success": true,
+            "cost": 66.41575589450582,
+            "nfev": 28,
+            "status": 3,
+            "message": "`xtol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7198510269340684,
+              "g": 9.80665,
+              "gamma_per_s": 0.061004089035930124,
+              "quadratic_drag_per_m": 0.018624965995961775,
+              "peg": null
+            }
+          }
+        ],
+        "robust_cost": 66.41575577490462,
+        "f_scale": 1.0,
+        "jacobian_singular_values": [
+          8539.328156198573,
+          1214.2793706190707,
+          89.17134484449744
+        ],
+        "warnings": [],
+        "training": {
+          "rmse_xy_px": 0.5900891384151077,
+          "mse_xy_px2": 0.34820519127548416,
+          "assumed_noise_floor_mse_px2": 0.5,
+          "nrmse": 0.001365947079664601,
+          "excess_nrmse": 0.0,
+          "innovation_mean_square_per_coordinate": 0.6964103825509682,
+          "lag1_x": -0.05210548710261558,
+          "valid_samples": 126
+        },
+        "heldout": {
+          "rmse_xy_px": 0.697874581232716,
+          "mse_xy_px2": 0.4870289311307386,
+          "assumed_noise_floor_mse_px2": 0.5,
+          "nrmse": 0.0016154504195201756,
+          "excess_nrmse": 0.0,
+          "innovation_mean_square_per_coordinate": 0.9740578622614772,
+          "lag1_x": 0.009822258268999403,
+          "valid_samples": 315
+        }
+      },
+      "B2": {
+        "decision": "one_circle_only",
+        "reason": "no supported second pivot; unexcited mechanisms remain possible",
+        "first_circle": {
+          "center_m": [
+            0.0,
+            0.0
+          ],
+          "radius_m": 0.719855468153879,
+          "arc_span_rad": 0.6308587444412117,
+          "radial_rmse_m": 0.0007185840295504417
+        },
+        "second_circle": null,
+        "threshold_rad": null,
+        "second_side": null,
+        "cv_one_score": 97.42969645614197,
+        "cv_two_score": 103.40707235920573,
+        "complexity_penalty": 27.169173638662205,
+        "failed_candidates": 105,
+        "training": {
+          "radial_rmse_px": 0.431150417730265,
+          "valid_samples": 126
+        },
+        "heldout": {
+          "radial_rmse_px": 0.48859759385051543,
+          "valid_samples": 315
+        }
+      },
+      "comparison_scope": "predefined FREE versus ideal one-peg dynamics; no automatic repair/discovery claim",
+      "B3": {
+        "success": true,
+        "params": {
+          "length_m": 0.7198510192943163,
+          "g": 9.80665,
+          "gamma_per_s": 0.061007018514147617,
+          "quadratic_drag_per_m": 0.01862047758538675,
+          "peg": {
+            "distance_m": 0.05468925482508479,
+            "angle_rad": -0.5525154754090339,
+            "contact_side": -1,
+            "kappa_in": 1.0,
+            "kappa_out": 1.0
+          }
+        },
+        "starts": [
+          {
+            "initial": {
+              "length_m": 0.7198179687098553,
+              "g": 9.80665,
+              "gamma_per_s": 0.06100812538507384,
+              "quadratic_drag_per_m": 0.018618748913695353,
+              "peg": {
+                "distance_m": 0.06183044256366329,
+                "angle_rad": 0.21899999,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 121,
+            "status": 2,
+            "nfev": 31,
+            "cost": 66.41575684360659,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7198510125605007,
+              "g": 9.80665,
+              "gamma_per_s": 0.06101615308135742,
+              "quadratic_drag_per_m": 0.018605915113026342,
+              "peg": {
+                "distance_m": 0.003969618461164431,
+                "angle_rad": -0.3457019767393472,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7198179687098553,
+              "g": 9.80665,
+              "gamma_per_s": 0.06100812538507384,
+              "quadratic_drag_per_m": 0.018618748913695353,
+              "peg": {
+                "distance_m": 0.24605431369829195,
+                "angle_rad": -0.43649502370797,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 14,
+            "status": 3,
+            "nfev": 4,
+            "cost": 66.41575614310231,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7198510136943767,
+              "g": 9.80665,
+              "gamma_per_s": 0.0610086833387822,
+              "quadratic_drag_per_m": 0.018619103443593854,
+              "peg": {
+                "distance_m": 0.24606560941657216,
+                "angle_rad": -0.43649502370797,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7198179687098553,
+              "g": 9.80665,
+              "gamma_per_s": 0.06100812538507384,
+              "quadratic_drag_per_m": 0.018618748913695353,
+              "peg": {
+                "distance_m": 0.09620874460616345,
+                "angle_rad": 0.027009952584060026,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 170,
+            "status": 2,
+            "nfev": 35,
+            "cost": 66.41575600360984,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7198510208969453,
+              "g": 9.80665,
+              "gamma_per_s": 0.06100448408848045,
+              "quadratic_drag_per_m": 0.018624512082464035,
+              "peg": {
+                "distance_m": 0.03543422256529093,
+                "angle_rad": -0.5610357972986452,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7198179687098553,
+              "g": 9.80665,
+              "gamma_per_s": 0.06100812538507384,
+              "quadratic_drag_per_m": 0.018618748913695353,
+              "peg": {
+                "distance_m": 0.3386639684609061,
+                "angle_rad": -0.62848507112391,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 13,
+            "status": 3,
+            "nfev": 3,
+            "cost": 66.41575614310231,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7198510136943767,
+              "g": 9.80665,
+              "gamma_per_s": 0.0610086833387822,
+              "quadratic_drag_per_m": 0.018619103443593854,
+              "peg": {
+                "distance_m": 0.33867951564933735,
+                "angle_rad": -0.62848507112391,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7198179687098553,
+              "g": 9.80665,
+              "gamma_per_s": 0.06100812538507384,
+              "quadratic_drag_per_m": 0.018618748913695353,
+              "peg": {
+                "distance_m": 0.18881839936877762,
+                "angle_rad": -0.16498009483188003,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 99,
+            "status": 2,
+            "nfev": 24,
+            "cost": 66.41575579253774,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7198510192943163,
+              "g": 9.80665,
+              "gamma_per_s": 0.061007018514147617,
+              "quadratic_drag_per_m": 0.01862047758538675,
+              "peg": {
+                "distance_m": 0.05468925482508479,
+                "angle_rad": -0.5525154754090339,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7198179687098553,
+              "g": 9.80665,
+              "gamma_per_s": 0.06100812538507384,
+              "quadratic_drag_per_m": 0.018618748913695353,
+              "peg": {
+                "distance_m": 0.03897283027664916,
+                "angle_rad": -0.8204751185398501,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 13,
+            "status": 3,
+            "nfev": 3,
+            "cost": 66.41575614310231,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7198510136943767,
+              "g": 9.80665,
+              "gamma_per_s": 0.0610086833387822,
+              "quadratic_drag_per_m": 0.018619103443593854,
+              "peg": {
+                "distance_m": 0.038974619418667325,
+                "angle_rad": -0.8204751185398501,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7198179687098553,
+              "g": 9.80665,
+              "gamma_per_s": 0.06100812538507384,
+              "quadratic_drag_per_m": 0.018618748913695353,
+              "peg": {
+                "distance_m": 0.2814280541313917,
+                "angle_rad": -0.3569701422478201,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 14,
+            "status": 3,
+            "nfev": 4,
+            "cost": 66.41575614310231,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7198510136943767,
+              "g": 9.80665,
+              "gamma_per_s": 0.0610086833387822,
+              "quadratic_drag_per_m": 0.018619103443593854,
+              "peg": {
+                "distance_m": 0.28144097376676747,
+                "angle_rad": -0.3569701422478201,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7198179687098553,
+              "g": 9.80665,
+              "gamma_per_s": 0.06100812538507384,
+              "quadratic_drag_per_m": 0.018618748913695353,
+              "peg": {
+                "distance_m": 0.13158248503926342,
+                "angle_rad": 0.10653483404420994,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 92,
+            "status": 2,
+            "nfev": 22,
+            "cost": 66.41575673562602,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7198510156284731,
+              "g": 9.80665,
+              "gamma_per_s": 0.06101546410227904,
+              "quadratic_drag_per_m": 0.018606709192582387,
+              "peg": {
+                "distance_m": 0.0589187877603337,
+                "angle_rad": -0.3125879766825528,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          }
+        ],
+        "robust_cost": 66.41575579253774,
+        "f_scale": 1.0,
+        "identifiability": {
+          "parameter_coordinates": [
+            "log_length",
+            "gamma_per_s",
+            "quadratic_per_m",
+            "peg_fraction",
+            "peg_angle_rad"
+          ],
+          "scaled_singular_values": [
+            10937.444421745342,
+            897.3180467596643,
+            66.55221531131886,
+            0.0,
+            0.0
+          ],
+          "numerical_rank": 3,
+          "rank_threshold_relative": 1e-05,
+          "condition_number": null,
+          "weakest_scaled_direction": [
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          "near_bound": false,
+          "conditional_gaussian_std": null,
+          "std_parameter_units": [
+            "m",
+            "s^-1",
+            "m^-1",
+            "m",
+            "rad"
+          ],
+          "locally_identifiable": false,
+          "uncertainty_scope": "local linear sensitivity only; no calibrated confidence interval or global uniqueness claim",
+          "near_optimal_multistart_coordinate_range": [
+            1.1447984545847504e-08,
+            1.9448321461612572e-05,
+            3.0994949062820853e-05,
+            0.8531579294191887,
+            0.45387590871965805
+          ],
+          "near_optimal_starts": 8,
+          "profile_likelihood": "NOT_RUN; multistart spread is not a confidence interval"
+        },
+        "warnings": [
+          "peg mechanism/parameters not identified by this local fit"
+        ],
+        "options": {
+          "n_starts": 8,
+          "max_nfev": 60,
+          "length_bounds_m": [
+            0.4,
+            1.1
+          ],
+          "gamma_bounds_per_s": [
+            0.0,
+            0.6
+          ],
+          "quadratic_bounds_per_m": [
+            0.0,
+            0.6
+          ],
+          "peg_fraction_bounds": [
+            0.005,
+            0.55
+          ],
+          "peg_angle_bounds_rad": [
+            -0.9,
+            0.9
+          ],
+          "contact_side": -1
+        },
+        "training": {
+          "rmse_xy_px": 0.5900890157857018,
+          "mse_xy_px2": 0.3482050465509382,
+          "rmse_xy_m": 0.0009834816929761674,
+          "assumed_localization_floor_mse_px2": 0.5,
+          "valid_samples": 126,
+          "per_trial": [
+            {
+              "trial_id": "obs-4-0",
+              "mse_xy_px2": 0.3834540928448957
+            },
+            {
+              "trial_id": "obs-4-1",
+              "mse_xy_px2": 0.31295600025698067
+            }
+          ]
+        },
+        "heldout": {
+          "rmse_xy_px": 0.6978746795972611,
+          "mse_xy_px2": 0.48702906842297994,
+          "rmse_xy_m": 0.0011631244659954367,
+          "assumed_localization_floor_mse_px2": 0.5,
+          "valid_samples": 315,
+          "per_trial": [
+            {
+              "trial_id": "obs-4-2",
+              "mse_xy_px2": 0.5062110755535559
+            },
+            {
+              "trial_id": "obs-4-3",
+              "mse_xy_px2": 0.47675432558391306
+            },
+            {
+              "trial_id": "obs-4-4",
+              "mse_xy_px2": 0.4218411939416726
+            },
+            {
+              "trial_id": "obs-4-5",
+              "mse_xy_px2": 0.5436755773055517
+            },
+            {
+              "trial_id": "obs-4-6",
+              "mse_xy_px2": 0.4866631697302061
+            }
+          ]
+        },
+        "prediction_status": "completed"
+      },
+      "paired_development": {
+        "trial_mse_improvements_px2": [
+          2.01074688599423e-06,
+          -1.7710284933025733e-07,
+          1.6044834627582105e-08,
+          -1.693063853114296e-06,
+          -8.430862247776894e-07
+        ],
+        "mean_mse_improvement_px2": -1.372922413200861e-07,
+        "paired_trial_bootstrap_95_interval_px2": [
+          -1.0508005722872915e-06,
+          1.0410398535665167e-06
+        ],
+        "trial_count": 5,
+        "bootstrap_resamples": 2000,
+        "B1_trial_mse_standard_error_px2": 0.019914601512262247,
+        "prediction_disagreement_rmse_px": 7.686952735504661e-06,
+        "interpretation": "descriptive development comparison, conditional on fixed exploration fits; not a null-calibrated structural decision"
+      },
+      "exploration_leave_one_trial_out": [
+        {
+          "held_exploration_trial": "obs-4-0",
+          "B1_mse_px2": 0.4322629958385287,
+          "B3_mse_px2": 0.43226199348583305
+        },
+        {
+          "held_exploration_trial": "obs-4-1",
+          "B1_mse_px2": 0.5039388680266566,
+          "B3_mse_px2": 0.5039388680266566
+        }
+      ],
+      "structural_decision": "NOT_ASSESSED: Monte Carlo null calibration and mechanism interventions remain pending",
+      "case": "unexcited_peg",
+      "observation_sha256": {
+        "obs-4-0": "93b46d2b105a637d2348c716a33ebe1f5af69aeffd26aa8bd3a9b778a8680cec",
+        "obs-4-1": "c594c6b65cef9b56921c6bf47deceb139f4087b5d38e8dfa6ae18ee4d2c46df0",
+        "obs-4-2": "35f5ace5f089339e5e82497657e9040e4074214b4adcab56e672d47ac11a3f48",
+        "obs-4-3": "ab0b493b3154f87866abe4e01894eeb3b4805e7ca8de3169d39a20347fb10288",
+        "obs-4-4": "12b918a7dafb3db362414c7735ffdcb80019621d2be8a6243550524661ad5b1f",
+        "obs-4-5": "e201ba9f0055af5c625d9f5cd020ea84aedd31ad7d4d1533bedbb976adc62325",
+        "obs-4-6": "e2a840f1264aca316a626d92f7aa03bd174ebc74bcdef498035cfbe8f9f99097"
+      },
+      "noise_assumptions": {
+        "covariance_px2": [
+          [
+            0.25,
+            0.0
+          ],
+          [
+            0.0,
+            0.25
+          ]
+        ],
+        "ar1_phi": 0.0,
+        "dropout_probability": 0.0
+      }
+    },
+    {
+      "training_trial_ids": [
+        "obs-5-0",
+        "obs-5-1"
+      ],
+      "heldout_trial_ids": [
+        "obs-5-2",
+        "obs-5-3",
+        "obs-5-4",
+        "obs-5-5",
+        "obs-5-6"
+      ],
+      "B0": {
+        "params": {
+          "length_m": 0.72,
+          "g": 9.80665,
+          "gamma_per_s": 0.06,
+          "quadratic_drag_per_m": 0.02,
+          "peg": null
+        },
+        "training": {
+          "rmse_xy_px": 26.161310131391915,
+          "mse_xy_px2": 684.4141477908693,
+          "assumed_noise_floor_mse_px2": 12.5,
+          "nrmse": 0.06055858826711091,
+          "excess_nrmse": 0.06000302507015281,
+          "innovation_mean_square_per_coordinate": 31.264582367827252,
+          "lag1_x": 0.9849171740100154,
+          "valid_samples": 104
+        },
+        "heldout": {
+          "rmse_xy_px": 25.80654414323002,
+          "mse_xy_px2": 665.9777206164796,
+          "assumed_noise_floor_mse_px2": 12.5,
+          "nrmse": 0.059737370701921345,
+          "excess_nrmse": 0.05917409790645476,
+          "innovation_mean_square_per_coordinate": 29.677684637744882,
+          "lag1_x": 0.9817499742315501,
+          "valid_samples": 268
+        }
+      },
+      "B1": {
+        "success": true,
+        "params": {
+          "length_m": 0.7049002173527543,
+          "g": 9.80665,
+          "gamma_per_s": 1.0736397986225058e-07,
+          "quadratic_drag_per_m": 0.08848309698815812,
+          "peg": null
+        },
+        "starts": [
+          {
+            "initial": {
+              "length_m": 0.72,
+              "g": 9.80665,
+              "gamma_per_s": 0.06,
+              "quadratic_drag_per_m": 0.02,
+              "peg": null
+            },
+            "success": true,
+            "cost": 967.9431805563308,
+            "nfev": 21,
+            "status": 3,
+            "message": "`xtol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7048904879110895,
+              "g": 9.80665,
+              "gamma_per_s": 0.0022151302971052376,
+              "quadratic_drag_per_m": 0.0870921891063124,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7474506578910146,
+              "g": 9.80665,
+              "gamma_per_s": 0.248528137422,
+              "quadratic_drag_per_m": 0.439230484542,
+              "peg": null
+            },
+            "success": true,
+            "cost": 967.7653384893792,
+            "nfev": 21,
+            "status": 3,
+            "message": "`xtol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7049014839096752,
+              "g": 9.80665,
+              "gamma_per_s": 0.0010272446261086839,
+              "quadratic_drag_per_m": 0.08782380608891024,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.5078931690742823,
+              "g": 9.80665,
+              "gamma_per_s": 0.497056274844,
+              "quadratic_drag_per_m": 0.2784609690839999,
+              "peg": null
+            },
+            "success": true,
+            "cost": 967.6182233314202,
+            "nfev": 23,
+            "status": 3,
+            "message": "`xtol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7049005349670474,
+              "g": 9.80665,
+              "gamma_per_s": 1.0468897952637394e-05,
+              "quadratic_drag_per_m": 0.0886520701582823,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.9490627084073112,
+              "g": 9.80665,
+              "gamma_per_s": 0.14558441226599997,
+              "quadratic_drag_per_m": 0.11769145362599999,
+              "peg": null
+            },
+            "success": true,
+            "cost": 967.6164812221737,
+            "nfev": 24,
+            "status": 2,
+            "message": "`ftol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7049002173527543,
+              "g": 9.80665,
+              "gamma_per_s": 1.0736397986225058e-07,
+              "quadratic_drag_per_m": 0.08848309698815812,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.6448886779807936,
+              "g": 9.80665,
+              "gamma_per_s": 0.394112549688,
+              "quadratic_drag_per_m": 0.5569219381679998,
+              "peg": null
+            },
+            "success": true,
+            "cost": 969.0998615980623,
+            "nfev": 20,
+            "status": 3,
+            "message": "`xtol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.704591054272683,
+              "g": 9.80665,
+              "gamma_per_s": 2.8277130255770322e-05,
+              "quadratic_drag_per_m": 0.09660370888595049,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.43820224238473715,
+              "g": 9.80665,
+              "gamma_per_s": 0.04264068710999993,
+              "quadratic_drag_per_m": 0.3961524227099998,
+              "peg": null
+            },
+            "success": true,
+            "cost": 969.4851695592437,
+            "nfev": 21,
+            "status": 3,
+            "message": "`xtol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7049588831607592,
+              "g": 9.80665,
+              "gamma_per_s": 0.012217963540199855,
+              "quadratic_drag_per_m": 0.07800466063241739,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.8188363858994737,
+              "g": 9.80665,
+              "gamma_per_s": 0.29116882453199994,
+              "quadratic_drag_per_m": 0.23538290725199998,
+              "peg": null
+            },
+            "success": true,
+            "cost": 968.0663608878623,
+            "nfev": 22,
+            "status": 3,
+            "message": "`xtol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.705083782326067,
+              "g": 9.80665,
+              "gamma_per_s": 0.0028376654361130507,
+              "quadratic_drag_per_m": 0.08577839757923356,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.5563998139506023,
+              "g": 9.80665,
+              "gamma_per_s": 0.539696961954,
+              "quadratic_drag_per_m": 0.07461339179399963,
+              "peg": null
+            },
+            "success": true,
+            "cost": 977.9153957855079,
+            "nfev": 20,
+            "status": 3,
+            "message": "`xtol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7053358779919969,
+              "g": 9.80665,
+              "gamma_per_s": 0.04549812762475614,
+              "quadratic_drag_per_m": 0.040193803988102295,
+              "peg": null
+            }
+          }
+        ],
+        "robust_cost": 967.6164812221737,
+        "f_scale": 2.5555987608497803,
+        "jacobian_singular_values": [
+          1024.651384065217,
+          276.7488201183204,
+          27.373973891279018
+        ],
+        "warnings": [
+          "best fit is at or near physical bounds; no unconstrained parameter/CI claim"
+        ],
+        "training": {
+          "rmse_xy_px": 19.996293106543295,
+          "mse_xy_px2": 399.8517380027909,
+          "assumed_noise_floor_mse_px2": 12.5,
+          "nrmse": 0.04628771552440578,
+          "excess_nrmse": 0.04555845709780171,
+          "innovation_mean_square_per_coordinate": 18.388701214304447,
+          "lag1_x": 0.9782331563107106,
+          "valid_samples": 104
+        },
+        "heldout": {
+          "rmse_xy_px": 19.690919433142618,
+          "mse_xy_px2": 387.7323081225136,
+          "assumed_noise_floor_mse_px2": 12.5,
+          "nrmse": 0.04558083202116347,
+          "excess_nrmse": 0.04484007863959924,
+          "innovation_mean_square_per_coordinate": 17.361943231170255,
+          "lag1_x": 0.9738065846044095,
+          "valid_samples": 268
+        }
+      },
+      "B2": {
+        "decision": "ambiguous",
+        "reason": "second-circle candidate failed arc/solver checks in at least one CV fold",
+        "first_circle": {
+          "center_m": [
+            0.0,
+            0.0
+          ],
+          "radius_m": 0.7191371764602158,
+          "arc_span_rad": 1.20945104261261,
+          "radial_rmse_m": 0.00477646711611267
+        },
+        "second_circle": null,
+        "threshold_rad": null,
+        "second_side": null,
+        "cv_one_score": 82.84305893177668,
+        "cv_two_score": null,
+        "complexity_penalty": 23.478059573250615,
+        "failed_candidates": 114,
+        "training": {
+          "radial_rmse_px": 2.8658802696676022,
+          "valid_samples": 104
+        },
+        "heldout": {
+          "radial_rmse_px": 3.1442754151874124,
+          "valid_samples": 268
+        }
+      },
+      "comparison_scope": "predefined FREE versus ideal one-peg dynamics; no automatic repair/discovery claim",
+      "B3": {
+        "success": true,
+        "params": {
+          "length_m": 0.7204480668716552,
+          "g": 9.80665,
+          "gamma_per_s": 0.057339463622695416,
+          "quadratic_drag_per_m": 0.01802587880266237,
+          "peg": {
+            "distance_m": 0.16516451721365685,
+            "angle_rad": -0.1876225722252935,
+            "contact_side": -1,
+            "kappa_in": 1.0,
+            "kappa_out": 1.0
+          }
+        },
+        "starts": [
+          {
+            "initial": {
+              "length_m": 0.7199889919139036,
+              "g": 9.80665,
+              "gamma_per_s": 1.0736397986225058e-07,
+              "quadratic_drag_per_m": 0.08848309698815812,
+              "peg": {
+                "distance_m": 0.30903589744980137,
+                "angle_rad": -0.33526888548222145,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 55,
+            "status": 2,
+            "nfev": 10,
+            "cost": 83.38935921388936,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7204480695116827,
+              "g": 9.80665,
+              "gamma_per_s": 0.05733897207934524,
+              "quadratic_drag_per_m": 0.01802622569223525,
+              "peg": {
+                "distance_m": 0.16516450971752789,
+                "angle_rad": -0.18762257359227455,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7199889919139036,
+              "g": 9.80665,
+              "gamma_per_s": 1.0736397986225058e-07,
+              "quadratic_drag_per_m": 0.08848309698815812,
+              "peg": {
+                "distance_m": 0.2461127743076791,
+                "angle_rad": -0.35365231123397,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 48,
+            "status": 2,
+            "nfev": 8,
+            "cost": 83.38935921460667,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7204480696089027,
+              "g": 9.80665,
+              "gamma_per_s": 0.05734011753251183,
+              "quadratic_drag_per_m": 0.01802519064280265,
+              "peg": {
+                "distance_m": 0.16516459919751253,
+                "angle_rad": -0.18762271092924646,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7199889919139036,
+              "g": 9.80665,
+              "gamma_per_s": 1.0736397986225058e-07,
+              "quadratic_drag_per_m": 0.08848309698815812,
+              "peg": {
+                "distance_m": 0.09623160306271117,
+                "angle_rad": 0.19269537753206,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 67,
+            "status": 2,
+            "nfev": 12,
+            "cost": 83.3893592142153,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7204480731887817,
+              "g": 9.80665,
+              "gamma_per_s": 0.05733868262993372,
+              "quadratic_drag_per_m": 0.018026389715187014,
+              "peg": {
+                "distance_m": 0.16516444779030384,
+                "angle_rad": -0.18762246405480915,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7199889919139036,
+              "g": 9.80665,
+              "gamma_per_s": 1.0736397986225058e-07,
+              "quadratic_drag_per_m": 0.08848309698815812,
+              "peg": {
+                "distance_m": 0.3387444324108207,
+                "angle_rad": -0.5799569337019101,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 61,
+            "status": 2,
+            "nfev": 11,
+            "cost": 83.3893592155274,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7204480687348341,
+              "g": 9.80665,
+              "gamma_per_s": 0.057339004717963916,
+              "quadratic_drag_per_m": 0.018026102484448643,
+              "peg": {
+                "distance_m": 0.16516474324220334,
+                "angle_rad": -0.1876230136398557,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7199889919139036,
+              "g": 9.80665,
+              "gamma_per_s": 1.0736397986225058e-07,
+              "quadratic_drag_per_m": 0.08848309698815812,
+              "peg": {
+                "distance_m": 0.1888632611658528,
+                "angle_rad": -0.03360924493588002,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 54,
+            "status": 2,
+            "nfev": 9,
+            "cost": 83.38935921541807,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.720448068431622,
+              "g": 9.80665,
+              "gamma_per_s": 0.05733881361388911,
+              "quadratic_drag_per_m": 0.018026277186673448,
+              "peg": {
+                "distance_m": 0.1651646900115359,
+                "angle_rad": -0.1876229277284163,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7199889919139036,
+              "g": 9.80665,
+              "gamma_per_s": 1.0736397986225058e-07,
+              "quadratic_drag_per_m": 0.08848309698815812,
+              "peg": {
+                "distance_m": 0.03898208992088491,
+                "angle_rad": -0.8062615561698502,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 57,
+            "status": 3,
+            "nfev": 22,
+            "cost": 967.617700987263,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7049248013627759,
+              "g": 9.80665,
+              "gamma_per_s": 9.707338848415886e-08,
+              "quadratic_drag_per_m": 0.08869511964639332,
+              "peg": {
+                "distance_m": 0.03816647518615348,
+                "angle_rad": -0.8062615561698502,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7199889919139036,
+              "g": 9.80665,
+              "gamma_per_s": 1.0736397986225058e-07,
+              "quadratic_drag_per_m": 0.08848309698815812,
+              "peg": {
+                "distance_m": 0.28149491926899434,
+                "angle_rad": -0.25991386740382016,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 48,
+            "status": 2,
+            "nfev": 8,
+            "cost": 83.38935921383259,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7204480723436965,
+              "g": 9.80665,
+              "gamma_per_s": 0.057339657868988106,
+              "quadratic_drag_per_m": 0.018025576858602177,
+              "peg": {
+                "distance_m": 0.16516443679826184,
+                "angle_rad": -0.18762242134748486,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7199889919139036,
+              "g": 9.80665,
+              "gamma_per_s": 1.0736397986225058e-07,
+              "quadratic_drag_per_m": 0.08848309698815812,
+              "peg": {
+                "distance_m": 0.13161374802402664,
+                "angle_rad": 0.28643382136220985,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            },
+            "success": true,
+            "residual_calls": 62,
+            "status": 2,
+            "nfev": 12,
+            "cost": 83.38935921381261,
+            "active_bounds": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7204480668716552,
+              "g": 9.80665,
+              "gamma_per_s": 0.057339463622695416,
+              "quadratic_drag_per_m": 0.01802587880266237,
+              "peg": {
+                "distance_m": 0.16516451721365685,
+                "angle_rad": -0.1876225722252935,
+                "contact_side": -1,
+                "kappa_in": 1.0,
+                "kappa_out": 1.0
+              }
+            }
+          }
+        ],
+        "robust_cost": 83.38935921381261,
+        "f_scale": 2.5555987608497803,
+        "identifiability": {
+          "parameter_coordinates": [
+            "log_length",
+            "gamma_per_s",
+            "quadratic_per_m",
+            "peg_fraction",
+            "peg_angle_rad"
+          ],
+          "scaled_singular_values": [
+            1828.0859082230575,
+            338.9202169117436,
+            307.8744712805822,
+            58.49693987635578,
+            27.13188177417095
+          ],
+          "numerical_rank": 5,
+          "rank_threshold_relative": 1e-05,
+          "condition_number": 67.37777804867783,
+          "weakest_scaled_direction": [
+            0.0005482282676895164,
+            -0.7755822645224626,
+            0.6286871957049128,
+            0.04375506271991803,
+            -0.03619053532408961
+          ],
+          "near_bound": false,
+          "conditional_gaussian_std": [
+            0.0005512429889525212,
+            0.017202449522543732,
+            0.013987422201172377,
+            0.006104008912004559,
+            0.01053234592416508
+          ],
+          "std_parameter_units": [
+            "m",
+            "s^-1",
+            "m^-1",
+            "m",
+            "rad"
+          ],
+          "locally_identifiable": true,
+          "uncertainty_scope": "local linear sensitivity only; no calibrated confidence interval or global uniqueness claim",
+          "near_optimal_multistart_coordinate_range": [
+            8.667776068429211e-09,
+            2.3915042968516986e-06,
+            1.998453973937886e-06,
+            7.82569266931644e-07,
+            4.4904652831194944e-07
+          ],
+          "near_optimal_starts": 7,
+          "profile_likelihood": "NOT_RUN; multistart spread is not a confidence interval"
+        },
+        "warnings": [],
+        "options": {
+          "n_starts": 8,
+          "max_nfev": 60,
+          "length_bounds_m": [
+            0.4,
+            1.1
+          ],
+          "gamma_bounds_per_s": [
+            0.0,
+            0.6
+          ],
+          "quadratic_bounds_per_m": [
+            0.0,
+            0.6
+          ],
+          "peg_fraction_bounds": [
+            0.005,
+            0.55
+          ],
+          "peg_angle_bounds_rad": [
+            -0.9,
+            0.9
+          ],
+          "contact_side": -1
+        },
+        "training": {
+          "rmse_xy_px": 3.28774423634029,
+          "mse_xy_px2": 10.809262163588796,
+          "rmse_xy_m": 0.005479573727233818,
+          "assumed_localization_floor_mse_px2": 12.5,
+          "valid_samples": 104,
+          "per_trial": [
+            {
+              "trial_id": "obs-5-0",
+              "mse_xy_px2": 9.522011314382304
+            },
+            {
+              "trial_id": "obs-5-1",
+              "mse_xy_px2": 12.254135565759347
+            }
+          ]
+        },
+        "heldout": {
+          "rmse_xy_px": 3.6642690399226616,
+          "mse_xy_px2": 13.426867596935743,
+          "rmse_xy_m": 0.006107115066537771,
+          "assumed_localization_floor_mse_px2": 12.5,
+          "valid_samples": 268,
+          "per_trial": [
+            {
+              "trial_id": "obs-5-2",
+              "mse_xy_px2": 11.779706468747202
+            },
+            {
+              "trial_id": "obs-5-3",
+              "mse_xy_px2": 12.134387637311347
+            },
+            {
+              "trial_id": "obs-5-4",
+              "mse_xy_px2": 17.753472421071486
+            },
+            {
+              "trial_id": "obs-5-5",
+              "mse_xy_px2": 13.66425272266539
+            },
+            {
+              "trial_id": "obs-5-6",
+              "mse_xy_px2": 11.742152655653987
+            }
+          ]
+        },
+        "prediction_status": "completed"
+      },
+      "paired_development": {
+        "trial_mse_improvements_px2": [
+          215.40305761915724,
+          271.93530973853944,
+          368.12368282538455,
+          497.66619551440033,
+          526.4137027597789
+        ],
+        "mean_mse_improvement_px2": 375.90838969145204,
+        "paired_trial_bootstrap_95_interval_px2": [
+          268.56008350815557,
+          477.650931961899
+        ],
+        "trial_count": 5,
+        "bootstrap_resamples": 2000,
+        "B1_trial_mse_standard_error_px2": 60.99861635203221,
+        "prediction_disagreement_rmse_px": 19.563851958628813,
+        "interpretation": "descriptive development comparison, conditional on fixed exploration fits; not a null-calibrated structural decision"
+      },
+      "exploration_leave_one_trial_out": [
+        {
+          "held_exploration_trial": "obs-5-0",
+          "B1_mse_px2": 269.6229366396953,
+          "B3_mse_px2": 23.285524092926988
+        },
+        {
+          "held_exploration_trial": "obs-5-1",
+          "B1_mse_px2": 812.8832222776879,
+          "B3_mse_px2": 26.405751207246947
+        }
+      ],
+      "structural_decision": "NOT_ASSESSED: Monte Carlo null calibration and mechanism interventions remain pending",
+      "case": "noisy_peg",
+      "observation_sha256": {
+        "obs-5-0": "338669698cad108df021a981b66a55cb62424cdb1c2914d2e5852e8508e74ecc",
+        "obs-5-1": "981fe889bce5d6c3db03da7b963a7ac7d2d0cc30238499db68e6e40a2dd0997e",
+        "obs-5-2": "516ed2e841319b7ca5d713b7935b714285288a30bf7fe3b8075c4fd550ca9571",
+        "obs-5-3": "bb2416a87d01a5027389157cafafaa869efe25482b240c2420f60891036fc421",
+        "obs-5-4": "4d06a92537d03e5ce53a9d985707a69aa8eafa1a875f1f1f2a2d57bac20707f5",
+        "obs-5-5": "5852d77724ab472eccbc2b8b0d4013e81042d9450149728dbd116c8b0bc96941",
+        "obs-5-6": "c5c5166dfbe1bdff57d71950be2f8d91929298c5acf6fff620bcf9bf71a448cd"
+      },
+      "noise_assumptions": {
+        "covariance_px2": [
+          [
+            6.25,
+            0.0
+          ],
+          [
+            0.0,
+            6.25
+          ]
+        ],
+        "ar1_phi": 0.35,
+        "dropout_probability": 0.15
+      }
+    },
+    {
+      "training_trial_ids": [
+        "obs-6-0",
+        "obs-6-1"
+      ],
+      "heldout_trial_ids": [
+        "obs-6-2",
+        "obs-6-3",
+        "obs-6-4",
+        "obs-6-5",
+        "obs-6-6"
+      ],
+      "B0": {
+        "params": {
+          "length_m": 0.72,
+          "g": 9.80665,
+          "gamma_per_s": 0.06,
+          "quadratic_drag_per_m": 0.02,
+          "peg": null
+        },
+        "training": {
+          "rmse_xy_px": 0.6885603849771299,
+          "mse_xy_px2": 0.4741154037598534,
+          "assumed_noise_floor_mse_px2": 0.5,
+          "nrmse": 0.0015938897800396525,
+          "excess_nrmse": 0.0,
+          "innovation_mean_square_per_coordinate": 0.9482308075197069,
+          "lag1_x": 0.036603844355877733,
+          "valid_samples": 126
+        },
+        "heldout": {
+          "rmse_xy_px": 0.7007542848911172,
+          "mse_xy_px2": 0.4910565677932612,
+          "assumed_noise_floor_mse_px2": 0.5,
+          "nrmse": 0.0016221164002109196,
+          "excess_nrmse": 0.0,
+          "innovation_mean_square_per_coordinate": 0.9821131355865224,
+          "lag1_x": -0.04652755842269915,
+          "valid_samples": 315
+        }
+      },
+      "B1": {
+        "success": true,
+        "params": {
+          "length_m": 0.72000541322918,
+          "g": 9.80665,
+          "gamma_per_s": 0.07653291754876032,
+          "quadratic_drag_per_m": 1.1235933735231167e-16,
+          "peg": null
+        },
+        "starts": [
+          {
+            "initial": {
+              "length_m": 0.72,
+              "g": 9.80665,
+              "gamma_per_s": 0.06,
+              "quadratic_drag_per_m": 0.02,
+              "peg": null
+            },
+            "success": true,
+            "cost": 83.5704834785803,
+            "nfev": 6,
+            "status": 2,
+            "message": "`ftol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              -1
+            ],
+            "fitted_params": {
+              "length_m": 0.7200054132325996,
+              "g": 9.80665,
+              "gamma_per_s": 0.07653286841844444,
+              "quadratic_drag_per_m": 1.1681370495090972e-16,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7474506578910146,
+              "g": 9.80665,
+              "gamma_per_s": 0.248528137422,
+              "quadratic_drag_per_m": 0.439230484542,
+              "peg": null
+            },
+            "success": true,
+            "cost": 83.57048347857513,
+            "nfev": 17,
+            "status": 2,
+            "message": "`ftol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              -1
+            ],
+            "fitted_params": {
+              "length_m": 0.72000541322918,
+              "g": 9.80665,
+              "gamma_per_s": 0.07653291754876032,
+              "quadratic_drag_per_m": 1.1235933735231167e-16,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.5078931690742823,
+              "g": 9.80665,
+              "gamma_per_s": 0.497056274844,
+              "quadratic_drag_per_m": 0.2784609690839999,
+              "peg": null
+            },
+            "success": true,
+            "cost": 83.57048347857824,
+            "nfev": 22,
+            "status": 2,
+            "message": "`ftol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              -1
+            ],
+            "fitted_params": {
+              "length_m": 0.7200054132317788,
+              "g": 9.80665,
+              "gamma_per_s": 0.0765328906710241,
+              "quadratic_drag_per_m": 3.691730234881314e-18,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.9490627084073112,
+              "g": 9.80665,
+              "gamma_per_s": 0.14558441226599997,
+              "quadratic_drag_per_m": 0.11769145362599999,
+              "peg": null
+            },
+            "success": true,
+            "cost": 83.5704834785766,
+            "nfev": 18,
+            "status": 2,
+            "message": "`ftol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              -1
+            ],
+            "fitted_params": {
+              "length_m": 0.7200054132293995,
+              "g": 9.80665,
+              "gamma_per_s": 0.07653293357953521,
+              "quadratic_drag_per_m": 4.387581780403074e-17,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.6448886779807936,
+              "g": 9.80665,
+              "gamma_per_s": 0.394112549688,
+              "quadratic_drag_per_m": 0.5569219381679998,
+              "peg": null
+            },
+            "success": true,
+            "cost": 83.5704834785877,
+            "nfev": 16,
+            "status": 2,
+            "message": "`ftol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              -1
+            ],
+            "fitted_params": {
+              "length_m": 0.720005413230986,
+              "g": 9.80665,
+              "gamma_per_s": 0.07653289823467045,
+              "quadratic_drag_per_m": 8.419310468025041e-11,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.43820224238473715,
+              "g": 9.80665,
+              "gamma_per_s": 0.04264068710999993,
+              "quadratic_drag_per_m": 0.3961524227099998,
+              "peg": null
+            },
+            "success": true,
+            "cost": 83.5704834785752,
+            "nfev": 21,
+            "status": 2,
+            "message": "`ftol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              -1
+            ],
+            "fitted_params": {
+              "length_m": 0.7200054132317331,
+              "g": 9.80665,
+              "gamma_per_s": 0.07653289713616658,
+              "quadratic_drag_per_m": 1.0414921987532376e-13,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.8188363858994737,
+              "g": 9.80665,
+              "gamma_per_s": 0.29116882453199994,
+              "quadratic_drag_per_m": 0.23538290725199998,
+              "peg": null
+            },
+            "success": true,
+            "cost": 83.57048347857756,
+            "nfev": 15,
+            "status": 2,
+            "message": "`ftol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              -1
+            ],
+            "fitted_params": {
+              "length_m": 0.7200054132313518,
+              "g": 9.80665,
+              "gamma_per_s": 0.0765329094637556,
+              "quadratic_drag_per_m": 5.131673746183697e-12,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.5563998139506023,
+              "g": 9.80665,
+              "gamma_per_s": 0.539696961954,
+              "quadratic_drag_per_m": 0.07461339179399963,
+              "peg": null
+            },
+            "success": true,
+            "cost": 83.57048347857622,
+            "nfev": 20,
+            "status": 2,
+            "message": "`ftol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              -1
+            ],
+            "fitted_params": {
+              "length_m": 0.7200054132317838,
+              "g": 9.80665,
+              "gamma_per_s": 0.07653292135780326,
+              "quadratic_drag_per_m": 5.76667019003681e-17,
+              "peg": null
+            }
+          }
+        ],
+        "robust_cost": 83.57048347857513,
+        "f_scale": 1.0,
+        "jacobian_singular_values": [
+          7176.882179530287,
+          55.319998056717125,
+          0.3481798663135227
+        ],
+        "warnings": [
+          "best fit is at or near physical bounds; no unconstrained parameter/CI claim"
+        ],
+        "training": {
+          "rmse_xy_px": 0.6864251256439515,
+          "mse_xy_px2": 0.4711794531153146,
+          "assumed_noise_floor_mse_px2": 0.5,
+          "nrmse": 0.0015889470501017397,
+          "excess_nrmse": 0.0,
+          "innovation_mean_square_per_coordinate": 0.9423589062306291,
+          "lag1_x": 0.02479740358278168,
+          "valid_samples": 126
+        },
+        "heldout": {
+          "rmse_xy_px": 0.7051901985639228,
+          "mse_xy_px2": 0.497293216150625,
+          "assumed_noise_floor_mse_px2": 0.5,
+          "nrmse": 0.0016323847188979698,
+          "excess_nrmse": 0.0,
+          "innovation_mean_square_per_coordinate": 0.9945864323012502,
+          "lag1_x": -0.024800469992941797,
+          "valid_samples": 315
+        }
+      },
+      "B2": {
+        "decision": "ambiguous",
+        "reason": "degenerate short arc: curvature below localization uncertainty",
+        "first_circle": null,
+        "second_circle": null,
+        "threshold_rad": null,
+        "second_side": null,
+        "cv_one_score": null,
+        "cv_two_score": null,
+        "complexity_penalty": null,
+        "failed_candidates": 0,
+        "training": {
+          "radial_rmse_px": null,
+          "valid_samples": 0
+        },
+        "heldout": {
+          "radial_rmse_px": null,
+          "valid_samples": 0
+        }
+      },
+      "comparison_scope": "predefined FREE versus ideal one-peg dynamics; no automatic repair/discovery claim",
+      "B3": {
+        "success": false,
+        "failure": "insufficient angular excitation for a structural fit",
+        "starts": [],
+        "training": null,
+        "heldout": null
+      },
+      "exploration_leave_one_trial_out": [
+        {
+          "held_exploration_trial": "obs-6-0",
+          "B1_mse_px2": 0.4327632194504598,
+          "B3_failure": "insufficient angular excitation for a structural fit"
+        },
+        {
+          "held_exploration_trial": "obs-6-1",
+          "B1_mse_px2": 0.51867996445653,
+          "B3_failure": "insufficient angular excitation for a structural fit"
+        }
+      ],
+      "structural_decision": "NOT_ASSESSED: Monte Carlo null calibration and mechanism interventions remain pending",
+      "case": "short_arc",
+      "observation_sha256": {
+        "obs-6-0": "6af0a34bef225b8431ddb6db425dac39da7aedd6eb0bf1e01122625f145eeb87",
+        "obs-6-1": "10630e5cb56f2b9538582748668d954d1a5146b4084f7faddf84ab01e78566dd",
+        "obs-6-2": "ce36fe9e3eaca052e47b0989dbfdf13282f0b276b297b421f2cc33b39c73ea4c",
+        "obs-6-3": "2c94d44139576afdedb14ceb366e3e943c5f148660ca3dab999f79414a60074b",
+        "obs-6-4": "b140a3c9b1c2bb53bbad23e3831395fd84b81a57b542c92d3a62b841dd11e780",
+        "obs-6-5": "657f240a3fbdb668608e24872ffef16d6af5f81a08be7b0627b8367613e114ef",
+        "obs-6-6": "712c18e7f06d03c6ae527c304eba7421979daa8b8e107acec5d388e1d65c3b57"
+      },
+      "noise_assumptions": {
+        "covariance_px2": [
+          [
+            0.25,
+            0.0
+          ],
+          [
+            0.0,
+            0.25
+          ]
+        ],
+        "ar1_phi": 0.0,
+        "dropout_probability": 0.0
+      }
+    },
+    {
+      "training_trial_ids": [
+        "obs-7-0",
+        "obs-7-1"
+      ],
+      "heldout_trial_ids": [
+        "obs-7-2",
+        "obs-7-3",
+        "obs-7-4",
+        "obs-7-5",
+        "obs-7-6"
+      ],
+      "B0": {
+        "params": {
+          "length_m": 0.72,
+          "g": 9.80665,
+          "gamma_per_s": 0.06,
+          "quadratic_drag_per_m": 0.02,
+          "peg": null
+        },
+        "training": {
+          "rmse_xy_px": 0.6787620096232776,
+          "mse_xy_px2": 0.46071786570783035,
+          "assumed_noise_floor_mse_px2": 0.5,
+          "nrmse": 0.0015712083556094388,
+          "excess_nrmse": 0.0,
+          "innovation_mean_square_per_coordinate": 0.9214357314156606,
+          "lag1_x": 0.20819918793855952,
+          "valid_samples": 18
+        },
+        "heldout": {
+          "rmse_xy_px": 0.6265404464957742,
+          "mse_xy_px2": 0.39255293109512407,
+          "assumed_noise_floor_mse_px2": 0.5,
+          "nrmse": 0.001450325107629107,
+          "excess_nrmse": 0.0,
+          "innovation_mean_square_per_coordinate": 0.7851058621902481,
+          "lag1_x": -0.006297106415416105,
+          "valid_samples": 45
+        }
+      },
+      "B1": {
+        "success": false,
+        "failure": "insufficient valid observations (minimum 12 per trial)",
+        "starts": [],
+        "training": null,
+        "heldout": null
+      },
+      "B2": {
+        "decision": "ambiguous",
+        "reason": "insufficient valid geometry samples",
+        "first_circle": null,
+        "second_circle": null,
+        "threshold_rad": null,
+        "second_side": null,
+        "cv_one_score": null,
+        "cv_two_score": null,
+        "complexity_penalty": null,
+        "failed_candidates": 0,
+        "training": {
+          "radial_rmse_px": null,
+          "valid_samples": 0
+        },
+        "heldout": {
+          "radial_rmse_px": null,
+          "valid_samples": 0
+        }
+      },
+      "comparison_scope": "predefined FREE versus ideal one-peg dynamics; no automatic repair/discovery claim",
+      "B3": {
+        "success": false,
+        "failure": "insufficient valid observations: minimum 24 per exploration trial",
+        "starts": [],
+        "training": null,
+        "heldout": null
+      },
+      "exploration_leave_one_trial_out": [
+        {
+          "held_exploration_trial": "obs-7-0",
+          "B1_failure": "insufficient valid observations (minimum 12 per trial)",
+          "B3_failure": "insufficient valid observations: minimum 24 per exploration trial"
+        },
+        {
+          "held_exploration_trial": "obs-7-1",
+          "B1_failure": "insufficient valid observations (minimum 12 per trial)",
+          "B3_failure": "insufficient valid observations: minimum 24 per exploration trial"
+        }
+      ],
+      "structural_decision": "NOT_ASSESSED: Monte Carlo null calibration and mechanism interventions remain pending",
+      "case": "insufficient_data",
+      "observation_sha256": {
+        "obs-7-0": "1907b92d4fed405865b60f763913988a7cd662f59ad4866d4bd6aaeb993a452d",
+        "obs-7-1": "491dea2d4af636b62d630efe5b0d1d370c98156d7c7dc35c37c1876b9948d198",
+        "obs-7-2": "2ad4b4e013b810939fa2fe5478459e191e2a8f6cba154a6f468e8982a092b326",
+        "obs-7-3": "c81aff13f4737b9bcd72dfa750bcdaba59dd950aeb00991a1f5391e6298c665f",
+        "obs-7-4": "c23aefdfafadc139c57b570f8dddb923c1b27e38945448c44871367aef76c2bc",
+        "obs-7-5": "1dc7ece007b83ca481c98d1a43d55140cffc1a65f081541332bc465f9b50e6c9",
+        "obs-7-6": "b1e845797962f126378a13aac9e92bcc5690bf46737034926a6bcaa2c040fe85"
+      },
+      "noise_assumptions": {
+        "covariance_px2": [
+          [
+            0.25,
+            0.0
+          ],
+          [
+            0.0,
+            0.25
+          ]
+        ],
+        "ar1_phi": 0.0,
+        "dropout_probability": 0.0
+      }
+    }
+  ],
+  "checks": [
+    {
+      "name": "no_fault: B1 explains observations at the assumed floor",
+      "passed": true
+    },
+    {
+      "name": "parameter_fault: B1 explains observations at the assumed floor",
+      "passed": true
+    },
+    {
+      "name": "vertical_peg: full held-out B3 trajectory improves over B1",
+      "passed": true
+    },
+    {
+      "name": "off_vertical_peg: full held-out B3 trajectory improves over B1",
+      "passed": true
+    },
+    {
+      "name": "unexcited_peg: B1 explains observations at the assumed floor",
+      "passed": true
+    },
+    {
+      "name": "unexcited peg: no mechanism identification claimed",
+      "passed": true
+    },
+    {
+      "name": "noisy_peg: full held-out B3 trajectory improves over B1",
+      "passed": true
+    },
+    {
+      "name": "short_arc: B3 explicitly rejects insufficient evidence",
+      "passed": true
+    },
+    {
+      "name": "insufficient_data: B3 explicitly rejects insufficient evidence",
+      "passed": true
+    }
+  ],
+  "acceptance_passed": true,
+  "g2_passed": false,
+  "full_g3_passed": false,
+  "actual_api_calls": 0
+}

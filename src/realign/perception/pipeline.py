@@ -8,11 +8,13 @@ from .timing import estimate_release
 
 
 def make_video_trial(recording_id,metadata,run,track,calibration,noise,*,zone='exploration',manual_release_bracket=None):
-    if metadata.source_kind=='REAL_PHONE' and run.source!='REAL_API':
+    if metadata.source_kind in ('REAL_PHONE','REAL_EXTERNAL') and run.source!='REAL_API':
         raise ValueError('real phone recordings require actual SAM processing, not simulated masks')
     if run.video_sha256!=metadata.video_sha256 or tuple(calibration.image_size)!=(metadata.width,metadata.height):
         raise ValueError('recording/calibration frame mismatch')
-    provenance='REAL_SAM' if metadata.source_kind=='REAL_PHONE' and run.source=='REAL_API' else 'SYNTHETIC'
+    if metadata.source_kind == 'REAL_EXTERNAL' and not metadata.external_source.capture_time_scale_verified:
+        raise ValueError('external playback time is not verified physical capture time; tracking smoke only')
+    provenance='REAL_SAM' if metadata.source_kind in ('REAL_PHONE','REAL_EXTERNAL') and run.source=='REAL_API' else 'SYNTHETIC'
     if provenance!=noise.provenance:
         raise ValueError('noise and recording provenance differ')
     release=estimate_release(metadata.t_s,track.xy_px,track.valid,noise.covariance_px2,

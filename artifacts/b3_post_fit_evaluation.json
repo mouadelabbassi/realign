@@ -1,0 +1,181 @@
+{
+  "scope": "SYNTHETIC POST-FIT EVALUATION ONLY; never fitter input",
+  "cases": [
+    {
+      "case": "no_fault",
+      "parameters": {
+        "length_m": 0.72,
+        "g": 9.80665,
+        "gamma_per_s": 0.06,
+        "quadratic_drag_per_m": 0.02,
+        "peg": null
+      },
+      "events_per_trial": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "case": "parameter_fault",
+      "parameters": {
+        "length_m": 0.76,
+        "g": 9.80665,
+        "gamma_per_s": 0.11,
+        "quadratic_drag_per_m": 0.05,
+        "peg": null
+      },
+      "events_per_trial": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "case": "vertical_peg",
+      "parameters": {
+        "length_m": 0.72,
+        "g": 9.80665,
+        "gamma_per_s": 0.06,
+        "quadratic_drag_per_m": 0.02,
+        "peg": {
+          "distance_m": 0.16,
+          "angle_rad": 0.0,
+          "contact_side": -1,
+          "kappa_in": 1.0,
+          "kappa_out": 1.0
+        }
+      },
+      "events_per_trial": [
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3
+      ]
+    },
+    {
+      "case": "off_vertical_peg",
+      "parameters": {
+        "length_m": 0.72,
+        "g": 9.80665,
+        "gamma_per_s": 0.06,
+        "quadratic_drag_per_m": 0.02,
+        "peg": {
+          "distance_m": 0.16,
+          "angle_rad": -0.18,
+          "contact_side": -1,
+          "kappa_in": 1.0,
+          "kappa_out": 1.0
+        }
+      },
+      "events_per_trial": [
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3
+      ]
+    },
+    {
+      "case": "unexcited_peg",
+      "parameters": {
+        "length_m": 0.72,
+        "g": 9.80665,
+        "gamma_per_s": 0.06,
+        "quadratic_drag_per_m": 0.02,
+        "peg": {
+          "distance_m": 0.16,
+          "angle_rad": -0.8,
+          "contact_side": -1,
+          "kappa_in": 1.0,
+          "kappa_out": 1.0
+        }
+      },
+      "events_per_trial": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "case": "noisy_peg",
+      "parameters": {
+        "length_m": 0.72,
+        "g": 9.80665,
+        "gamma_per_s": 0.06,
+        "quadratic_drag_per_m": 0.02,
+        "peg": {
+          "distance_m": 0.16,
+          "angle_rad": -0.18,
+          "contact_side": -1,
+          "kappa_in": 1.0,
+          "kappa_out": 1.0
+        }
+      },
+      "events_per_trial": [
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3
+      ]
+    },
+    {
+      "case": "short_arc",
+      "parameters": {
+        "length_m": 0.72,
+        "g": 9.80665,
+        "gamma_per_s": 0.06,
+        "quadratic_drag_per_m": 0.02,
+        "peg": null
+      },
+      "events_per_trial": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "case": "insufficient_data",
+      "parameters": {
+        "length_m": 0.72,
+        "g": 9.80665,
+        "gamma_per_s": 0.06,
+        "quadratic_drag_per_m": 0.02,
+        "peg": null
+      },
+      "events_per_trial": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ]
+}

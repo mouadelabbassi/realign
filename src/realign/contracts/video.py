@@ -9,6 +9,7 @@ import math
 from datetime import datetime
 import numpy as np
 from . import Experiment, covariance
+from .external import ExternalVideoSource
 
 
 def readonly(value, dtype=float):
@@ -31,10 +32,16 @@ class VideoMetadata:
     rotation_deg: int = 0
     recording_start_utc: str | None = None
     container_creation_utc: str | None = None
+    external_source: ExternalVideoSource | None = None
 
     def __post_init__(self):
-        if self.source_kind not in ('REAL_PHONE','SYNTHETIC_RENDER'):
+        if self.source_kind not in ('REAL_PHONE','REAL_EXTERNAL','SYNTHETIC_RENDER'):
             raise ValueError('explicit video source kind required')
+        if self.source_kind == 'REAL_EXTERNAL':
+            if not isinstance(self.external_source, ExternalVideoSource) or self.external_source.processed_sha256 != self.video_sha256:
+                raise ValueError('external video requires attribution and matching processed hash')
+        elif self.external_source is not None:
+            raise ValueError('external attribution must not masquerade as phone/synthetic provenance')
         if len(self.video_sha256)!=64 or any(x not in '0123456789abcdef' for x in self.video_sha256):
             raise ValueError('SHA-256 required')
         if min(self.width,self.height,self.coded_width,self.coded_height)<=0 or max(self.width,self.height)>4096:
@@ -182,7 +189,9 @@ class VideoObservation:
         if (self.covariance_unit,self.position_unit,self.time_unit,self.frame)!=(
                 'px^2','px','s','raw_display_image_x_right_y_down'):
             raise ValueError('unsupported units/frame')
-        actual=self.metadata.source_kind=='REAL_PHONE' and self.sam_source=='REAL_API'
+        actual=self.metadata.source_kind in ('REAL_PHONE','REAL_EXTERNAL') and self.sam_source=='REAL_API'
+        if self.metadata.source_kind in ('REAL_PHONE','REAL_EXTERNAL') and not actual:
+            raise ValueError('physical video observations require actual SAM output')
         if self.provenance!=('REAL_SAM' if actual else 'SYNTHETIC') or self.noise.provenance!=self.provenance:
             raise ValueError('real, synthetic and simulated-API provenance cannot be mixed')
         if not self.calibration_id or not self.recording_id:
@@ -231,6 +240,8 @@ class VideoTrial:
             raise ValueError('calibration reference mismatch')
         if self.observation.provenance=='REAL_SAM' and self.projection.source!='REAL_MEASURED':
             raise ValueError('real observations require measured calibration')
+        if self.observation.metadata.source_kind == 'REAL_EXTERNAL' and not self.observation.metadata.external_source.capture_time_scale_verified:
+            raise ValueError('external dynamics require verified physical capture time scale')
         t=self.observation.t_s
         if not t[0]<self.release.lower_s<=self.release.time_s<=self.release.upper_s<t[-1]:
             raise ValueError('release must be bracketed inside recording')

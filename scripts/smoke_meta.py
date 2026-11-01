@@ -1,33 +1,36 @@
-from __future__ import annotations
+"""Separately executable Muse capability check; no credentials means NOT_RUN."""
+import argparse
 import json
 import os
 from pathlib import Path
-from datetime import datetime, timezone
+import sys
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT/'src'))
+from realign.perception.meta_validation import probe_muse, MODEL
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--standard-tier-confirmed', action='store_true')
+    parser.add_argument('--output-dir', type=Path, default=ROOT/'artifacts')
+    args = parser.parse_args()
     key = os.environ.get('MODEL_API_KEY')
+    report = {'status': 'NOT_RUN', 'source': 'REAL_API', 'model': MODEL,
+              'successful_calls': 0, 'failed_calls': 0, 'calls': [], 'blockers': [],
+              'documentation_mismatch': 'NOT_ASSESSED: no live request'}
     if not key:
-        raise SystemExit('MODEL_API_KEY is not set. Configure it locally; do not commit it.')
-    from openai import OpenAI
-    client = OpenAI(base_url='https://api.meta.ai/v1',api_key=key,timeout=35)
-    model = os.getenv('META_REASONING_MODEL','muse-spark-1.3')
-    report={'time_utc':datetime.now(timezone.utc).isoformat(),'model':model,'meta_api_test':'not_run'}
-    try:
-        result=client.chat.completions.create(model=model,messages=[{'role':'user','content':'Reply with exactly: REALIGN_READY'}])
-        report['meta_api_test']='success'
-        report['reply']=result.choices[0].message.content
-        report['response_id']=result.id
-    except Exception as exc:
-        report['meta_api_test']='failed'
-        report['error_type']=type(exc).__name__
-        report['error_message']=str(exc)[:500]
-    path=Path('artifacts/meta_smoke.json')
-    path.parent.mkdir(exist_ok=True,parents=True)
-    path.write_text(json.dumps(report,indent=2),encoding='utf-8')
-    print(json.dumps(report,indent=2))
-    if report['meta_api_test'] != 'success':
-        raise SystemExit(1)
+        report['blockers'].append('MODEL_API_KEY is not configured locally')
+    if not args.standard_tier_confirmed:
+        report['blockers'].append('Standard tier not confirmed')
+    if not report['blockers']:
+        from openai import OpenAI
+        with OpenAI(base_url='https://api.meta.ai/v1', api_key=key, timeout=45, max_retries=0) as client:
+            report = probe_muse(client, source='REAL_API')
+    args.output_dir.mkdir(parents=True, exist_ok=True)
+    (args.output_dir/'meta_smoke.json').write_text(json.dumps(report, indent=2, allow_nan=False)+'\n', encoding='utf-8')
+    print('Muse:', report['status'], 'successful calls:', report['successful_calls'], 'failed calls:', report['failed_calls'])
+    raise SystemExit(0 if report['status'] == 'PASS' else 2 if report['status'] == 'NOT_RUN' else 1)
 
 
-if __name__=='__main__': main()
+if __name__ == '__main__':
+    main()
