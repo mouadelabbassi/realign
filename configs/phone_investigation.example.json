@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "source_kind": "REAL_PHONE",
+  "capture_time_scale_verified": false,
+  "capture_timing_reference": null,
+  "standard_tier_confirmed": false,
+  "calibration_file": "../data/calibration/points.json",
+  "manual_reviews": "../data/reviews/phone_independent.json",
+  "nominal_params": {"length_m": null, "g": 9.80665, "gamma_per_s": 0.06, "quadratic_drag_per_m": 0.0},
+  "stationary": {"id": "stationary_01", "video": "../data/raw/stationary/stationary_01.mp4"},
+  "exploration": [
+    {"id": "run_001", "video": "../data/raw/free/run_001.mp4", "comparison_group": "setup_01", "release_bracket_pts_s": null, "analysis_window_pts_s": null},
+    {"id": "run_002", "video": "../data/raw/free/run_002.mp4", "comparison_group": "setup_01", "release_bracket_pts_s": null, "analysis_window_pts_s": null}
+  ],
+  "response_to_request_id": null,
+  "development": []
+}

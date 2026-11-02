@@ -1,0 +1,1 @@
+{"domain":"SYNTHETIC","fit_calls":0,"frozen_model_sha256":"1c328af3a5c0fb8b0b5bfd4fa80e301ae4e4a1a2dcd8c6533d49c37989f46095","independent_verdict":"SYNTHETIC_VALIDATION_FAIL","meta_api_calls":0,"prediction_digests_match":true,"scope":"PUBLIC_POST_REVEAL_REPRODUCTION; NOT_NEW_EVALUATION","status":"PASS","trajectory_rmse_px":0.7519408442222819}

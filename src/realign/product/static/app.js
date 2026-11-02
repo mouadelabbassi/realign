@@ -22,7 +22,7 @@
     decision: ["Model Decision", "A proposal becomes a frozen decision only after the independent scientific checks."],
     evidence: ["Evidence", "Inspect provenance, frozen model references, evaluation results and the recorded audit."],
   };
-  const state = { source: "synthetic", view: "reality", catalog: null, status: null, external: null, run: null, selected: null, round: 1, trial: null, model: "B3", frame: 0, playing: false, lastTick: 0, loadToken: 0, failures: {}, externalFrame: 0 };
+  const state = { source: "synthetic", view: "reality", catalog: null, status: null, external: null, closure: null, run: null, selected: null, round: 1, trial: null, model: "B3", frame: 0, playing: false, lastTick: 0, loadToken: 0, failures: {}, externalFrame: 0 };
 
   function node(tag, attrs = {}, ...children) {
     const element = document.createElement(tag);
@@ -75,7 +75,7 @@
     return node("section", { class: "empty-state" }, node("div", { class: "empty-symbol", "aria-hidden": "true" }, symbol), node("h2", {}, title), node("p", {}, description), action);
   }
   function statusKind(value) {
-    return ["PASS", "VERIFIED", "COMPLETED", "OK", "AVAILABLE"].includes(value) ? "green" : ["FAILED", "INVALID", "ERROR"].includes(value) ? "red" : "amber";
+    return ["PASS", "VERIFIED", "COMPLETED", "OK", "AVAILABLE", "SYNTHETIC_EXERCISE_PASS", "REAL_PHONE_CONSISTENCY_PASS"].includes(value) ? "green" : ["FAILED", "INVALID", "ERROR", "SYNTHETIC_VALIDATION_FAIL", "REAL_PHONE_VALIDATION_FAIL"].includes(value) ? "red" : "amber";
   }
   function statusBadge(value) { return badge(text(value, "NOT AVAILABLE").replaceAll("_", " "), statusKind(value)); }
   function safeLink(url, label) {
@@ -131,8 +131,8 @@
   }
 
   async function loadApp() {
-    const responses = await Promise.allSettled([requestJSON("/api/catalog"), requestJSON("/api/status"), requestJSON("/api/external")]);
-    const keys = ["catalog", "status", "external"];
+    const responses = await Promise.allSettled([requestJSON("/api/catalog"), requestJSON("/api/status"), requestJSON("/api/external"), requestJSON("/api/closure")]);
+    const keys = ["catalog", "status", "external", "closure"];
     responses.forEach((result, i) => {
       const key = keys[i];
       if (result.status === "fulfilled") {
@@ -517,6 +517,21 @@
     const provenance = panel("Source and execution provenance", "The origin of data and the policy are different facts.", node("div", {}, node("div", { class: "provenance-block" }, node("strong", {}, "Observation source"), badge("SYNTHETIC", "teal"), node("p", { class: "spaced-top" }, "Numerically generated pendulum trajectories with controlled noise. No phone footage or SAM processing is claimed for this investigation.")), node("div", { class: "provenance-block" }, node("strong", {}, "Investigation policy"), badge(policyLabel(run.policy), run.policy === "LIVE_MUSE" ? "green" : "muted"), node("p", { class: "spaced-top" }, run.policy === "MOCK_POLICY" ? "The mock mirrors the deterministic policy and verifies interface plumbing. It is not evidence of Muse reasoning or superiority." : run.policy === "LIVE_MUSE" ? "This record reports live Muse calls over synthetic exploration evidence. Live reasoning does not make the observations real." : "A deterministic scientific policy using the same approved numerical tools. Playback is a view of the recorded result.")), node("div", { class: "provenance-block" }, node("strong", {}, "Evaluation boundary"), badge("POST-FREEZE DEVELOPMENT", "amber"), node("p", { class: "spaced-top" }, "Development measurements were scored after the frozen decision and were not inputs to investigation or model selection. No sealed validation is claimed."))));
     root.append(node("div", { class: "evidence-grid section-gap" }, audit, provenance));
     root.append(node("div", { class: "two-column section-gap" }, panel("Selected-run API accounting", "Available accounting only; no invented costs.", factList([["Actual API requests", integer(api.actual_api_requests)], ["Input tokens", integer(api.input_tokens)], ["Output tokens", integer(api.output_tokens)], ["API latency", finite(api.api_latency_s) ? `${number(api.api_latency_s, 2)} s` : "Unavailable"], ["Monetary cost", "Unavailable"]])), panel("Scope and remaining limitations", null, list(run.caveats).length ? node("ul", { class: "limitations" }, run.caveats.map((value) => node("li", {}, text(value)))) : node("p", { class: "explain-text" }, "No additional caveats were included in the evidence response. This view does not imply real physical validation."))));
+    const independent = state.closure && state.closure.independent;
+    if (independent) {
+      root.append(panel("Independent validation exercise", "Separate precommitted dataset and model; this is not validation of the currently selected Task 05 recording.", node("div", {},
+        badge(independent.commitment && independent.commitment.domain || independent.domain, "amber"),
+        statusBadge(independent.independent_verdict || independent.status),
+        independent.evaluation ? factList([["Held-out trajectory RMSE", number(independent.evaluation.trajectory_rmse_px)+" px"],
+          ["Prediction tolerance", number(independent.commitment.protocol.max_trajectory_rmse_px)+" px"],
+          ["Peg-position error", number(independent.reveal.geometry_comparison.peg_position_error_m === null ? null : 1000 * independent.reveal.geometry_comparison.peg_position_error_m)+" mm"],
+          ["Peg-position tolerance", number(1000 * independent.commitment.protocol.peg_position_tolerance_m)+" mm"],
+          ["Model version", shortHash(independent.frozen_model.content_sha256)], ["Commitment", shortHash(independent.commitment.commitment_sha256)],
+          ["Freeze before evaluation", "Enforced by the independent custodian"], ["Holdout reuse", "Rejected after first evaluation"], ["Physical G5 passed", "No"]]) : null,
+        info("A synthetic blind workflow exercise is not a real physical blind discovery. Local ordering is not external timestamp attestation.", true))));
+    }
+    if (run.policy === "LIVE_MUSE") root.append(panel("Actual Muse reasoning contribution", "The recorded model chose hypotheses, scientific tool calls and an experiment; numerical tools computed every score.",
+      node("p", {class:"explain-text"}, "This authentic Muse trace runs over synthetic observations. The matched deterministic policy reaches the same predictive error. The result verifies integration without demonstrating Muse superiority.")));
     root.append(info("Integrity checks detect changes against the approved local artifact and its audit. They do not establish causal uniqueness, real-world validation, or a comparison showing Muse superiority."));
     return root;
   }
@@ -525,7 +540,9 @@
     const data = state.external;
     if (!data) return $("content").replaceChildren(empty("External tracking evidence unavailable", state.failures.external || "The external source record has not been loaded. This does not affect the separate synthetic demonstration.", "▷", button("Reload source evidence", () => loadApp())));
     if (data.observation_source !== "REAL_EXTERNAL") return $("content").replaceChildren(empty("External provenance could not be verified", "The response does not explicitly identify REAL_EXTERNAL evidence. No video or tracking result has been displayed.", "△"));
-    const metadata = object(data.metadata) ? data.metadata : {}, provenance = object(data.provenance) ? data.provenance : {}, sam = object(data.sam) ? data.sam : {}, review = object(data.manual_review) ? data.manual_review : {};
+    const metadata = object(data.metadata) ? data.metadata : {}, provenance = object(data.provenance) ? data.provenance : {}, sam = object(data.sam) ? data.sam : {};
+    const assessment = state.closure && state.closure.manual;
+    const review = assessment ? Object.assign({}, assessment, assessment.metrics) : object(data.manual_review) ? data.manual_review : {};
     const track = object(data.track) ? data.track : null;
     const validTrack = track && Array.isArray(metadata.t_s) && validXY(track.xy_px, metadata.t_s.length) && Array.isArray(track.valid) && track.valid.length === metadata.t_s.length && track.valid.every((v) => typeof v === "boolean") && track.xy_px.every((p, i) => !track.valid[i] || p.every(finite));
     const validFrames = validTrack ? track.valid.filter(Boolean).length : null;
@@ -560,12 +577,33 @@
     const quality = panel("Tracking and review", "No physical dynamics inference is implied.", factList([["SAM processing", text(sam.status).replaceAll("_", " ")], ["Tracked centers", validTrack ? `${integer(validFrames)} / ${integer(metadata.t_s.length)}` : "Unavailable"], ["Missing tracking frames", validTrack ? integer(metadata.t_s.length - validFrames) : "Unavailable"], ["Manual review", text(review.status).replaceAll("_", " ")], ["Physical model comparison", "Unavailable"]]));
     root.append(node("div", { class: "video-grid" }, node("div", { class: "main-column" }, videoPanel, info("Presentation timestamps describe playback. Physical acceleration, peg geometry and dynamical agreement are not inferred without independently verified capture timing and metric calibration.", true)), node("div", { class: "side-column" }, origin, quality)));
     root.append(node("div", { class: "spaced-top" }, panel("Real-video limitations", "Real API and real physical validation are separate acceptance checks.", list(data.limitations).length ? node("ul", { class: "limitations" }, data.limitations.map((value) => node("li", {}, text(value)))) : node("p", { class: "explain-text" }, "The external view contains tracking evidence only. It is not an end-to-end real physical model investigation."))));
+    if (assessment) {
+      root.append(panel("Independent measurement review", "Reference centers are supplied by a human on clean frames; no SAM hints are prefilled.", node("div", {},
+        statusBadge(assessment.status), factList([["Reviewed frames", `${integer(assessment.annotated_frames)} / ${integer(assessment.expected_reference_frames)}`],
+          ["Horizontal / vertical bias", Array.isArray(assessment.metrics.bias_px) ? assessment.metrics.bias_px.map(v=>number(v)).join(" / ")+" px" : "Unavailable"],
+          ["Median error", finite(assessment.metrics.median_error_px) ? number(assessment.metrics.median_error_px)+" px" : "Unavailable"],
+          ["95th percentile error", finite(assessment.metrics.p95_error_px) ? number(assessment.metrics.p95_error_px)+" px" : "Unavailable"],
+          ["Reference independence", text(assessment.attestation_status).replaceAll("_", " ")]]),
+        state.closure.review_url ? node("a", {href:state.closure.review_url,target:"_blank",rel:"noopener",class:"button"}, "Open independent clean-frame annotation") : null,
+        info("The existing twenty-frame sample starts at playback "+number(state.closure.review_sample && state.closure.review_sample.first_pts_s,3)+" s. It does not cover the early rejected frames or validate the full video."),
+        panel("Tracking acceptance by playback interval", "Acceptance is a QA count, not measured localization accuracy.", node("div", {}, list(assessment.tracking_intervals).map(row=>node("p", {}, `${number(row.start_pts_s,1)}?${number(row.end_pts_s,1)} s: ${integer(row.accepted_frames)} accepted / ${integer(row.total_frames)}; ${integer(row.rejected_frames)} rejected`)))),
+        panel("Visually reviewed contexts", "Visual tags are not physical event ground truth.", factList(Object.entries(assessment.contexts || {}).map(([key,value])=>[key.replaceAll("_"," "), finite(value.rmse_px) ? number(value.rmse_px)+" px RMS ("+integer(value.paired_frames)+" frames)" : "Not validated"]))),
+        node("p", {class:"policy-note"}, "Missing independent references remain NOT VALIDATED. No physical G2 acceptance follows from this pixel comparison."))));
+    }
     $("content").replaceChildren(root);
   }
 
   function renderPhone() {
     const phone = state.status && state.status.phone || state.catalog && state.catalog.phone || {};
     const root = node("div", {}, node("section", { class: "decision-hero" }, badge("REAL PHONE", "teal"), node("h2", {}, "The next evidence comes from the rig."), node("p", {}, "Controlled physical recordings, independent calibration and reviewed tracking are required before this source can support a real-world investigation."), node("div", { class: "badges" }, statusBadge(phone.status), badge("PHYSICAL VALIDATION PENDING", "amber"))));
+    const physical = state.closure && state.closure.phone;
+    if (physical) {
+      root.append(panel("Controlled investigation status", "A physical request is completed only by a matching, validated recording response.", node("div", {},
+        statusBadge(physical.status), node("ul", {class:"limitations"}, list(physical.blockers).map(x=>node("li", {}, text(x)))),
+        physical.pending_action ? factList([["Pending action", actionSummary(physical.pending_action.candidate && physical.pending_action.candidate.action)],
+          ["Request hash", shortHash(physical.pending_action.request_id)], ["Response received", "No"], ["Model frozen", "No"]]) : node("p", {}, physical.model_frozen ? "The investigation decision is frozen. Any received recording is documented in its audited receipt; independent evaluation is reported separately." : "No physical experiment has been requested: independent recording prerequisites are still missing."),
+        physical.model_frozen ? hashBlock("FROZEN PHYSICAL MODEL DECISION", physical.decision && physical.decision.freeze_sha256) : null)));
+    }
     const requirements = [
       ["Original phone recordings", "Stationary reference, repeated free swings and peg-contact trials. Preserve the original files and capture metadata."],
       ["Independent camera measurements", "Measured planar calibration points, a physical scale reference and pivot location; lens calibration when needed."],

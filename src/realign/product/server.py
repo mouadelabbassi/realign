@@ -15,8 +15,9 @@ ASSETS.update({'/static/app.css':ASSETS['/app.css'],'/static/app.js':ASSETS['/ap
 CSP="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"
 
 
-def make_server(data_root,*,port=8765,media=None):
+def make_server(data_root,*,port=8765,media=None,closure_root=None):
     root=Path(data_root).resolve(); media=dict(media or {})
+    closure_root=Path(closure_root) if closure_root else Path(__file__).resolve().parents[3]/'artifacts/task06'
     for name,p in media.items():
         if not re.fullmatch(r'[a-zA-Z0-9_-]+\.(mp4|png)',name) or not Path(p).is_file():
             raise ValueError('invalid explicitly approved media resource')
@@ -25,10 +26,10 @@ def make_server(data_root,*,port=8765,media=None):
         def log_message(self,*args):
             pass  # Do not log query strings, request bodies or local file paths.
 
-        def _headers(self,status,content_type,size,extra=None):
+        def _headers(self,status,content_type,size,extra=None,policy=None):
             self.send_response(status); self.send_header('Content-Type',content_type)
             self.send_header('Content-Length',str(size)); self.send_header('Cache-Control','no-store')
-            self.send_header('Content-Security-Policy',CSP); self.send_header('X-Content-Type-Options','nosniff')
+            self.send_header('Content-Security-Policy',policy or CSP); self.send_header('X-Content-Type-Options','nosniff')
             self.send_header('Referrer-Policy','no-referrer')
             for k,v in (extra or {}).items(): self.send_header(k,v)
             self.end_headers()
@@ -54,6 +55,13 @@ def make_server(data_root,*,port=8765,media=None):
                 if path in ASSETS:
                     name,kind=ASSETS[path]; data=(STATIC/name).read_bytes()
                     self._headers(200,kind,len(data)); self.wfile.write(data); return
+                if path=='/api/closure':
+                    from .closure import load_closure
+                    self._json(load_closure(closure_root));return
+                if path=='/review':
+                    from .closure import review_page
+                    data,policy=review_page(closure_root)
+                    self._headers(200,'text/html; charset=utf-8',len(data),policy=policy);self.wfile.write(data);return
                 if path.startswith('/media/'):
                     name=path.removeprefix('/media/')
                     if name not in media:

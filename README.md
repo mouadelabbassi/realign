@@ -220,3 +220,29 @@ Task 05 verifies live Muse integration and real external SAM output in separate
 evidence streams. Controlled phone recordings and measured calibration are still
 needed under the [collection protocol](docs/REAL_DATA_COLLECTION_PROTOCOL.md).
 Broader matched live studies, power/coverage and G2/G3/G4/G5 acceptance remain open.
+
+## Task 06 evidence closure
+
+The existing app now includes independent clean-frame annotation, controlled
+phone-input blockers/pending actions and separate post-freeze validation evidence.
+External SAM accuracy is **NOT_VALIDATED** until human references are supplied.
+Controlled phone G2 and full physical G5 remain **NOT_PASSED**.
+
+```powershell
+python scripts/verify_task06.py
+python scripts/run_realign.py
+# http://127.0.0.1:8765/review — independently annotate the twenty clean frames.
+python scripts/verify_g5.py reproduce artifacts/task06/g5_demo
+python scripts/investigate_recordings.py configs/phone_investigation.example.json
+```
+
+The randomized synthetic exercise predicts at 0.751941 px RMS but fails the
+10 mm peg-position tolerance (14.477706 mm error). The separate fixed positive
+control passes. Both results are retained and reproducible; neither is real
+physical discovery. The phone example exits 2 with exact missing-input blockers.
+Default commands make no Meta API calls and do not refit cached product runs.
+
+See [Task 06 implementation and commands](docs/TASK06_IMPLEMENTATION.md),
+[readiness and exact test evidence](artifacts/task06/TASK06_READINESS.md),
+[event compliance record](docs/META_COMPLIANCE.md) and
+[demo storyboard](docs/TASK06_DEMO_STORYBOARD.md).

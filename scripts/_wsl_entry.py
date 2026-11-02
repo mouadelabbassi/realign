@@ -8,6 +8,7 @@ import venv
 ALLOWED={'run_investigator.py','verify_investigator.py','calibrate_investigator.py',
          'replay_investigation.py','setup_investigator_runtime.py'}
 ALLOWED.update({'prepare_demo.py','verify_task05.py'})
+ALLOWED.update({'investigate_recordings.py','verify_task06.py','verify_g5.py'})
 root=Path(__file__).resolve().parents[1]
 name=sys.argv[1] if len(sys.argv)>1 else ''
 if name not in ALLOWED:

@@ -80,16 +80,22 @@ class ScientificValidator:
 
 
 class Investigator:
-    def __init__(self,session,adapter,environment):
+    def __init__(self,session,adapter,environment,*,independent_start=None,validator=None):
         self.session=session; self.adapter=adapter; self.environment=environment
         self.audit=AuditChain(); self.machine=StateMachine(self.audit)
         self.round=1; self.experiments=0; self.completed_experiments=0; self.last_receipt=None; self.steps=[]
         self.coverage=max(abs(t.experiment.release_angle_rad) for t in environment.initial)
-        self.validator=ScientificValidator()
+        self.validator=validator or ScientificValidator()
+        self.independent_start=json.loads(canonical(independent_start)) if independent_start is not None else None
+        if self.independent_start is not None:
+            value=self.independent_start.get('start_receipt_sha256')
+            if not isinstance(value,str) or len(value)!=64 or any(c not in '0123456789abcdef' for c in value):
+                raise ValueError('invalid independent investigation start receipt')
+            self.audit.append('INDEPENDENT_INVESTIGATION_START',self.independent_start)
 
     def _context(self):
         s=self.session
-        return {'stage':self.machine.stage,'round':self.round,'max_rounds':s.budget.max_rounds,
+        context={'stage':self.machine.stage,'round':self.round,'max_rounds':s.budget.max_rounds,
             'experiments_remaining':max(0,s.budget.max_experiments-self.experiments),
             'trial_refs':list(s.trial_refs),'nominal_model_ref':s.nominal_model_ref,
             'budget_ref':s.budget_ref,'protocol_ref':s.protocol_ref,'candidates':s.candidates,
@@ -97,6 +103,26 @@ class Investigator:
             'discrepancy':s.discrepancy,'scores':s.scores,'coverage_max_rad':self.coverage,
             'last_receipt':self.last_receipt,
             'evidence_refs':[r['result']['evidence_ref'] for r in s.results]}
+        if self.independent_start is not None:
+            context['independent_start_receipt_sha256']=self.independent_start['start_receipt_sha256']
+        return context
+
+    def _pending_result(self):
+        """Pause before freeze. No received evidence, decision or evaluation is invented."""
+        pending=json.loads(canonical(self.environment.pending_action))
+        self.audit.append('ADAPTER_STATUS',{'source':self.adapter.source,'stats':self.adapter.stats,
+                                          'receipts':getattr(self.adapter,'receipts',[])})
+        self.audit.append('PHYSICAL_ACTION_PENDING',pending)
+        numerical=self.session.audit()
+        result={'status':'PENDING_PHYSICAL_ACTION','source':self.adapter.source,'pending_action':pending,
+                'state_history':self.machine.history,'round':self.round,'steps':self.steps,
+                'tool_results':self.session.results,'audit':self.audit.events,'audit_head':self.audit.head,
+                'numerical_audit':numerical,'adapter_stats':self.adapter.stats,
+                'adapter_receipts':getattr(self.adapter,'receipts',[]),
+                'isolation':self.session.worker.isolation,'isolation_probe':self.session.worker.probe,
+                'independent_start':self.independent_start,'model_frozen':False}
+        result['checkpoint_sha256']=digest(result)
+        return result
 
     def _observe(self):
         result=self.session.call('inspect_discrepancy',{'trial_refs':list(self.session.trial_refs),
@@ -159,6 +185,8 @@ class Investigator:
                     self.machine.move('REQUEST_EVIDENCE'); self.experiments+=1
                     received=self.environment.perform(candidate)
                     if received is None:
+                        if getattr(self.environment,'pending_action',None) is not None:
+                            return self._pending_result()
                         failure='NO_NEW_EVIDENCE'; raise ValueError('environment has no approved observation')
                     receipt=EvidenceReceipt.model_validate_json(canonical(received['receipt']))
                     if receipt.kind!=candidate['action']['kind'] or receipt.new_observations!=len(received['trials']):
@@ -203,6 +231,8 @@ class Investigator:
                 'reasons':list(reasons or ((failure,) if failure else ())),
                 'scope':'PREDEFINED_PREDICTIVE_MODEL_IN_TESTED_ENVELOPE','causal_mechanism_identified':False,
                 'numerical_audit_head':numerical['head']}
+        if self.independent_start is not None:
+            freeze['independent_start_receipt_sha256']=self.independent_start['start_receipt_sha256']
         freeze['freeze_sha256']=digest(freeze)
         self.audit.append('FREEZE',freeze)
         return {'source':self.adapter.source,'freeze':freeze,'state_history':self.machine.history,

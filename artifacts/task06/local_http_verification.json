@@ -1,0 +1,23 @@
+{
+  "status": "PASS",
+  "url": "http://127.0.0.1:8766",
+  "checks": [
+    {
+      "path": "/api/status",
+      "http_status": 200,
+      "bytes": 5125
+    },
+    {
+      "path": "/api/closure",
+      "http_status": 200,
+      "bytes": 8905
+    },
+    {
+      "path": "/review",
+      "http_status": 200,
+      "bytes": 10454252
+    }
+  ],
+  "new_api_calls": 0,
+  "port_note": "The older service on 8765 returns NOT_FOUND for Task06 routes. Fresh current server on 8766 verified."
+}

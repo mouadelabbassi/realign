@@ -1,0 +1,162 @@
+{
+  "schema_version": 1,
+  "recorded_utc": "2026-11-02T21:49:29.711276+00:00",
+  "source_commit": "fb3f8ffab48c2a4ce1caca5ff441e61514e5241a",
+  "task06_uncommitted": true,
+  "tests": {
+    "initial_targeted": {
+      "tests": 148,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 148,
+      "elapsed_s": 36.048,
+      "junit": "tests/task06_initial_tests.xml"
+    },
+    "initial_manual_review": {
+      "tests": 33,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 33,
+      "elapsed_s": 6.745,
+      "junit": "tests/task06_manual_review_tests.xml"
+    },
+    "final_targeted_windows": {
+      "tests": 220,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 2,
+      "passed": 218,
+      "elapsed_s": 33.838,
+      "junit": "tests/task06_final_targeted_tests.xml"
+    },
+    "final_physical_validation_linux": {
+      "tests": 30,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1,
+      "passed": 29,
+      "elapsed_s": 14.199,
+      "junit": "tests/task06_runtime_final_tests.xml"
+    },
+    "final_physical_validation_windows": {
+      "tests": 30,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 2,
+      "passed": 28,
+      "elapsed_s": 5.858,
+      "junit": "tests/task06_final_new_tests.xml"
+    },
+    "final_browser": {
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 8,
+      "elapsed_s": 20.211,
+      "junit": "tests/task06_browser_final_tests.xml"
+    },
+    "full_offline_linux": {
+      "tests": 340,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 10,
+      "passed": 329,
+      "elapsed_s": 951.16,
+      "junit": "tests/task06_full_offline_tests.xml"
+    },
+    "stable_baseline_reproduction": {
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 1,
+      "elapsed_s": 300.125,
+      "junit": "tests/task06_baseline_reproduction_final.xml"
+    },
+    "earlier_runtime_fixture_failure": {
+      "tests": 19,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 1,
+      "passed": 17,
+      "elapsed_s": 249.062,
+      "junit": "tests/task06_runtime_tests.xml"
+    }
+  },
+  "full_suite_failure_resolution": "Only source_sha256 differed between sequential baseline reports because source edits occurred during test execution. Stable-source rerun passed without weakening assertions; numerical outputs were identical.",
+  "earlier_runtime_failure_resolution": "Incomplete synthetic test fixture constructor corrected; final Linux continuation and isolation tests pass.",
+  "new_meta_api_operations": 0,
+  "external_measurement_accuracy": "NOT_VALIDATED",
+  "phone_workflow": "BLOCKED_INPUTS",
+  "full_G2_passed": false,
+  "full_physical_G5_passed": false,
+  "g1": {
+    "scope": "G1 synthetic numerical verification only; not real experiments or Meta API validation",
+    "seed": 20261031,
+    "randomized_cases": 250,
+    "case_failures": 0,
+    "failure_examples": [],
+    "total_mode_transitions": 1516,
+    "max_absolute_energy_drift_j_per_kg": 1.709933528104557e-09,
+    "max_position_jump_m": 1.9849118084270064e-15,
+    "max_speed_jump_m_per_s": 4.440892098500626e-16,
+    "vertical_peg_period_reference_s": 1.6373648615869487,
+    "vertical_peg_period_abs_error_s": 6.247757866617576e-11,
+    "elapsed_seconds": 11.542,
+    "passed": true
+  },
+  "preserved_science_signature": "2617cb0ce5a5c91d9382bb87233bc69d6f1095246a931103ea247437169c4855",
+  "synthetic_results": {
+    "g5_demo": {
+      "verdict": "SYNTHETIC_VALIDATION_FAIL",
+      "trajectory_rmse_px": 0.7519408442222819,
+      "peg_position_error_m": 0.014477706074618239,
+      "frozen_model_sha256": "1c328af3a5c0fb8b0b5bfd4fa80e301ae4e4a1a2dcd8c6533d49c37989f46095",
+      "post_reveal_reproduction": "PASS"
+    },
+    "g5_positive_control": {
+      "verdict": "SYNTHETIC_EXERCISE_PASS",
+      "trajectory_rmse_px": 0.6930905745225341,
+      "peg_position_error_m": 0.0056025527215726005,
+      "frozen_model_sha256": "2d8334a686c36a7f180682bfdebdaf822be22fb4084b1fcc1165eb8925db93cb",
+      "post_reveal_reproduction": "PASS"
+    }
+  },
+  "static_checks": {
+    "node_check": "PASS",
+    "git_diff_check": "PASS"
+  },
+  "latest_inspected_ci": {
+    "run_id": 41479588109,
+    "source_commit": "fb3f8ffab48c2a4ce1caca5ff441e61514e5241a",
+    "all_four_jobs": "SUCCESS",
+    "scope": "PREVIOUS_COMMIT; NOT_UNCOMMITTED_TASK06"
+  },
+  "local_http": {
+    "status": "PASS",
+    "url": "http://127.0.0.1:8766",
+    "checks": [
+      {
+        "path": "/api/status",
+        "http_status": 200,
+        "bytes": 5125
+      },
+      {
+        "path": "/api/closure",
+        "http_status": 200,
+        "bytes": 8905
+      },
+      {
+        "path": "/review",
+        "http_status": 200,
+        "bytes": 10454252
+      }
+    ],
+    "new_api_calls": 0,
+    "port_note": "The older service on 8765 returns NOT_FOUND for Task06 routes. Fresh current server on 8766 verified."
+  },
+  "elapsed_time_convention": "JUnit suite elapsed_s may differ slightly from pytest console duration; readiness document quotes console values."
+}

@@ -11,6 +11,7 @@ import pytest
 from realign.product.server import make_server
 
 ROOT=Path(__file__).resolve().parents[1]
+SHOTS=Path(os.environ.get('REALIGN_SCREENSHOT_DIR',str(ROOT/'artifacts/task05/screenshots')))
 pytestmark=pytest.mark.skipif(os.environ.get('REALIGN_BROWSER_TESTS')!='1',reason='Opt-in browser integration; no API credentials needed')
 
 
@@ -50,7 +51,7 @@ def test_five_views_two_rounds_playback_and_frozen_evaluation(ui):
     assert '0.00 /' not in page.locator('#timeline-label').inner_text()
     page.get_by_role('button',name='Post-freeze evaluation',exact=True).click()
     expect(page.locator('#content')).to_contain_text('DEVELOPMENT')
-    shots=ROOT/'artifacts/task05/screenshots'; shots.mkdir(parents=True,exist_ok=True)
+    shots=SHOTS; shots.mkdir(parents=True,exist_ok=True)
     page.screenshot(path=str(shots/'reality_desktop.png'),full_page=True)
     for view,title in [('investigation','Investigation'),('experiment','Experiment Loop'),('decision','Model Decision'),('evidence','Evidence')]:
         page.locator('[data-view="'+view+'"]').click()
@@ -93,7 +94,7 @@ def test_external_and_phone_remain_separate_responsive_sources(ui):
     from playwright.sync_api import expect
     context,page,errors=open_page(ui,mobile=True)
     assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
-    shots=ROOT/'artifacts/task05/screenshots'; shots.mkdir(parents=True,exist_ok=True)
+    shots=SHOTS; shots.mkdir(parents=True,exist_ok=True)
     page.screenshot(path=str(shots/'reality_mobile.png'),full_page=True)
     page.locator('[data-source="external"]').click()
     expect(page.locator('#page-title')).to_have_text('External Video')
@@ -121,7 +122,7 @@ def test_approved_external_media_decodes_and_center_overlay_follows_pts(ui):
     page.wait_for_function('()=>document.querySelector(".video-overlay circle") !== null',timeout=15000)
     expect(page.locator('.video-meta')).to_contain_text('Frame 212')
     assert 800<float(page.locator('.video-overlay circle').first.get_attribute('cx'))<900
-    page.screenshot(path=str(ROOT/'artifacts/task05/screenshots/external_desktop.png'),full_page=True)
+    page.screenshot(path=str(SHOTS/'external_desktop.png'),full_page=True)
     assert not errors
     context.close()
 

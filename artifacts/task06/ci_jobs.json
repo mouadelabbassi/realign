@@ -1,0 +1,26 @@
+[
+  {
+    "name": "offline-verification (3.11)",
+    "status": "completed",
+    "conclusion": "success",
+    "failed_steps": []
+  },
+  {
+    "name": "product-browser",
+    "status": "completed",
+    "conclusion": "success",
+    "failed_steps": []
+  },
+  {
+    "name": "offline-verification (3.12)",
+    "status": "completed",
+    "conclusion": "success",
+    "failed_steps": []
+  },
+  {
+    "name": "investigator-evidence",
+    "status": "completed",
+    "conclusion": "success",
+    "failed_steps": []
+  }
+]

@@ -117,7 +117,7 @@ def _real_plot(path,trial,comparison):
     ax.legend(); fig.savefig(path,dpi=140); plt.close(fig)
 
 
-async def _process_manifest(manifest_path,output_dir,result,*,run_api=False,export_reviews=True):
+async def _process_manifest(manifest_path,output_dir,result,*,run_api=False,export_reviews=True,capture=None,ingest_only=False):
     """Process existing caches or explicitly invoke SAM; absent inputs yield readiness."""
     manifest_path=Path(manifest_path).resolve(); root=manifest_path.parent
     output=Path(output_dir); output.mkdir(parents=True,exist_ok=True)
@@ -157,7 +157,9 @@ async def _process_manifest(manifest_path,output_dir,result,*,run_api=False,expo
     runs={}; tracks={}
     try:
         for record in records:
-            rid=record['id']; cache=output/'sam_cache'/rid
+            rid=record['id']
+            cache=(_path(config['sam_cache_dir'],root)/metadata[rid].video_sha256
+                   if config.get('sam_cache_dir') else output/'sam_cache'/rid)
             try:
                 if cache.with_suffix('.json').is_file():
                     run=load_sam_cache(cache,metadata[rid])
@@ -232,6 +234,14 @@ async def _process_manifest(manifest_path,output_dir,result,*,run_api=False,expo
             result['blockers'].append(rid+': release/quality validation failed; review recording')
     training=[t for t in trials if t.zone=='exploration']
     heldout=[t for t in trials if t.zone=='development']
+    if capture is not None:
+        capture.update(trials=trials,calibration=cal,fitting_noise=combined,tracks=tracks,metadata=metadata,
+                       runs=runs,calibration_config=calibration_config,stationary_id=stationary_id)
+    if ingest_only:
+        result.update(calibration=asdict(cal),fitting_noise=asdict(combined),
+                      scope='REAL PHONE observation ingestion only; fitting and evaluation deferred',
+                      g2_passed=False)
+        return write_g2_report(output,result)
     baseline=None; baselines={}
     try:
         nominal=PendulumParams(**config['nominal_params'])
@@ -276,12 +286,13 @@ async def _process_manifest(manifest_path,output_dir,result,*,run_api=False,expo
     return write_g2_report(output,result)
 
 
-async def process_manifest(manifest_path,output_dir,*,run_api=False,export_reviews=True):
+async def process_manifest(manifest_path,output_dir,*,run_api=False,export_reviews=True,capture=None,ingest_only=False):
     result={'scope':'REAL PHONE G2 processing; no synthetic inputs permitted','offline_passed':None,
         'g2_passed':False,'actual_api':{'status':'not_run','successful_calls':0,'failed_calls':0},
         'real_measurements':[],'synthetic_fixture':None,'blockers':[],'failures':[]}
     try:
-        return await _process_manifest(manifest_path,output_dir,result,run_api=run_api,export_reviews=export_reviews)
+        return await _process_manifest(manifest_path,output_dir,result,run_api=run_api,export_reviews=export_reviews,
+                                       capture=capture,ingest_only=ingest_only)
     except Exception as exc:
         # Retain actual call counts even if later calibration/annotation/fitting fails.
         result['g2_passed']=False

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>REALIGN · Independent clean-frame review</title>
+<style>
+:root{font-family:system-ui,sans-serif;color:#18342b;background:#f5f4ed}*{box-sizing:border-box}body{margin:0;padding:24px}main{max-width:1120px;margin:auto}h1{font-size:28px;margin-bottom:8px}p{line-height:1.5}.tag{font-size:12px;letter-spacing:.1em;color:#46664d}.card{background:white;border:1px solid #cbd4c7;border-radius:12px;padding:18px;margin:16px 0}.toolbar{display:flex;gap:14px;align-items:center;flex-wrap:wrap}label{display:flex;gap:6px;align-items:center}input{font:inherit;padding:7px;border:1px solid #9daa9d;border-radius:5px}input[type=number]{width:90px}input[type=text]{min-width:220px}button{font:inherit;border:1px solid #355e48;background:#e9f1e7;color:#193c2b;padding:9px 14px;border-radius:6px;cursor:pointer}button:disabled{opacity:.45;cursor:default}button.primary{background:#28533c;color:white}.muted{color:#5c6d63;font-size:14px}#image{display:block;width:100%;height:auto;cursor:crosshair;touch-action:manipulation;background:#172920;border-radius:5px}#frame-description{font-weight:600;margin:8px 0}#status{min-height:24px}#attestation{align-items:flex-start;max-width:900px}code{word-break:break-all;font-size:11px}summary{cursor:pointer}footer{font-size:13px;color:#526759;margin:20px 0}@media(max-width:600px){body{padding:12px}.card{padding:12px}h1{font-size:23px}}
+</style></head><body><main>
+<div class="tag">REAL_EXTERNAL · INDEPENDENT REFERENCE ANNOTATION</div>
+<h1>Place the bob center on clean frames</h1>
+<p>Click the center of the yellow disc in each image. These images contain no SAM masks, centers or acceptance hints. Estimate your one-standard-deviation click uncertainty in original image pixels. Add visual context labels only when visible; <em>apparent contact</em> does not establish physical contact.</p>
+<section class="card"><div class="toolbar"><label>Reviewer <input id="reviewer" type="text" maxlength="128" placeholder="Your name or stable reviewer ID"></label><span id="progress" aria-live="polite"></span></div>
+<p class="muted">Do this review before viewing any SAM overlays or predicted centers. If you have already seen them, use a different independent reviewer. Independence remains your self-declaration; REALIGN cannot prove the reviewer's identity.</p></section>
+<section class="card"><div class="toolbar"><button id="previous">← Previous</button><button id="next">Next →</button><button id="clear">Clear this center</button><label>Uncertainty σ <input id="sigma" type="number" min="0.01" step="0.25" placeholder="px"> px</label></div>
+<p id="frame-description"></p><canvas id="image" aria-label="Clean reference frame; click the independently judged bob center"></canvas>
+<p id="coordinate" class="muted">No center placed.</p><div class="toolbar"><label><input type="checkbox" data-context="reversal"> Near visible reversal</label><label><input type="checkbox" data-context="occlusion"> Occlusion</label><label><input type="checkbox" data-context="apparent_contact"> Apparent contact</label></div></section>
+<section class="card"><label id="attestation"><input id="independent" type="checkbox"><span id="attestation-text"></span></label><p class="muted">Only your supplied centers are exported. Missing centers stay null. This page makes no network requests and does not calculate agreement with SAM.</p><button class="primary" id="download">Download annotation JSON</button><p id="status" role="status"></p></section>
+<details class="card"><summary>Source, license and reference identity</summary><p id="license"></p><p>Video SHA-256: <code id="video-hash"></code></p><p>All times are original <em>playback presentation timestamps</em>. Physical capture-time scale and metric geometry remain unverified. Downloaded annotations bind each frame's index, integer PTS and image SHA-256.</p></details>
+<footer>REALIGN · Task 06 · Pixel reference review, separate from controlled phone G2 and physical model validation.</footer>
+</main><script>
+'use strict';
+const REVIEW_DATA=__REVIEW_DATA__;
+const annotation=structuredClone(REVIEW_DATA.annotations), rows=annotation.rows;
+const canvas=document.querySelector('#image'), ctx=canvas.getContext('2d');
+let frame=0,image=null;
+const $=id=>document.getElementById(id);
+function progress(){ $('progress').textContent=rows.filter(r=>r.center_px!==null).length+' / '+rows.length+' centers placed'; }
+function draw(){
+  if(!image)return;canvas.width=image.naturalWidth;canvas.height=image.naturalHeight;
+  ctx.drawImage(image,0,0);const center=rows[frame].center_px;
+  if(center){ctx.strokeStyle='#37fdc0';ctx.lineWidth=2;ctx.beginPath();ctx.arc(center[0],center[1],8,0,Math.PI*2);ctx.moveTo(center[0]-14,center[1]);ctx.lineTo(center[0]+14,center[1]);ctx.moveTo(center[0],center[1]-14);ctx.lineTo(center[0],center[1]+14);ctx.stroke();}
+  $('coordinate').textContent=center?'Your center: u='+center[0].toFixed(2)+', v='+center[1].toFixed(2)+' px':'No center placed.';progress();
+}
+function show(){
+  const row=rows[frame];$('frame-description').textContent='Reference '+(frame+1)+' / '+rows.length+' · frame '+row.frame_index+' · original PTS '+row.pts+' · playback '+row.pts_s.toFixed(6)+' s';
+  $('sigma').value=row.annotation_sigma_px===null?'':row.annotation_sigma_px;
+  document.querySelectorAll('[data-context]').forEach(el=>el.checked=row.contexts.includes(el.dataset.context));
+  $('previous').disabled=frame===0;$('next').disabled=frame===rows.length-1;
+  image=null;const loading=new Image(),requested=frame;loading.onload=()=>{if(frame!==requested)return;image=loading;draw()};loading.src=REVIEW_DATA.images[frame];
+}
+canvas.addEventListener('click',e=>{if(!image)return;const rect=canvas.getBoundingClientRect();rows[frame].center_px=[(e.clientX-rect.left)*canvas.width/rect.width,(e.clientY-rect.top)*canvas.height/rect.height];draw()});
+$('sigma').addEventListener('input',()=>{const n=Number($('sigma').value);rows[frame].annotation_sigma_px=$('sigma').value!==''&&Number.isFinite(n)&&n>0?n:null});
+document.querySelectorAll('[data-context]').forEach(el=>el.addEventListener('change',()=>{rows[frame].contexts=Array.from(document.querySelectorAll('[data-context]:checked')).map(x=>x.dataset.context)}));
+$('previous').addEventListener('click',()=>{if(frame>0){frame--;show()}});$('next').addEventListener('click',()=>{if(frame<rows.length-1){frame++;show()}});
+$('clear').addEventListener('click',()=>{rows[frame].center_px=null;draw()});
+$('download').addEventListener('click',()=>{
+  const reviewer=$('reviewer').value.trim(), placed=rows.filter(r=>r.center_px!==null);
+  if(!reviewer){$('status').textContent='Enter a reviewer name or stable ID.';return;}
+  if(placed.some(r=>r.annotation_sigma_px===null)){$('status').textContent='Supply positive uncertainty for every placed center.';return;}
+  if(!$('independent').checked){$('status').textContent='Confirm independent annotation before exporting a human-reference document.';return;}
+  annotation.reviewer=reviewer;annotation.reviewed_utc=new Date().toISOString();annotation.independent_of_sam=true;
+  const blob=new Blob([JSON.stringify(annotation,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='external-independent-annotations.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  $('status').textContent='Exported '+placed.length+' / '+rows.length+' independently supplied centers. Missing centers remain null.';
+});
+$('attestation-text').textContent=annotation.independence_attestation;
+$('video-hash').textContent=annotation.video_sha256;
+const source=REVIEW_DATA.manifest.provenance;$('license').textContent=source.attribution+' · '+source.license_url;
+show();progress();
+</script></body></html>
