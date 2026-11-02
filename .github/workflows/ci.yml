@@ -7,7 +7,7 @@ permissions:
 jobs:
   offline-verification:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 120
     strategy:
       fail-fast: false
       matrix:
@@ -51,3 +51,26 @@ jobs:
             artifacts/B3_BASELINES.md
             artifacts/b3_baselines.json
             artifacts/b3_trajectories.png
+  investigator-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      MPLBACKEND: Agg
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install offline scientific runtime
+        run: python -m pip install -e ".[dev,perception]"
+      - name: Recalibrate and reproduce matched offline investigations
+        run: python scripts/verify_investigator.py --calibrate
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: task04-offline-investigator
+          path: artifacts/task04/

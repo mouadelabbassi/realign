@@ -1,0 +1,16 @@
+{
+  "status": "ABORTED_BY_ENGINEER",
+  "runtime": "LINUX_LANDLOCK_SECCOMP",
+  "completed_replicates": 6,
+  "planned_replicates": 20,
+  "reason": "Replace shared worker lifetime with independent bounded workers and conservative missing-null tails",
+  "scores": [
+    -4.227245400167945e-06,
+    -0.013791729031934116,
+    -1.9828985000636123e-06,
+    -0.005959306455231683,
+    -8.973082750163286e-07,
+    -0.018462422722794573
+  ],
+  "accepted_as_calibration": false
+}

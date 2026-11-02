@@ -33,6 +33,11 @@
 - Freeze experimental splits before inspecting holdout outcomes.
 
 ## Phase 4 — Typed model revisions and Muse agent
+- Task 04 implements a bounded investigator over the existing FREE/PEG models,
+  five numerical tools, four experiment types, separate proposal validation,
+  synthetic null calibration and offline replay. See TASK04_IMPLEMENTATION.md.
+  This is a requested bounded slice, not full G3/G4 acceptance or the general
+  typed structural compiler. Live matched Muse evidence remains a separate gate.
 - Implement typed `ModelSpec` and validated edits (fixed geometry within each mode), deterministic fit/simulate/compare/score tools, and bounded investigation state machine.
 - Implement experiment scoring with uncertainty, quality checks and admissibility rules.
 - Muse proposes alternatives/experiments/edits, with numeric evidence from tools; it never invents scores or sees sealed outcomes.

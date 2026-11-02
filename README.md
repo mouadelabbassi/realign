@@ -1,6 +1,6 @@
-# REALIGN — Scientific Baselines and G2 Perception Pipeline
+# REALIGN — Scientific Baselines and Bounded Investigator
 
-**Status: verified physics/baselines and an offline-tested video/SAM pipeline. G2 is NOT PASSED: actual SAM processing and real recordings remain pending.**
+**Status: verified physics/baselines, an offline-tested perception pipeline, and an executable bounded investigator. Real phone validation and end-to-end live investigator validation remain pending. G2 is NOT PASSED.**
 
 REALIGN aims to audit physics simulations against phone-measured reality,
 request discriminating experiments, propose typed structural corrections and
@@ -27,7 +27,11 @@ Implemented and tested:
   leave-one-whole-training-trial-out comparison.
 - Disjoint synthetic development trials, no-fault and unexcited controls, explicit
   ambiguous cases, solver-failure tests and truth dependency/input checks.
-- Separately executable Meta capability probes; actual network verification remains pending.
+- Separately executable Meta capability probes and a budgeted Muse adapter; live
+  investigation evidence is reported separately from local capability probes.
+- Five executable numerical tools, isolated exploration-only resources, a bounded
+  state machine, experiment planning, conservative synthetic model selection and
+  immutable investigation traces with fresh numerical replay.
 
 ## Install and run
 
@@ -90,9 +94,10 @@ release time. It has no measured phone noise, camera calibration or fitted camer
 nuisances. A single observed circle cannot rule out an unexcited peg. B2 uses a
 fixed bearing-boundary hypothesis family and an uncalibrated conservative CV
 penalty. MDE/power studies, parameter CI coverage, causal identification, sealed
-evaluation and G3 acceptance remain unfinished. No agent, compiler or frontend is
-implemented. Synthetic truth isolation here is a tested dependency/input boundary,
-not the future storage/permission-enforced vault.
+evaluation and full G3 acceptance remain unfinished. Task 04 adds the bounded
+investigator described below. No general compiler or frontend is implemented.
+The numerical tool process now has OS-enforced resource isolation; a separate
+sealed storage/evaluation system remains future work.
 
 ## Meta API and eligibility
 
@@ -119,12 +124,12 @@ Separate actual SAM verification and real processing:
 
 Configure local access and complete the example manifest/measurements first.
 Missing inputs produce a pending report. Run without --run-api to reuse matching
-completed real SAM caches. Fixture caches are rejected. No Muse agent, compiler,
-frontend or sealed evaluator was added.
+completed real SAM caches. Fixture caches are rejected. This perception workflow
+does not implement a compiler, frontend or sealed evaluator.
 
-Models have not been called by this package. Keep MODEL_API_KEY local and use
-the separate smoke commands. Full accepted-participant hackathon rules must
-still be checked.
+Keep MODEL_API_KEY local and use the separate smoke commands. Capability reports
+and end-to-end investigations are separate evidence. Full accepted-participant
+hackathon rules must still be checked.
 
 ## Task 03 structural dynamics and API readiness
 
@@ -135,10 +140,11 @@ the fixed synthetic comparison on whole exploration/development trials. See
 [B3_BASELINES.md](artifacts/B3_BASELINES.md) and
 [TASK03_IMPLEMENTATION.md](docs/TASK03_IMPLEMENTATION.md). B2 radial error remains
 a separate geometric statistic. Predictive accuracy alone does not identify a
-physical mechanism. Full null-calibrated structural selection and G3 remain pending.
+physical mechanism. Task 04 adds a finite synthetic null-calibration pilot;
+broad structural acceptance and full G3 remain pending.
 
-Muse structured output and a validated local numerical tool round trip are
-implemented as separate probes, not an investigator:
+Muse structured output and a validated local numerical tool round trip remain
+separately executable probes:
 
     python scripts/smoke_meta.py --standard-tier-confirmed
 
@@ -154,7 +160,40 @@ metrics or satisfy the phone G2 gate. Actual SAM/Muse API checks remain NOT_RUN
 without a locally configured key. No external clip is classified as self-recorded
 phone footage. Public external provenance is separate from synthetic test fixtures.
 
-The next investigator phase has five closed typed schema pairs in
+The Task 03 design has five closed typed schema pairs in
 [INVESTIGATOR_TOOL_CONTRACTS.md](docs/INVESTIGATOR_TOOL_CONTRACTS.md) and
 [investigator_tool_schemas.json](docs/investigator_tool_schemas.json).
-These are schemas only; tool handlers, agent, compiler and frontend are not implemented.
+Those v1.0 schemas remain reproducible. Task 04 implements the five tools using
+the backwards-preserved numerical modules and closed runtime v1.1 contracts.
+
+## Task 04 executable investigation
+
+The investigator observes, hypothesizes, tests, requests one bounded experiment,
+and submits an evidence-cited proposal to a separate scientific validator before
+freezing. Outcomes include KEEP_UNCHANGED, CALIBRATE_PARAMETERS,
+CORRECT_MEASUREMENT, REPAIR_STRUCTURE and ABSTAIN. Structural acceptance selects
+the predefined peg-contact model for prediction, not a uniquely identified cause
+or an open-ended equation. The mock policy is explicitly not Muse evidence.
+
+```powershell
+# Windows requires Ubuntu WSL; Linux x86-64 uses Landlock/seccomp directly.
+python scripts/setup_investigator_runtime.py
+python scripts/verify_investigator.py --calibrate
+python scripts/run_investigator.py --mode deterministic --case off_vertical_peg --seed 51300
+python scripts/replay_investigation.py artifacts/task04/traces/deterministic_off_vertical_peg.json
+# Separate opt-in live arm; absent authorization is NOT_RUN, never a mock.
+python scripts/verify_investigator.py --run-live --standard-tier-confirmed
+```
+
+See [Task 04 implementation and operating limits](docs/TASK04_IMPLEMENTATION.md),
+[runtime schemas](docs/investigator_runtime_schemas.json) and the measured
+[investigation report](artifacts/task04/INVESTIGATOR_REPORT.md). The registered
+pilot uses twenty synthetic null datasets and disjoint post-calibration seeds.
+The [readiness assessment](artifacts/task04/TASK04_READINESS.md) records exact
+test outcomes, the noise-scale false comparison flag, conservative abstention,
+optimizer failures and live/real-world checks still pending.
+Calibration is environment-bound; regenerate it after numerical version changes.
+Real phone recordings, measured calibration and actual SAM output are still
+needed under the [collection protocol](docs/REAL_DATA_COLLECTION_PROTOCOL.md).
+Matched live Muse performance, broader power/coverage studies and G2/G3/G4/G5
+acceptance are not established by the offline investigator.

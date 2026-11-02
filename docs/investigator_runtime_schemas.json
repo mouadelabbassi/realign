@@ -1,0 +1,1611 @@
+{
+  "agent_turn": {
+    "$defs": {
+      "Hypothesis": {
+        "additionalProperties": false,
+        "properties": {
+          "evidence_refs": {
+            "items": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "title": "Evidence Refs",
+            "type": "array"
+          },
+          "family": {
+            "enum": [
+              "NOMINAL_FREE",
+              "PARAMETER_FREE",
+              "PEG_ONE_SIDE",
+              "MEASUREMENT"
+            ],
+            "title": "Family",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "1.1",
+            "default": "1.1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "UNRESOLVED",
+              "PREDICTIVELY_SUPPORTED",
+              "NOT_SELECTED"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "family",
+          "status",
+          "evidence_refs"
+        ],
+        "title": "Hypothesis",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "action": {
+        "enum": [
+          "HYPOTHESIZE",
+          "REQUEST_EVIDENCE",
+          "DECIDE"
+        ],
+        "title": "Action",
+        "type": "string"
+      },
+      "evidence_refs": {
+        "items": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "maxItems": 24,
+        "minItems": 1,
+        "title": "Evidence Refs",
+        "type": "array"
+      },
+      "experiment_ref": {
+        "anyOf": [
+          {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Experiment Ref"
+      },
+      "hypotheses": {
+        "items": {
+          "$ref": "#/$defs/Hypothesis"
+        },
+        "maxItems": 4,
+        "minItems": 1,
+        "title": "Hypotheses",
+        "type": "array"
+      },
+      "model_ref": {
+        "anyOf": [
+          {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Model Ref"
+      },
+      "outcome": {
+        "anyOf": [
+          {
+            "enum": [
+              "KEEP_UNCHANGED",
+              "CALIBRATE_PARAMETERS",
+              "CORRECT_MEASUREMENT",
+              "REPAIR_STRUCTURE",
+              "ABSTAIN"
+            ],
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Outcome"
+      },
+      "reasons": {
+        "items": {
+          "enum": [
+            "QUALITY_FAILURE",
+            "MISSING_REFERENCE",
+            "INSUFFICIENT_DATA",
+            "UNEXCITED",
+            "RANK_DEFICIENT",
+            "BOUND_ACTIVE",
+            "SOLVER_FAILURE",
+            "UNCALIBRATED",
+            "OUTSIDE_PROTOCOL",
+            "NO_MODEL_UNCERTAINTY",
+            "INFEASIBLE",
+            "BUDGET",
+            "ACCESS_DENIED",
+            "INVALID_INPUT",
+            "API_ERROR",
+            "UNSUPPORTED_PROPOSAL",
+            "NO_NEW_EVIDENCE",
+            "OPERATING_ENVELOPE_ONLY"
+          ],
+          "type": "string"
+        },
+        "title": "Reasons",
+        "type": "array"
+      },
+      "schema_version": {
+        "const": "1.1",
+        "default": "1.1",
+        "title": "Schema Version",
+        "type": "string"
+      }
+    },
+    "required": [
+      "action",
+      "hypotheses",
+      "experiment_ref",
+      "outcome",
+      "model_ref",
+      "evidence_refs",
+      "reasons"
+    ],
+    "title": "AgentTurn",
+    "type": "object"
+  },
+  "budget": {
+    "additionalProperties": false,
+    "properties": {
+      "max_api_requests": {
+        "default": 24,
+        "maximum": 32,
+        "minimum": 1,
+        "title": "Max Api Requests",
+        "type": "integer"
+      },
+      "max_experiments": {
+        "default": 1,
+        "maximum": 1,
+        "minimum": 0,
+        "title": "Max Experiments",
+        "type": "integer"
+      },
+      "max_fit_jobs": {
+        "default": 10,
+        "maximum": 16,
+        "minimum": 1,
+        "title": "Max Fit Jobs",
+        "type": "integer"
+      },
+      "max_nfev": {
+        "default": 40,
+        "maximum": 80,
+        "minimum": 1,
+        "title": "Max Nfev",
+        "type": "integer"
+      },
+      "max_rounds": {
+        "default": 2,
+        "maximum": 2,
+        "minimum": 1,
+        "title": "Max Rounds",
+        "type": "integer"
+      },
+      "max_steps": {
+        "default": 32,
+        "maximum": 40,
+        "minimum": 1,
+        "title": "Max Steps",
+        "type": "integer"
+      },
+      "max_tool_calls": {
+        "default": 24,
+        "maximum": 32,
+        "minimum": 1,
+        "title": "Max Tool Calls",
+        "type": "integer"
+      },
+      "n_starts": {
+        "const": 8,
+        "default": 8,
+        "title": "N Starts",
+        "type": "integer"
+      },
+      "schema_version": {
+        "const": "1.1",
+        "default": "1.1",
+        "title": "Schema Version",
+        "type": "string"
+      },
+      "worker_timeout_s": {
+        "default": 600,
+        "maximum": 1800,
+        "minimum": 1,
+        "title": "Worker Timeout S",
+        "type": "integer"
+      }
+    },
+    "title": "Budget",
+    "type": "object"
+  },
+  "evidence_receipt": {
+    "additionalProperties": false,
+    "properties": {
+      "kind": {
+        "enum": [
+          "RELEASE",
+          "REPEAT",
+          "STATIONARY_REFERENCE",
+          "CAMERA_CALIBRATION"
+        ],
+        "title": "Kind",
+        "type": "string"
+      },
+      "new_observations": {
+        "maximum": 3,
+        "minimum": 0,
+        "title": "New Observations",
+        "type": "integer"
+      },
+      "schema_version": {
+        "const": "1.1",
+        "default": "1.1",
+        "title": "Schema Version",
+        "type": "string"
+      },
+      "source": {
+        "enum": [
+          "SYNTHETIC_ENVIRONMENT",
+          "APPROVED_RECORDING_LIBRARY"
+        ],
+        "title": "Source",
+        "type": "string"
+      }
+    },
+    "required": [
+      "kind",
+      "source",
+      "new_observations"
+    ],
+    "title": "EvidenceReceipt",
+    "type": "object"
+  },
+  "experiment_action": {
+    "$defs": {
+      "CameraCheck": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "CAMERA_CALIBRATION",
+            "default": "CAMERA_CALIBRATION",
+            "title": "Kind",
+            "type": "string"
+          },
+          "reference_ref": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Reference Ref",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "1.1",
+            "default": "1.1",
+            "title": "Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reference_ref"
+        ],
+        "title": "CameraCheck",
+        "type": "object"
+      },
+      "Release": {
+        "additionalProperties": false,
+        "properties": {
+          "duration_s": {
+            "default": 1.6,
+            "maximum": 4,
+            "minimum": 1,
+            "title": "Duration S",
+            "type": "number"
+          },
+          "kind": {
+            "const": "RELEASE",
+            "default": "RELEASE",
+            "title": "Kind",
+            "type": "string"
+          },
+          "release_angle_rad": {
+            "maximum": 0.7,
+            "minimum": 0.1,
+            "title": "Release Angle Rad",
+            "type": "number"
+          },
+          "repeats": {
+            "const": 2,
+            "default": 2,
+            "title": "Repeats",
+            "type": "integer"
+          },
+          "schema_version": {
+            "const": "1.1",
+            "default": "1.1",
+            "title": "Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "release_angle_rad"
+        ],
+        "title": "Release",
+        "type": "object"
+      },
+      "Repeat": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "REPEAT",
+            "default": "REPEAT",
+            "title": "Kind",
+            "type": "string"
+          },
+          "repeats": {
+            "default": 2,
+            "maximum": 3,
+            "minimum": 2,
+            "title": "Repeats",
+            "type": "integer"
+          },
+          "schema_version": {
+            "const": "1.1",
+            "default": "1.1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "source_trial_ref": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Source Trial Ref",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_trial_ref"
+        ],
+        "title": "Repeat",
+        "type": "object"
+      },
+      "Stationary": {
+        "additionalProperties": false,
+        "properties": {
+          "duration_s": {
+            "default": 2.0,
+            "maximum": 4,
+            "minimum": 1,
+            "title": "Duration S",
+            "type": "number"
+          },
+          "kind": {
+            "const": "STATIONARY_REFERENCE",
+            "default": "STATIONARY_REFERENCE",
+            "title": "Kind",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "1.1",
+            "default": "1.1",
+            "title": "Schema Version",
+            "type": "string"
+          }
+        },
+        "title": "Stationary",
+        "type": "object"
+      }
+    },
+    "discriminator": {
+      "mapping": {
+        "CAMERA_CALIBRATION": "#/$defs/CameraCheck",
+        "RELEASE": "#/$defs/Release",
+        "REPEAT": "#/$defs/Repeat",
+        "STATIONARY_REFERENCE": "#/$defs/Stationary"
+      },
+      "propertyName": "kind"
+    },
+    "oneOf": [
+      {
+        "$ref": "#/$defs/Release"
+      },
+      {
+        "$ref": "#/$defs/Repeat"
+      },
+      {
+        "$ref": "#/$defs/Stationary"
+      },
+      {
+        "$ref": "#/$defs/CameraCheck"
+      }
+    ]
+  },
+  "schema_version": "1.1",
+  "tools": {
+    "compare_candidate_models": {
+      "input": {
+        "additionalProperties": false,
+        "properties": {
+          "fitted_model_refs": {
+            "items": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "Fitted Model Refs",
+            "type": "array"
+          },
+          "protocol_ref": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Protocol Ref",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "1.1",
+            "default": "1.1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "trial_refs": {
+            "items": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "maxItems": 8,
+            "minItems": 1,
+            "title": "Trial Refs",
+            "type": "array"
+          },
+          "zone": {
+            "const": "exploration",
+            "default": "exploration",
+            "title": "Zone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "trial_refs",
+          "fitted_model_refs",
+          "protocol_ref"
+        ],
+        "title": "CompareInput",
+        "type": "object"
+      },
+      "output": {
+        "$defs": {
+          "ModelScore": {
+            "additionalProperties": false,
+            "properties": {
+              "candidate": {
+                "enum": [
+                  "FREE",
+                  "PEG_ONE_SIDE"
+                ],
+                "title": "Candidate",
+                "type": "string"
+              },
+              "model_ref": {
+                "pattern": "^[0-9a-f]{64}$",
+                "title": "Model Ref",
+                "type": "string"
+              },
+              "noise_ratio": {
+                "anyOf": [
+                  {
+                    "minimum": 0,
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Noise Ratio"
+              },
+              "schema_version": {
+                "const": "1.1",
+                "default": "1.1",
+                "title": "Schema Version",
+                "type": "string"
+              },
+              "trial_cv_mse_px2": {
+                "anyOf": [
+                  {
+                    "minimum": 0,
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Trial Cv Mse Px2"
+              }
+            },
+            "required": [
+              "model_ref",
+              "candidate",
+              "trial_cv_mse_px2",
+              "noise_ratio"
+            ],
+            "title": "ModelScore",
+            "type": "object"
+          }
+        },
+        "additionalProperties": false,
+        "properties": {
+          "calibrated_support": {
+            "enum": [
+              "NOT_ASSESSED",
+              "INDISTINGUISHABLE",
+              "PEG_PREDICTIVE_DIFFERENCE"
+            ],
+            "title": "Calibrated Support",
+            "type": "string"
+          },
+          "calibrated_threshold": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Calibrated Threshold"
+          },
+          "comparison_ref": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Comparison Ref",
+            "type": "string"
+          },
+          "empirical_tail_probability": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0,
+                "maximum": 1,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Empirical Tail Probability"
+          },
+          "evidence_ref": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Evidence Ref",
+            "type": "string"
+          },
+          "fit_jobs_charged": {
+            "minimum": 0,
+            "title": "Fit Jobs Charged",
+            "type": "integer"
+          },
+          "flags": {
+            "default": [],
+            "items": {
+              "enum": [
+                "QUALITY_FAILURE",
+                "MISSING_REFERENCE",
+                "INSUFFICIENT_DATA",
+                "UNEXCITED",
+                "RANK_DEFICIENT",
+                "BOUND_ACTIVE",
+                "SOLVER_FAILURE",
+                "UNCALIBRATED",
+                "OUTSIDE_PROTOCOL",
+                "NO_MODEL_UNCERTAINTY",
+                "INFEASIBLE",
+                "BUDGET",
+                "ACCESS_DENIED",
+                "INVALID_INPUT",
+                "API_ERROR",
+                "UNSUPPORTED_PROPOSAL",
+                "NO_NEW_EVIDENCE",
+                "OPERATING_ENVELOPE_ONLY"
+              ],
+              "type": "string"
+            },
+            "title": "Flags",
+            "type": "array"
+          },
+          "method": {
+            "const": "WHOLE_TRIAL_TWO_FOLD_CV",
+            "default": "WHOLE_TRIAL_TWO_FOLD_CV",
+            "title": "Method",
+            "type": "string"
+          },
+          "null_calibration_ref": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Null Calibration Ref"
+          },
+          "null_replicates": {
+            "minimum": 0,
+            "title": "Null Replicates",
+            "type": "integer"
+          },
+          "schema_version": {
+            "const": "1.1",
+            "default": "1.1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "scores": {
+            "items": {
+              "$ref": "#/$defs/ModelScore"
+            },
+            "title": "Scores",
+            "type": "array"
+          },
+          "statistic": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Statistic"
+          },
+          "status": {
+            "enum": [
+              "OK",
+              "FAILED",
+              "AMBIGUOUS"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "evidence_ref",
+          "status",
+          "scores",
+          "comparison_ref",
+          "statistic",
+          "empirical_tail_probability",
+          "calibrated_threshold",
+          "null_calibration_ref",
+          "null_replicates",
+          "calibrated_support",
+          "fit_jobs_charged"
+        ],
+        "title": "ComparisonOutput",
+        "type": "object"
+      }
+    },
+    "fit_candidate_model": {
+      "input": {
+        "additionalProperties": false,
+        "properties": {
+          "budget_ref": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Budget Ref",
+            "type": "string"
+          },
+          "candidate": {
+            "enum": [
+              "FREE",
+              "PEG_ONE_SIDE"
+            ],
+            "title": "Candidate",
+            "type": "string"
+          },
+          "nominal_model_ref": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Nominal Model Ref",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "1.1",
+            "default": "1.1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "trial_refs": {
+            "items": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "maxItems": 8,
+            "minItems": 1,
+            "title": "Trial Refs",
+            "type": "array"
+          },
+          "wrap_side": {
+            "const": -1,
+            "default": -1,
+            "title": "Wrap Side",
+            "type": "integer"
+          },
+          "zone": {
+            "const": "exploration",
+            "default": "exploration",
+            "title": "Zone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "trial_refs",
+          "candidate",
+          "nominal_model_ref",
+          "budget_ref"
+        ],
+        "title": "FitInput",
+        "type": "object"
+      },
+      "output": {
+        "additionalProperties": false,
+        "properties": {
+          "attempted_starts": {
+            "maximum": 8,
+            "minimum": 0,
+            "title": "Attempted Starts",
+            "type": "integer"
+          },
+          "candidate": {
+            "enum": [
+              "FREE",
+              "PEG_ONE_SIDE"
+            ],
+            "title": "Candidate",
+            "type": "string"
+          },
+          "converged_starts": {
+            "maximum": 8,
+            "minimum": 0,
+            "title": "Converged Starts",
+            "type": "integer"
+          },
+          "diagnostics_ref": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Diagnostics Ref"
+          },
+          "evidence_ref": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Evidence Ref",
+            "type": "string"
+          },
+          "fit_jobs_charged": {
+            "minimum": 0,
+            "title": "Fit Jobs Charged",
+            "type": "integer"
+          },
+          "fitted_model_ref": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fitted Model Ref"
+          },
+          "flags": {
+            "default": [],
+            "items": {
+              "enum": [
+                "QUALITY_FAILURE",
+                "MISSING_REFERENCE",
+                "INSUFFICIENT_DATA",
+                "UNEXCITED",
+                "RANK_DEFICIENT",
+                "BOUND_ACTIVE",
+                "SOLVER_FAILURE",
+                "UNCALIBRATED",
+                "OUTSIDE_PROTOCOL",
+                "NO_MODEL_UNCERTAINTY",
+                "INFEASIBLE",
+                "BUDGET",
+                "ACCESS_DENIED",
+                "INVALID_INPUT",
+                "API_ERROR",
+                "UNSUPPORTED_PROPOSAL",
+                "NO_NEW_EVIDENCE",
+                "OPERATING_ENVELOPE_ONLY"
+              ],
+              "type": "string"
+            },
+            "title": "Flags",
+            "type": "array"
+          },
+          "residual_calls": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Residual Calls"
+          },
+          "robust_cost": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Robust Cost"
+          },
+          "schema_version": {
+            "const": "1.1",
+            "default": "1.1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "OK",
+              "FAILED",
+              "AMBIGUOUS"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "evidence_ref",
+          "status",
+          "candidate",
+          "fitted_model_ref",
+          "diagnostics_ref",
+          "robust_cost",
+          "attempted_starts",
+          "converged_starts",
+          "fit_jobs_charged",
+          "residual_calls"
+        ],
+        "title": "FitOutput",
+        "type": "object"
+      }
+    },
+    "inspect_discrepancy": {
+      "input": {
+        "additionalProperties": false,
+        "properties": {
+          "model_ref": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Model Ref",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "1.1",
+            "default": "1.1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "trial_refs": {
+            "items": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "maxItems": 8,
+            "minItems": 1,
+            "title": "Trial Refs",
+            "type": "array"
+          },
+          "zone": {
+            "const": "exploration",
+            "default": "exploration",
+            "title": "Zone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "trial_refs",
+          "model_ref"
+        ],
+        "title": "InspectInput",
+        "type": "object"
+      },
+      "output": {
+        "additionalProperties": false,
+        "properties": {
+          "evidence_ref": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Evidence Ref",
+            "type": "string"
+          },
+          "flags": {
+            "default": [],
+            "items": {
+              "enum": [
+                "QUALITY_FAILURE",
+                "MISSING_REFERENCE",
+                "INSUFFICIENT_DATA",
+                "UNEXCITED",
+                "RANK_DEFICIENT",
+                "BOUND_ACTIVE",
+                "SOLVER_FAILURE",
+                "UNCALIBRATED",
+                "OUTSIDE_PROTOCOL",
+                "NO_MODEL_UNCERTAINTY",
+                "INFEASIBLE",
+                "BUDGET",
+                "ACCESS_DENIED",
+                "INVALID_INPUT",
+                "API_ERROR",
+                "UNSUPPORTED_PROPOSAL",
+                "NO_NEW_EVIDENCE",
+                "OPERATING_ENVELOPE_ONLY"
+              ],
+              "type": "string"
+            },
+            "title": "Flags",
+            "type": "array"
+          },
+          "innovation_mean_square": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Innovation Mean Square"
+          },
+          "lag1_x": {
+            "anyOf": [
+              {
+                "maximum": 1,
+                "minimum": -1,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lag1 X"
+          },
+          "localization_floor_mse_px2": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Localization Floor Mse Px2"
+          },
+          "missing_fraction": {
+            "maximum": 1,
+            "minimum": 0,
+            "title": "Missing Fraction",
+            "type": "number"
+          },
+          "predictively_adequate": {
+            "title": "Predictively Adequate",
+            "type": "boolean"
+          },
+          "quality_ok": {
+            "title": "Quality Ok",
+            "type": "boolean"
+          },
+          "reference_reprojection_rms_px": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reference Reprojection Rms Px"
+          },
+          "schema_version": {
+            "const": "1.1",
+            "default": "1.1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "stationary_sd_px": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stationary Sd Px"
+          },
+          "status": {
+            "enum": [
+              "OK",
+              "FAILED",
+              "AMBIGUOUS"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "trajectory_rmse_px": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trajectory Rmse Px"
+          },
+          "valid_samples": {
+            "minimum": 0,
+            "title": "Valid Samples",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "evidence_ref",
+          "status",
+          "valid_samples",
+          "trajectory_rmse_px",
+          "innovation_mean_square",
+          "lag1_x",
+          "localization_floor_mse_px2",
+          "missing_fraction",
+          "reference_reprojection_rms_px",
+          "stationary_sd_px",
+          "quality_ok",
+          "predictively_adequate"
+        ],
+        "title": "DiscrepancyOutput",
+        "type": "object"
+      }
+    },
+    "inspect_identifiability": {
+      "input": {
+        "additionalProperties": false,
+        "properties": {
+          "fitted_model_ref": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Fitted Model Ref",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "1.1",
+            "default": "1.1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "trial_refs": {
+            "items": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "maxItems": 8,
+            "minItems": 1,
+            "title": "Trial Refs",
+            "type": "array"
+          },
+          "zone": {
+            "const": "exploration",
+            "default": "exploration",
+            "title": "Zone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "trial_refs",
+          "fitted_model_ref"
+        ],
+        "title": "IdentifiabilityInput",
+        "type": "object"
+      },
+      "output": {
+        "additionalProperties": false,
+        "properties": {
+          "evidence_ref": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Evidence Ref",
+            "type": "string"
+          },
+          "flags": {
+            "default": [],
+            "items": {
+              "enum": [
+                "QUALITY_FAILURE",
+                "MISSING_REFERENCE",
+                "INSUFFICIENT_DATA",
+                "UNEXCITED",
+                "RANK_DEFICIENT",
+                "BOUND_ACTIVE",
+                "SOLVER_FAILURE",
+                "UNCALIBRATED",
+                "OUTSIDE_PROTOCOL",
+                "NO_MODEL_UNCERTAINTY",
+                "INFEASIBLE",
+                "BUDGET",
+                "ACCESS_DENIED",
+                "INVALID_INPUT",
+                "API_ERROR",
+                "UNSUPPORTED_PROPOSAL",
+                "NO_NEW_EVIDENCE",
+                "OPERATING_ENVELOPE_ONLY"
+              ],
+              "type": "string"
+            },
+            "title": "Flags",
+            "type": "array"
+          },
+          "globally_identified": {
+            "const": false,
+            "default": false,
+            "title": "Globally Identified",
+            "type": "boolean"
+          },
+          "locally_identifiable": {
+            "title": "Locally Identifiable",
+            "type": "boolean"
+          },
+          "near_bound": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Near Bound"
+          },
+          "numerical_rank": {
+            "anyOf": [
+              {
+                "maximum": 5,
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Numerical Rank"
+          },
+          "scaled_singular_values": {
+            "items": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "title": "Scaled Singular Values",
+            "type": "array"
+          },
+          "schema_version": {
+            "const": "1.1",
+            "default": "1.1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "OK",
+              "FAILED",
+              "AMBIGUOUS"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "uncertainty_ref": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uncertainty Ref"
+          }
+        },
+        "required": [
+          "evidence_ref",
+          "status",
+          "scaled_singular_values",
+          "numerical_rank",
+          "locally_identifiable",
+          "near_bound",
+          "uncertainty_ref"
+        ],
+        "title": "IdentifiabilityOutput",
+        "type": "object"
+      }
+    },
+    "score_candidate_experiment": {
+      "input": {
+        "$defs": {
+          "CameraCheck": {
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "CAMERA_CALIBRATION",
+                "default": "CAMERA_CALIBRATION",
+                "title": "Kind",
+                "type": "string"
+              },
+              "reference_ref": {
+                "pattern": "^[0-9a-f]{64}$",
+                "title": "Reference Ref",
+                "type": "string"
+              },
+              "schema_version": {
+                "const": "1.1",
+                "default": "1.1",
+                "title": "Schema Version",
+                "type": "string"
+              }
+            },
+            "required": [
+              "reference_ref"
+            ],
+            "title": "CameraCheck",
+            "type": "object"
+          },
+          "ExperimentCandidate": {
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "discriminator": {
+                  "mapping": {
+                    "CAMERA_CALIBRATION": "#/$defs/CameraCheck",
+                    "RELEASE": "#/$defs/Release",
+                    "REPEAT": "#/$defs/Repeat",
+                    "STATIONARY_REFERENCE": "#/$defs/Stationary"
+                  },
+                  "propertyName": "kind"
+                },
+                "oneOf": [
+                  {
+                    "$ref": "#/$defs/Release"
+                  },
+                  {
+                    "$ref": "#/$defs/Repeat"
+                  },
+                  {
+                    "$ref": "#/$defs/Stationary"
+                  },
+                  {
+                    "$ref": "#/$defs/CameraCheck"
+                  }
+                ],
+                "title": "Action"
+              },
+              "experiment_ref": {
+                "pattern": "^[0-9a-f]{64}$",
+                "title": "Experiment Ref",
+                "type": "string"
+              },
+              "schema_version": {
+                "const": "1.1",
+                "default": "1.1",
+                "title": "Schema Version",
+                "type": "string"
+              }
+            },
+            "required": [
+              "experiment_ref",
+              "action"
+            ],
+            "title": "ExperimentCandidate",
+            "type": "object"
+          },
+          "Release": {
+            "additionalProperties": false,
+            "properties": {
+              "duration_s": {
+                "default": 1.6,
+                "maximum": 4,
+                "minimum": 1,
+                "title": "Duration S",
+                "type": "number"
+              },
+              "kind": {
+                "const": "RELEASE",
+                "default": "RELEASE",
+                "title": "Kind",
+                "type": "string"
+              },
+              "release_angle_rad": {
+                "maximum": 0.7,
+                "minimum": 0.1,
+                "title": "Release Angle Rad",
+                "type": "number"
+              },
+              "repeats": {
+                "const": 2,
+                "default": 2,
+                "title": "Repeats",
+                "type": "integer"
+              },
+              "schema_version": {
+                "const": "1.1",
+                "default": "1.1",
+                "title": "Schema Version",
+                "type": "string"
+              }
+            },
+            "required": [
+              "release_angle_rad"
+            ],
+            "title": "Release",
+            "type": "object"
+          },
+          "Repeat": {
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "REPEAT",
+                "default": "REPEAT",
+                "title": "Kind",
+                "type": "string"
+              },
+              "repeats": {
+                "default": 2,
+                "maximum": 3,
+                "minimum": 2,
+                "title": "Repeats",
+                "type": "integer"
+              },
+              "schema_version": {
+                "const": "1.1",
+                "default": "1.1",
+                "title": "Schema Version",
+                "type": "string"
+              },
+              "source_trial_ref": {
+                "pattern": "^[0-9a-f]{64}$",
+                "title": "Source Trial Ref",
+                "type": "string"
+              }
+            },
+            "required": [
+              "source_trial_ref"
+            ],
+            "title": "Repeat",
+            "type": "object"
+          },
+          "Stationary": {
+            "additionalProperties": false,
+            "properties": {
+              "duration_s": {
+                "default": 2.0,
+                "maximum": 4,
+                "minimum": 1,
+                "title": "Duration S",
+                "type": "number"
+              },
+              "kind": {
+                "const": "STATIONARY_REFERENCE",
+                "default": "STATIONARY_REFERENCE",
+                "title": "Kind",
+                "type": "string"
+              },
+              "schema_version": {
+                "const": "1.1",
+                "default": "1.1",
+                "title": "Schema Version",
+                "type": "string"
+              }
+            },
+            "title": "Stationary",
+            "type": "object"
+          }
+        },
+        "additionalProperties": false,
+        "properties": {
+          "candidate": {
+            "$ref": "#/$defs/ExperimentCandidate"
+          },
+          "feasibility_protocol_ref": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Feasibility Protocol Ref",
+            "type": "string"
+          },
+          "fitted_model_refs": {
+            "items": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "maxItems": 2,
+            "title": "Fitted Model Refs",
+            "type": "array"
+          },
+          "schema_version": {
+            "const": "1.1",
+            "default": "1.1",
+            "title": "Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "fitted_model_refs",
+          "candidate",
+          "feasibility_protocol_ref"
+        ],
+        "title": "ScoreInput",
+        "type": "object"
+      },
+      "output": {
+        "additionalProperties": false,
+        "properties": {
+          "diagnostic_priority": {
+            "maximum": 100,
+            "minimum": 0,
+            "title": "Diagnostic Priority",
+            "type": "integer"
+          },
+          "ensemble_spread_sigma": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ensemble Spread Sigma"
+          },
+          "evidence_ref": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Evidence Ref",
+            "type": "string"
+          },
+          "expected_information_gain_nat": {
+            "default": null,
+            "title": "Expected Information Gain Nat",
+            "type": "null"
+          },
+          "experiment_ref": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Experiment Ref",
+            "type": "string"
+          },
+          "feasible": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Feasible"
+          },
+          "flags": {
+            "default": [],
+            "items": {
+              "enum": [
+                "QUALITY_FAILURE",
+                "MISSING_REFERENCE",
+                "INSUFFICIENT_DATA",
+                "UNEXCITED",
+                "RANK_DEFICIENT",
+                "BOUND_ACTIVE",
+                "SOLVER_FAILURE",
+                "UNCALIBRATED",
+                "OUTSIDE_PROTOCOL",
+                "NO_MODEL_UNCERTAINTY",
+                "INFEASIBLE",
+                "BUDGET",
+                "ACCESS_DENIED",
+                "INVALID_INPUT",
+                "API_ERROR",
+                "UNSUPPORTED_PROPOSAL",
+                "NO_NEW_EVIDENCE",
+                "OPERATING_ENVELOPE_ONLY"
+              ],
+              "type": "string"
+            },
+            "title": "Flags",
+            "type": "array"
+          },
+          "method": {
+            "enum": [
+              "ENSEMBLE_Q75_PREDICTIVE_SEPARATION",
+              "REFERENCE_CHECK_PRIORITY",
+              "UNAVAILABLE"
+            ],
+            "title": "Method",
+            "type": "string"
+          },
+          "predictive_discrimination_sigma": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Predictive Discrimination Sigma"
+          },
+          "schema_version": {
+            "const": "1.1",
+            "default": "1.1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "OK",
+              "FAILED",
+              "AMBIGUOUS"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "valid_ensemble_members": {
+            "maximum": 9,
+            "minimum": 0,
+            "title": "Valid Ensemble Members",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "evidence_ref",
+          "status",
+          "experiment_ref",
+          "feasible",
+          "predictive_discrimination_sigma",
+          "ensemble_spread_sigma",
+          "diagnostic_priority",
+          "valid_ensemble_members",
+          "method"
+        ],
+        "title": "ExperimentScore",
+        "type": "object"
+      }
+    }
+  }
+}

@@ -1,8 +1,10 @@
-# Narrow investigator tool handoff v1.0
+# Narrow investigator tool handoff v1.0 (historical design)
 
-These are **schemas only**, not an implemented Muse investigator, numerical tool
-registry, experiment planner, compiler or sealed evaluator. Architecture v1.1
-remains unchanged. Export exact JSON Schema with:
+This document preserves Task 03's **schema-only v1.0 design**. Task 04 now has
+executable handlers and closed v1.1 runtime schemas; see
+[TASK04_IMPLEMENTATION.md](TASK04_IMPLEMENTATION.md) and
+[investigator_runtime_schemas.json](investigator_runtime_schemas.json).
+Architecture v1.1 remains unchanged. Export the historical schemas with:
 
     python scripts/export_tool_schemas.py
 

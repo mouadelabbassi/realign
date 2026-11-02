@@ -1,0 +1,31 @@
+{
+  "status": "PASS",
+  "python": "3.14.4",
+  "kernel": "6.6.87.2-microsoft-standard-WSL2",
+  "machine": "x86_64",
+  "landlock_abi": 3,
+  "versions": {
+    "numpy": "2.5.4",
+    "scipy": "1.18.1",
+    "pydantic": "2.14.2",
+    "openai": "2.54.0",
+    "meta-sam-parser": "0.1.0"
+  },
+  "isolation": "LINUX_LANDLOCK_SECCOMP",
+  "probe": {
+    "credential_environment_absent": true,
+    "filesystem_denied": [
+      true,
+      true
+    ],
+    "generator_import_unavailable": true,
+    "network_denied": true,
+    "parent_memory_denied": true,
+    "runtime_write_denied": true,
+    "user_environment_registry_denied": true
+  },
+  "x32_startup_assertion_passed": true,
+  "runtime_snapshot_sha256": "9c07de18f5fc7a7a7f93441785425c48b3023dff885086e18a553cd4e22dac70",
+  "science_signature": "2617cb0ce5a5c91d9382bb87233bc69d6f1095246a931103ea247437169c4855",
+  "local_model_api_key_present": false
+}

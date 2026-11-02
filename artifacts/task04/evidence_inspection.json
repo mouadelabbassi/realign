@@ -1,0 +1,37 @@
+{
+  "status": "PASS",
+  "current_traces": 26,
+  "all_audit_state_context_checks_passed": true,
+  "all_context_canary_checks_passed": true,
+  "all_logical_budgets_observed": true,
+  "unique_null_seeds": 20,
+  "unique_validation_seeds": 12,
+  "disjoint_null_validation_seeds": true,
+  "raw_structural_comparison_flags_on_eight_null_validation_cases": [
+    {
+      "seed": 2042000,
+      "statistic": 0.0023758895099990074,
+      "scores": [
+        {
+          "candidate": "FREE",
+          "model_ref": "e55f9508c1154e6df0a84f2e9bcdf40703c10fc020e146c8cd4ff8ea27b2b596",
+          "noise_ratio": 0.8599912874787037,
+          "schema_version": "1.1",
+          "trial_cv_mse_px2": 0.42999564373935184
+        },
+        {
+          "candidate": "PEG_ONE_SIDE",
+          "model_ref": "988c85b0d269391fe5730a24f3ecc220019ddb54c033f0a871341c651350c647",
+          "noise_ratio": 0.8570593762233786,
+          "schema_version": "1.1",
+          "trial_cv_mse_px2": 0.4285296881116893
+        }
+      ],
+      "accepted_outcome": "ABSTAIN"
+    }
+  ],
+  "calibration_attempted_starts": 960,
+  "calibration_nonconverged_starts": 174,
+  "investigation_attempted_starts": 1424,
+  "investigation_nonconverged_starts": 137
+}

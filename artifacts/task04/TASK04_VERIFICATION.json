@@ -1,0 +1,358 @@
+{
+  "task": "04",
+  "date_utc": "2026-11-02",
+  "scope": "Bounded offline investigator; no real physical or live investigator verification",
+  "base_commit": "f027860fdc4132330450b0227385a8142661b69b",
+  "existing_ci": {
+    "commit": "f027860fdc4132330450b0227385a8142661b69b",
+    "conclusion": "success",
+    "url": "https://github.com/mouadelabbassi/realign/actions/runs/41332981260",
+    "new_task04_workflow": "CONFIGURED_NOT_RUN_ON_GITHUB"
+  },
+  "test_runs": [
+    {
+      "record": "artifacts/task04/verification/final_linux_suite.xml",
+      "tests": 159,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1,
+      "elapsed_s_junit": 1728.17
+    },
+    {
+      "record": "artifacts/task04/verification/initial_windows_tests.xml",
+      "tests": 115,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_s_junit": 1373.873
+    },
+    {
+      "record": "artifacts/task04/verification/intermediate_windows_suite.xml",
+      "tests": 157,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 7,
+      "elapsed_s_junit": 8214.215
+    },
+    {
+      "record": "artifacts/task04/verification/resolved_baseline_reproduction.xml",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_s_junit": 1411.217
+    },
+    {
+      "record": "artifacts/task04/verification/windows_targeted_tests.xml",
+      "tests": 44,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 7,
+      "elapsed_s_junit": 18.535
+    }
+  ],
+  "commands": [
+    {
+      "command": "python -m pip install -e \".[dev,perception]\"",
+      "result": "installed Windows and separate WSL dependencies"
+    },
+    {
+      "command": "python -m pytest -q --junitxml=data/processed/task04_initial_tests.xml",
+      "result": "115 passed before implementation"
+    },
+    {
+      "command": "python scripts/verify_g1.py",
+      "result": "250 cases, 0 failures, 1516 transitions; metrics unchanged"
+    },
+    {
+      "command": "python scripts/setup_investigator_runtime.py",
+      "result": "persistent Ubuntu WSL runtime installed"
+    },
+    {
+      "command": "python -m pytest -q --junitxml=data/processed/task04_final_windows_tests.xml",
+      "result": "149 passed, 7 skipped, 1 metadata-only source hash failure while editing; numerical report entries identical"
+    },
+    {
+      "command": "python -m pytest -q tests/test_baselines.py::test_report_integration_and_reproducibility --junitxml=data/processed/task04_baseline_replay_tests.xml",
+      "result": "1 passed; JSON, Markdown, PNG and NPZ byte equality"
+    },
+    {
+      "command": "python -m pytest -q tests/test_investigator_contracts.py tests/test_investigator_integration.py --junitxml=data/processed/task04_windows_targeted_tests.xml",
+      "result": "37 passed, 7 Linux/WSL-only tests skipped"
+    },
+    {
+      "command": "wsl.exe -d Ubuntu --cd /mnt/c/Users/mouad/Downloads/REALIGN --exec /home/mouad/.cache/realign-task04-venv/bin/python -m pytest -q --junitxml=data/processed/task04_final_linux_suite.xml",
+      "result": "158 passed, 1 Windows-only test skipped"
+    },
+    {
+      "command": "python scripts/verify_g2.py --output-dir data/processed/task04_g2_regression",
+      "result": "8 offline checks passed; real G2 remains NOT PASSED"
+    },
+    {
+      "command": "python scripts/verify_investigator.py --calibrate",
+      "result": "final independent-worker calibration saved 20/20, zero unavailable comparisons; old report process deliberately interrupted before benchmark to load corrected validation seed scheduling in a fresh process"
+    },
+    {
+      "command": "python scripts/verify_investigator.py",
+      "result": "exit 0; all 9 offline acceptance checks passed"
+    },
+    {
+      "command": "python scripts/run_investigator.py --mode live --standard-tier-confirmed --output artifacts/task04/live_cli_status.json",
+      "result": "NOT_RUN, exit 2; zero successful/failed requests"
+    },
+    {
+      "command": "python scripts/run_investigator.py --mode mock --case measurement_problem --output artifacts/task04/cli_measurement_demo.json",
+      "result": "CORRECT_MEASUREMENT; 2 rounds, 1 completed experiment"
+    },
+    {
+      "command": "python scripts/replay_investigation.py artifacts/task04/cli_measurement_demo.json --output artifacts/task04/cli_measurement_replay.json",
+      "result": "exit 0; CORRECT_MEASUREMENT, two rounds, one experiment; frozen hash identical"
+    },
+    {
+      "command": "python -m compileall -q src scripts tests",
+      "result": "passed"
+    },
+    {
+      "command": "python -m pip check",
+      "result": "No broken requirements found"
+    }
+  ],
+  "science_signature": "2617cb0ce5a5c91d9382bb87233bc69d6f1095246a931103ea247437169c4855",
+  "offline_acceptance_passed": true,
+  "evidence_inspection": {
+    "status": "PASS",
+    "current_traces": 26,
+    "all_audit_state_context_checks_passed": true,
+    "all_context_canary_checks_passed": true,
+    "all_logical_budgets_observed": true,
+    "unique_null_seeds": 20,
+    "unique_validation_seeds": 12,
+    "disjoint_null_validation_seeds": true,
+    "raw_structural_comparison_flags_on_eight_null_validation_cases": [
+      {
+        "seed": 2042000,
+        "statistic": 0.0023758895099990074,
+        "scores": [
+          {
+            "candidate": "FREE",
+            "model_ref": "e55f9508c1154e6df0a84f2e9bcdf40703c10fc020e146c8cd4ff8ea27b2b596",
+            "noise_ratio": 0.8599912874787037,
+            "schema_version": "1.1",
+            "trial_cv_mse_px2": 0.42999564373935184
+          },
+          {
+            "candidate": "PEG_ONE_SIDE",
+            "model_ref": "988c85b0d269391fe5730a24f3ecc220019ddb54c033f0a871341c651350c647",
+            "noise_ratio": 0.8570593762233786,
+            "schema_version": "1.1",
+            "trial_cv_mse_px2": 0.4285296881116893
+          }
+        ],
+        "accepted_outcome": "ABSTAIN"
+      }
+    ],
+    "calibration_attempted_starts": 960,
+    "calibration_nonconverged_starts": 174,
+    "investigation_attempted_starts": 1424,
+    "investigation_nonconverged_starts": 137
+  },
+  "current_api": {
+    "actual_api_requests": 0,
+    "failed_requests": 0,
+    "reason": "local API authorization or Standard tier unavailable",
+    "source": "LIVE_MUSE",
+    "status": "NOT_RUN",
+    "successful_requests": 0
+  },
+  "preexisting_capability_report": {
+    "checks": {
+      "model_list": {
+        "status": "PASS"
+      },
+      "structured_output": {
+        "schema_validated": true,
+        "status": "PASS"
+      },
+      "tool_round_trip": {
+        "executed_local_tools": 1,
+        "status": "PASS"
+      }
+    },
+    "failed_calls": 0,
+    "report_sha256": "7dd1389d8e6f0f5437da8da4d6e938a56814583f7e50a0b0815cf97f548d51e9",
+    "scope": "PREEXISTING LOCAL CAPABILITY REPORT; not this investigator run",
+    "status": "PASS",
+    "successful_calls": 4
+  },
+  "full_G2_passed": false,
+  "full_G3_passed": false,
+  "full_G4_passed": false,
+  "sealed_G5_implemented": false,
+  "physics_and_baseline_source_changes": [],
+  "preserved_user_changes": [
+    "is.py deletion",
+    "artifacts/meta_smoke.json independent capability report",
+    ".vscode/ files created concurrently outside this implementation"
+  ],
+  "implementation_history": [
+    "Initial native Windows LPAC prototype failed stricter private-registry isolation; no registry values read; unsupported launcher removed and native startup always refused.",
+    "Linux x32 syscall ABI enabled in this kernel; explicit syscall-number mask and mandatory harmless getpid assertion added before accepted agent runs.",
+    "Serial Linux calibration stopped deliberately after six rows to replace shared CPU lifetime with independent bounded workers; complete final calibration recomputed.",
+    "Recorded mutable contexts were replaced with deep snapshots; numerical replay now passes.",
+    "Current evidence bound to current trial/model resources; stale/subset/wrong-model views cannot justify a decision.",
+    "Unavailable null fits count as worst-case exceedances, not as evidence for repair.",
+    "Validation noise streams made independent across mechanism and noise strata before the accepted fresh benchmark."
+  ],
+  "cli_replay_matches": true,
+  "files_changed": [
+    ".github/workflows/ci.yml",
+    ".gitignore",
+    "README.md",
+    "artifacts/task04/INVESTIGATOR_REPORT.md",
+    "artifacts/task04/TASK04_FILES.txt",
+    "artifacts/task04/TASK04_READINESS.md",
+    "artifacts/task04/TASK04_VERIFICATION.json",
+    "artifacts/task04/cli_measurement_demo.json",
+    "artifacts/task04/cli_measurement_replay.json",
+    "artifacts/task04/evidence_inspection.json",
+    "artifacts/task04/investigator_results.json",
+    "artifacts/task04/live_cli_status.json",
+    "artifacts/task04/live_meta_status.json",
+    "artifacts/task04/null_calibration.json",
+    "artifacts/task04/null_calibration_details.json.gz",
+    "artifacts/task04/replay.json",
+    "artifacts/task04/runtime_verification.json",
+    "artifacts/task04/serial_attempt_status.json",
+    "artifacts/task04/traces/deterministic_insufficient.json",
+    "artifacts/task04/traces/deterministic_measurement_problem.json",
+    "artifacts/task04/traces/deterministic_no_fault.json",
+    "artifacts/task04/traces/deterministic_off_vertical_peg.json",
+    "artifacts/task04/traces/deterministic_parameter_mismatch.json",
+    "artifacts/task04/traces/deterministic_unexcited_peg.json",
+    "artifacts/task04/traces/deterministic_vertical_peg.json",
+    "artifacts/task04/traces/mock_insufficient.json",
+    "artifacts/task04/traces/mock_measurement_problem.json",
+    "artifacts/task04/traces/mock_no_fault.json",
+    "artifacts/task04/traces/mock_off_vertical_peg.json",
+    "artifacts/task04/traces/mock_parameter_mismatch.json",
+    "artifacts/task04/traces/mock_unexcited_peg.json",
+    "artifacts/task04/traces/mock_vertical_peg.json",
+    "artifacts/task04/traces/validation_no_fault_1041000_0.5.json",
+    "artifacts/task04/traces/validation_no_fault_1042000_0.5.json",
+    "artifacts/task04/traces/validation_no_fault_1241000_1.5.json",
+    "artifacts/task04/traces/validation_no_fault_1242000_1.5.json",
+    "artifacts/task04/traces/validation_off_vertical_peg_4043000_0.5.json",
+    "artifacts/task04/traces/validation_off_vertical_peg_4243000_1.5.json",
+    "artifacts/task04/traces/validation_parameter_mismatch_2041000_0.5.json",
+    "artifacts/task04/traces/validation_parameter_mismatch_2042000_0.5.json",
+    "artifacts/task04/traces/validation_parameter_mismatch_2241000_1.5.json",
+    "artifacts/task04/traces/validation_parameter_mismatch_2242000_1.5.json",
+    "artifacts/task04/traces/validation_vertical_peg_3043000_0.5.json",
+    "artifacts/task04/traces/validation_vertical_peg_3243000_1.5.json",
+    "artifacts/task04/verification/final_linux_suite.xml",
+    "artifacts/task04/verification/g2_regression.json",
+    "artifacts/task04/verification/initial_g1_verification.json",
+    "artifacts/task04/verification/initial_windows_tests.xml",
+    "artifacts/task04/verification/intermediate_windows_suite.xml",
+    "artifacts/task04/verification/resolved_baseline_reproduction.xml",
+    "artifacts/task04/verification/windows_targeted_tests.xml",
+    "docs/CODEX_EXECUTION_ROADMAP.md",
+    "docs/INVESTIGATOR_TOOL_CONTRACTS.md",
+    "docs/TASK04_IMPLEMENTATION.md",
+    "docs/investigator_runtime_schemas.json",
+    "scripts/_wsl_entry.py",
+    "scripts/calibrate_investigator.py",
+    "scripts/replay_investigation.py",
+    "scripts/run_investigator.py",
+    "scripts/setup_investigator_runtime.py",
+    "scripts/verify_investigator.py",
+    "src/realign/agent/__init__.py",
+    "src/realign/agent/adapters.py",
+    "src/realign/agent/investigator.py",
+    "src/realign/audit/__init__.py",
+    "src/realign/audit/chain.py",
+    "src/realign/contracts/investigation.py",
+    "src/realign/investigator_platform.py",
+    "src/realign/report/investigator_calibration.py",
+    "src/realign/report/investigator_report.py",
+    "src/realign/report/investigator_run.py",
+    "src/realign/synth/investigation_fixtures.py",
+    "src/realign/tools/__init__.py",
+    "src/realign/tools/_linux_isolation.py",
+    "src/realign/tools/client.py",
+    "src/realign/tools/registry.py",
+    "src/realign/tools/resources.py",
+    "src/realign/tools/sandbox.py",
+    "src/realign/tools/worker.py",
+    "tasks/CODEX_TASK_04_INVESTIGATOR.md",
+    "tests/test_investigator_contracts.py",
+    "tests/test_investigator_integration.py"
+  ],
+  "runtime_verification": {
+    "status": "PASS",
+    "python": "3.14.4",
+    "kernel": "6.6.87.2-microsoft-standard-WSL2",
+    "machine": "x86_64",
+    "landlock_abi": 3,
+    "versions": {
+      "numpy": "2.5.4",
+      "scipy": "1.18.1",
+      "pydantic": "2.14.2",
+      "openai": "2.54.0",
+      "meta-sam-parser": "0.1.0"
+    },
+    "isolation": "LINUX_LANDLOCK_SECCOMP",
+    "probe": {
+      "credential_environment_absent": true,
+      "filesystem_denied": [
+        true,
+        true
+      ],
+      "generator_import_unavailable": true,
+      "network_denied": true,
+      "parent_memory_denied": true,
+      "runtime_write_denied": true,
+      "user_environment_registry_denied": true
+    },
+    "x32_startup_assertion_passed": true,
+    "runtime_snapshot_sha256": "9c07de18f5fc7a7a7f93441785425c48b3023dff885086e18a553cd4e22dac70",
+    "science_signature": "2617cb0ce5a5c91d9382bb87233bc69d6f1095246a931103ea247437169c4855",
+    "local_model_api_key_present": false
+  },
+  "source_file_sha256": {
+    "scripts/_wsl_entry.py": "4129eb965e6ce304b603096c4cc69cbcc1030b1fdf7e9cc5d58c6edf86410618",
+    "scripts/calibrate_investigator.py": "5072a394bd7dbbcd8af89f140c22b389d829a59fe0aa4fd5a6e9cf679238f5e5",
+    "scripts/replay_investigation.py": "8e7ca6dc0582dfc5801b6de7a983d7705c6aba8a037c17dd90a6335ee6ddb556",
+    "scripts/run_investigator.py": "255ad807651f91cb6064dae70704920b94f978665032fb282c031a98f4c1536a",
+    "scripts/setup_investigator_runtime.py": "dd39b441819557cfca72a3267cf8290c099e8344e4457e885794ea77d0d35ace",
+    "scripts/verify_investigator.py": "4b6e564d7a21910b5e8a5504cda8d17f09c10d4e133f223a8a6a5023c0539545",
+    "src/realign/agent/__init__.py": "bd026bf1b39b30b24e470d3f4af5e259a4656eb94e2b05f3b75d433cff04867b",
+    "src/realign/agent/adapters.py": "359aa6530bb0516be3a323fa47a909b21240945948270eb524e851cb017f5e82",
+    "src/realign/agent/investigator.py": "2e45393cea0abbbd05d15d819189b0a3ebcd3feb4272e7bf7ee5e29f73b8f6a4",
+    "src/realign/audit/__init__.py": "7ad0bee6f9bf17dbad83bdb20d868745709ebd1b901c09b57ba269f72422910d",
+    "src/realign/audit/chain.py": "76513ccd13ce7aad379ad6e8e9b468f3a02f25491c4accb8c1e8e5725a4838ab",
+    "src/realign/contracts/investigation.py": "299e84ed4a5569f079d0c674c70c60f6fed2a32fa664e4c7558292ba2cfbd58b",
+    "src/realign/investigator_platform.py": "a97ec6211ec219ca24d2491aeb747a2e1942780a2f21bba409b5db112aeed895",
+    "src/realign/report/investigator_calibration.py": "261637502fe6da90848b3e25deba7e2a83166b7ec70959e61f3d2f245c7e71d6",
+    "src/realign/report/investigator_report.py": "7561618b1d928b0a92eee047fcb333224ad7657acdf6a749b80185884e952dda",
+    "src/realign/report/investigator_run.py": "b298d2da1516cc3216f7f62a85a96b794dac58e2cdf27d46112010281ffd805d",
+    "src/realign/synth/investigation_fixtures.py": "5609aafcea5d5c554c5cd32c4cc5bec0faa4b56ebd3fc35c24fda28612c8a107",
+    "src/realign/tools/__init__.py": "668852ec00896fabfdaf2dc6e1bd4ef933ae33d9ab0e79ac889df4643d75ddb7",
+    "src/realign/tools/_linux_isolation.py": "04b79fcc4f3e1ef5f2ce9d41e73db3a1ed702e6334b10e6d21178e41715a76c7",
+    "src/realign/tools/client.py": "3a7d796c5703639e1b65faff89bb854ac0484c69cb1f4b967817ebe6f1dfe4f8",
+    "src/realign/tools/registry.py": "48c18ebdbfe67ba66390be8377460d66262b7df98339d9a2c1888cf4bccaeac8",
+    "src/realign/tools/resources.py": "a67704e30c8f60ef7f3ca82a9ea5b52ed814c4d7ec4ea2a96708af76823aeb6e",
+    "src/realign/tools/sandbox.py": "3c7e0215a5e4ed05bd7bc8e26e8d4ea00c4c80c7e5a84f975011a646d31e800f",
+    "src/realign/tools/worker.py": "f9f23d24b3cc1225fe9d190b34d0fffec98557c3a3fa9888843a306294c6dd02",
+    "tests/test_investigator_contracts.py": "f0d8bca449301e752fbc89ff7ca7dfebe3bf8cb833f77abe7c20fa72a447aeea",
+    "tests/test_investigator_integration.py": "4ad41b6b1a0d8a7f073311e9a37d7e88621d309e3e79e951dd8d2f3974fc1e6e"
+  },
+  "metadata": {
+    "verification_records_are_actual_runs": true,
+    "live_task04_requests": 0,
+    "all_real_phone_measurements_pending": true,
+    "no_task04_commit_or_push_performed": true,
+    "prior_task03_commit_message": "3",
+    "prior_task03_commit": "f027860fdc4132330450b0227385a8142661b69b"
+  }
+}
