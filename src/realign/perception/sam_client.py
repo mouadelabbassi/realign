@@ -10,6 +10,7 @@ import hashlib
 from importlib.metadata import version
 import json
 import os
+import re
 from pathlib import Path
 import numpy as np
 
@@ -110,21 +111,24 @@ async def parse_sam_events(events, metadata, *, source):
 
 
 class SamClient:
-    def __init__(self,api,*,source='REAL_API',retry_delay=.5):
+    def __init__(self,api,*,source='REAL_API',retry_delay=.5,concept=PROMPT):
+        if not isinstance(concept,str) or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9 -]{0,79}',concept):
+            raise SamError('one short visual noun phrase required',code='concept')
         self.api=api
         self.source=source
+        self.concept=concept
         self.retry_delay=retry_delay
         self.calls=[]
 
     @classmethod
-    def from_environment(cls,*,standard_tier_confirmed=False):
+    def from_environment(cls,*,standard_tier_confirmed=False,concept=PROMPT):
         key=os.environ.get('MODEL_API_KEY')
         if not key:
             raise SamError('MODEL_API_KEY is not configured locally',code='not_authorized')
         if not standard_tier_confirmed:
             raise SamError('confirm Standard tier in the local manifest before upload',code='tier_unconfirmed')
         from openai import AsyncOpenAI
-        return cls(AsyncOpenAI(api_key=key,base_url=BASE_URL,timeout=120,max_retries=0))
+        return cls(AsyncOpenAI(api_key=key,base_url=BASE_URL,timeout=120,max_retries=0),concept=concept)
 
     async def _request(self,operation,call):
         for attempt in range(3):
@@ -159,13 +163,14 @@ class SamClient:
         if not isinstance(file_id,str) or not file_id.startswith('file-'):
             raise SamError('Files API returned an invalid file ID',code='file_id',calls=self.calls)
         request={'model':MODEL,'stream':True,'input':[{'type':'message','role':'user','content':[
-            {'type':'input_text','text':PROMPT},{'type':'input_video','file_id':file_id}]}]}
+            {'type':'input_text','text':self.concept},{'type':'input_video','file_id':file_id}]}]}
         async def segment():
             stream=await self.api.responses.create(**request)
             async with stream:
                 return await parse_sam_events(stream,metadata,source=self.source)
         run=await self._request('segmentation',segment)
         receipt=dict(run.receipt,upload_file_id=file_id,
+            prompt=self.concept,
             request_sha256=hashlib.sha256(json.dumps(request,sort_keys=True).encode()).hexdigest(),
             video_sha256=metadata.video_sha256,calls=list(self.calls[first_call:]))
         return SamRun(run.masks,run.source,run.video_sha256,receipt)

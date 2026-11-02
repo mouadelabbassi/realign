@@ -180,7 +180,9 @@ class Investigator:
             else:
                 failure='BUDGET'
         except Exception as exc:
-            failure=failure or ('API_ERROR' if isinstance(exc,AdapterFailure) else 'INVALID_INPUT')
+            code=exc.code if isinstance(exc,AdapterFailure) else 'CONTROLLER_INPUT_REJECTED'
+            self.audit.append('EXECUTION_FAILURE',{'stage':self.machine.stage,'error_type':type(exc).__name__,'code':code})
+            failure=failure or ('BUDGET' if code in ('API_BUDGET','CONTEXT_BUDGET') else 'API_ERROR' if isinstance(exc,AdapterFailure) else 'INVALID_INPUT')
         if self.machine.stage!='DECIDE':
             self.machine.move('DECIDE')
         outcome=proposal.outcome if proposal is not None and accepted else 'ABSTAIN'

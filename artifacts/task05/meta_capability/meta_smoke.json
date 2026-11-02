@@ -1,0 +1,39 @@
+{
+  "source": "REAL_API",
+  "model": "muse-spark-1.3",
+  "status": "PASS",
+  "checks": {
+    "model_list": {
+      "status": "PASS"
+    },
+    "structured_output": {
+      "status": "PASS",
+      "schema_validated": true
+    },
+    "tool_round_trip": {
+      "status": "PASS",
+      "executed_local_tools": 1
+    }
+  },
+  "calls": [
+    {
+      "operation": "models.list",
+      "status": "completed"
+    },
+    {
+      "operation": "structured_output",
+      "status": "completed"
+    },
+    {
+      "operation": "tool_round_1",
+      "status": "completed"
+    },
+    {
+      "operation": "tool_round_2",
+      "status": "completed"
+    }
+  ],
+  "successful_calls": 4,
+  "failed_calls": 0,
+  "documentation_mismatch": "Inspect failed capability checks; no unsupported fallback was attempted"
+}

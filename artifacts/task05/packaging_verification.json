@@ -1,0 +1,17 @@
+{
+  "status": "PASS",
+  "command": "python -m pip wheel --no-deps . --wheel-dir data/processed/task05/wheels",
+  "wheel": "realign_poc0-0.1.0-py3-none-any.whl",
+  "sha256": "5f957028d1d72150de57c9115c268e9f3f49c63634b38ad8fc6be9080a8aba6a",
+  "static_assets_verified": true,
+  "sensitive_files_included": false,
+  "no_build_isolation_attempt": "FAILED: local setuptools.build_meta unavailable; isolated PEP517 build succeeded",
+  "unchanged_validated_science_paths": [
+    "src/realign/physics",
+    "src/realign/fit",
+    "src/realign/contracts",
+    "src/realign/synth",
+    "src/realign/tools",
+    "src/realign/report"
+  ]
+}

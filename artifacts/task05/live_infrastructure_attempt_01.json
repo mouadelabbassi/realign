@@ -1,0 +1,9 @@
+{
+  "status": "FAILED_BEFORE_API",
+  "source": "LIVE_MUSE",
+  "actual_api_requests": 0,
+  "successful_calls": 0,
+  "failed_calls": 0,
+  "code": "REPORT_PACKAGE_DISAPPEARED_DURING_SESSION",
+  "resolution": "Restored missing committed report modules, matching recorded source hashes where present. No model request occurred."
+}

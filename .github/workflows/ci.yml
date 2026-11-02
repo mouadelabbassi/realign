@@ -74,3 +74,27 @@ jobs:
         with:
           name: task04-offline-investigator
           path: artifacts/task04/
+  product-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      REALIGN_BROWSER_TESTS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install isolated browser test dependencies
+        run: |
+          python -m pip install -e ".[dev,perception,ui-test]"
+          python -m playwright install --with-deps chromium
+      - name: Verify cached product without credentials or fitting
+        run: python -m pytest -q tests/test_product_browser.py --junitxml=artifacts/task05/browser_tests.xml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: task05-product-browser
+          path: |
+            artifacts/task05/browser_tests.xml
+            artifacts/task05/screenshots/

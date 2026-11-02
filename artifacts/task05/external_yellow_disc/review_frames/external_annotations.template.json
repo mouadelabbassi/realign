@@ -1,0 +1,162 @@
+[
+  {
+    "recording_id": "external",
+    "frame_index": 157,
+    "pts_s": 5.233333333333333,
+    "center_px": null,
+    "annotation_sigma_px": null,
+    "reviewer": null
+  },
+  {
+    "recording_id": "external",
+    "frame_index": 173,
+    "pts_s": 5.766666666666667,
+    "center_px": null,
+    "annotation_sigma_px": null,
+    "reviewer": null
+  },
+  {
+    "recording_id": "external",
+    "frame_index": 200,
+    "pts_s": 6.666666666666667,
+    "center_px": null,
+    "annotation_sigma_px": null,
+    "reviewer": null
+  },
+  {
+    "recording_id": "external",
+    "frame_index": 207,
+    "pts_s": 6.8999999999999995,
+    "center_px": null,
+    "annotation_sigma_px": null,
+    "reviewer": null
+  },
+  {
+    "recording_id": "external",
+    "frame_index": 252,
+    "pts_s": 8.4,
+    "center_px": null,
+    "annotation_sigma_px": null,
+    "reviewer": null
+  },
+  {
+    "recording_id": "external",
+    "frame_index": 279,
+    "pts_s": 9.3,
+    "center_px": null,
+    "annotation_sigma_px": null,
+    "reviewer": null
+  },
+  {
+    "recording_id": "external",
+    "frame_index": 297,
+    "pts_s": 9.9,
+    "center_px": null,
+    "annotation_sigma_px": null,
+    "reviewer": null
+  },
+  {
+    "recording_id": "external",
+    "frame_index": 330,
+    "pts_s": 11.0,
+    "center_px": null,
+    "annotation_sigma_px": null,
+    "reviewer": null
+  },
+  {
+    "recording_id": "external",
+    "frame_index": 347,
+    "pts_s": 11.566666666666666,
+    "center_px": null,
+    "annotation_sigma_px": null,
+    "reviewer": null
+  },
+  {
+    "recording_id": "external",
+    "frame_index": 369,
+    "pts_s": 12.3,
+    "center_px": null,
+    "annotation_sigma_px": null,
+    "reviewer": null
+  },
+  {
+    "recording_id": "external",
+    "frame_index": 424,
+    "pts_s": 14.133333333333333,
+    "center_px": null,
+    "annotation_sigma_px": null,
+    "reviewer": null
+  },
+  {
+    "recording_id": "external",
+    "frame_index": 438,
+    "pts_s": 14.6,
+    "center_px": null,
+    "annotation_sigma_px": null,
+    "reviewer": null
+  },
+  {
+    "recording_id": "external",
+    "frame_index": 465,
+    "pts_s": 15.5,
+    "center_px": null,
+    "annotation_sigma_px": null,
+    "reviewer": null
+  },
+  {
+    "recording_id": "external",
+    "frame_index": 494,
+    "pts_s": 16.466666666666665,
+    "center_px": null,
+    "annotation_sigma_px": null,
+    "reviewer": null
+  },
+  {
+    "recording_id": "external",
+    "frame_index": 498,
+    "pts_s": 16.6,
+    "center_px": null,
+    "annotation_sigma_px": null,
+    "reviewer": null
+  },
+  {
+    "recording_id": "external",
+    "frame_index": 526,
+    "pts_s": 17.53333333333333,
+    "center_px": null,
+    "annotation_sigma_px": null,
+    "reviewer": null
+  },
+  {
+    "recording_id": "external",
+    "frame_index": 550,
+    "pts_s": 18.333333333333332,
+    "center_px": null,
+    "annotation_sigma_px": null,
+    "reviewer": null
+  },
+  {
+    "recording_id": "external",
+    "frame_index": 586,
+    "pts_s": 19.53333333333333,
+    "center_px": null,
+    "annotation_sigma_px": null,
+    "reviewer": null
+  },
+  {
+    "recording_id": "external",
+    "frame_index": 590,
+    "pts_s": 19.666666666666668,
+    "center_px": null,
+    "annotation_sigma_px": null,
+    "reviewer": null
+  },
+  {
+    "recording_id": "external",
+    "frame_index": 598,
+    "pts_s": 19.933333333333334,
+    "center_px": null,
+    "annotation_sigma_px": null,
+    "reviewer": null
+  }
+]

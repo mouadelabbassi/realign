@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="REALIGN scientific investigation console. Inspect recorded evidence, model predictions, experiments and frozen decisions.">
+  <title>REALIGN — Scientific investigation</title>
+  <link rel="stylesheet" href="/static/app.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to investigation</a>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="REALIGN navigation">
+      <a class="brand" href="/" aria-label="REALIGN home">
+        <svg class="brand-mark" viewBox="0 0 40 40" fill="none" aria-hidden="true"><path d="M8 30V10h10M32 10v20H22" stroke="currentColor" stroke-width="2"/><circle cx="20" cy="20" r="7" stroke="currentColor" stroke-width="2"/><path d="m20 13 6 11" stroke="currentColor" stroke-width="2"/></svg>
+        <span>REALIGN<span class="brand-caption">SCIENTIFIC INVESTIGATION</span></span>
+      </a>
+      <div class="workspace-label"><span class="signal-dot"></span> Investigation workspace</div>
+      <nav class="view-nav" aria-label="Investigation views">
+        <button type="button" class="nav-item active" data-view="reality" aria-current="page"><span class="nav-number">01</span><span>Reality vs Simulation</span></button>
+        <button type="button" class="nav-item" data-view="investigation"><span class="nav-number">02</span><span>Investigation</span></button>
+        <button type="button" class="nav-item" data-view="experiment"><span class="nav-number">03</span><span>Experiment Loop</span></button>
+        <button type="button" class="nav-item" data-view="decision"><span class="nav-number">04</span><span>Model Decision</span></button>
+        <button type="button" class="nav-item" data-view="evidence"><span class="nav-number">05</span><span>Evidence</span></button>
+      </nav>
+      <div class="sidebar-section-label">OBSERVATION SOURCES</div>
+      <div class="source-nav" role="group" aria-label="Observation source">
+        <button type="button" class="source-item active" data-source="synthetic" aria-pressed="true"><span class="source-symbol">◈</span><span>Synthetic laboratory<small>Recorded investigation</small></span><span class="source-state">●</span></button>
+        <button type="button" class="source-item" data-source="external" aria-pressed="false"><span class="source-symbol">▷</span><span>External video<small>Independent SAM evidence</small></span><span class="source-state" id="external-state">○</span></button>
+        <button type="button" class="source-item" data-source="phone" aria-pressed="false"><span class="source-symbol">▯</span><span>Phone experiments<small>Controlled physical trials</small></span><span class="source-state" id="phone-state">○</span></button>
+      </div>
+      <div class="sidebar-bottom">
+        <div class="boundary-card"><span class="tiny-label">EVIDENCE BOUNDARY</span><strong>One source. Every claim.</strong><p>Synthetic investigations and real video processing remain separate.</p><div class="boundary-status" id="sidebar-status">Checking local evidence…</div></div>
+        <div class="sidebar-footer"><span>Architecture v1.1</span><span>LOCAL WORKSPACE ↗</span></div>
+      </div>
+    </aside>
+    <div class="main-shell">
+      <header class="topbar">
+        <div class="breadcrumb"><span>Workspace</span><span class="crumb-separator">/</span><strong id="breadcrumb-view">Reality vs Simulation</strong></div>
+        <div class="topbar-right"><span class="local-label"><span class="signal-dot"></span> LOCAL APPLICATION</span><span class="topbar-monogram" aria-hidden="true">R</span></div>
+      </header>
+      <main id="main-content" tabindex="-1">
+        <div id="notices" aria-live="polite"></div>
+        <section class="page-heading" aria-labelledby="page-title">
+          <div><div class="eyebrow" id="page-eyebrow">PHYSICS, MEASURED AGAINST EVIDENCE</div><h1 id="page-title">Reality vs Simulation</h1><p id="page-description">Follow the observations, inspect the discrepancy, and see what the model can explain.</p></div>
+          <button type="button" class="button button-primary" id="replay-button"><span aria-hidden="true">▷</span> Replay trajectory</button>
+        </section>
+        <section class="run-picker-bar" id="run-picker-bar" aria-label="Recorded investigation selection">
+          <div class="run-picker"><label class="tiny-label" for="run-select">RECORDED INVESTIGATION</label><select id="run-select" disabled><option>Loading evidence…</option></select></div>
+          <div class="run-provenance" id="run-provenance"><span class="badge badge-muted">Loading</span></div>
+        </section>
+        <div id="content" aria-live="polite" aria-busy="true"><div class="empty-state"><div class="loading-ring" aria-hidden="true"></div><h2>Opening the evidence record</h2><p>Reading local artifacts. No numerical fit or API call is started by this view.</p></div></div>
+        <footer class="main-footer"><span>REALIGN <span class="footer-divider">/</span> Evidence before explanation.</span><span id="footer-status">Recorded artifacts · Read-only playback</span></footer>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

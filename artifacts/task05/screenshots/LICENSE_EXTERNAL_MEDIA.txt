@@ -1,0 +1,4 @@
+Blocked-pendulum-slow-motion.webm by MikeRun, Wikimedia Commons, CC BY-SA 4.0, original dated 2025-10-28.
+https://creativecommons.org/licenses/by-sa/4.0/
+Derived overlay/review images retain CC-BY-SA-4.0.
+Local FFmpeg H.264 CRF18 yuv420p MP4 transcode, audio removed, presentation timestamps preserved within time-base quantization. No crop, resampling or change of playback rate. Derived media remains CC BY-SA 4.0. Hash is specific to the recorded encoder build; other encoders must record a new processed hash.

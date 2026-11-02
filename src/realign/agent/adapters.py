@@ -12,7 +12,9 @@ from realign.perception.meta_validation import strict_json
 
 
 class AdapterFailure(RuntimeError):
-    pass
+    def __init__(self,message,*,code='MODEL_PROTOCOL_REJECTED'):
+        super().__init__(message)
+        self.code=code
 
 
 class NotAuthorized(AdapterFailure):
@@ -144,6 +146,11 @@ class MuseAdapter:
             'Return a closed AgentTurn JSON object when not calling a tool. Cite supplied evidence references. '
             'In HYPOTHESIZE return action HYPOTHESIZE. In TEST use tools, REQUEST_EVIDENCE or DECIDE. '
             'Use exactly the current trial_refs in the supplied order; never select a subset or reorder comparison folds. '
+            'Call at most TWO tools in one response. Keep replies concise: at most two evidence refs per hypothesis and six overall. '
+            'An initial two-trial comparison has no calibrated structural support: fit FREE and PEG_ONE_SIDE, compare, inspect PEG identifiability, '
+            'then score the approved experiment candidates and request informative evidence when needed. '
+            'Keep/recalibrate require the tested release-angle envelope to reach at least 0.6 rad; use the supplied scores and do not infer an outcome from training loss. '
+            'CORRECT_MEASUREMENT means correction REQUIRED, not applied or verified. A reference check alone does not repair measurements. '
             'Raw frames, development observations, sealed data, file paths and generator parameters are unavailable.'}]
         self.stats={'source':source,'actual_api_requests':0,'fixture_requests':0,'successful_requests':0,
                     'failed_requests':0,'api_latency_s':0. if source=='LIVE_MUSE' else None,
@@ -164,7 +171,7 @@ class MuseAdapter:
     def _request(self):
         count=self.stats['actual_api_requests']+self.stats['fixture_requests']
         if count>=self.budget.max_api_requests:
-            raise AdapterFailure('API request budget exhausted')
+            raise AdapterFailure('API request budget exhausted',code='API_BUDGET')
         self.stats['actual_api_requests' if self.source=='LIVE_MUSE' else 'fixture_requests']+=1
         start=time.monotonic()
         try:
@@ -195,7 +202,7 @@ class MuseAdapter:
             raise AdapterFailure('tool results must be delivered before the next request')
         self.messages.append({'role':'user','content':canonical(context).decode()})
         if len(canonical(self.messages))>250000:
-            raise AdapterFailure('context size budget exhausted')
+            raise AdapterFailure('context size budget exhausted',code='CONTEXT_BUDGET')
         response=None
         for i in range(3):
             try:
@@ -212,11 +219,11 @@ class MuseAdapter:
         try:
             choice=response.choices[0]; message=choice.message
             if getattr(choice,'finish_reason',None) in ('length','content_filter'):
-                raise AdapterFailure('incomplete/refused model response')
+                raise AdapterFailure('incomplete/refused model response',code='INCOMPLETE_MODEL_RESPONSE')
             raw=message.model_dump(exclude_none=True)
             if message.tool_calls:
                 if len(message.tool_calls)>2:
-                    raise AdapterFailure('model tool batch exceeds bound')
+                    raise AdapterFailure('model tool batch exceeds bound',code='TOOL_BATCH_LIMIT')
                 calls=[]
                 for tc in message.tool_calls:
                     if tc.type!='function':
@@ -224,18 +231,21 @@ class MuseAdapter:
                     parsed=strict_json(tc.function.arguments)
                     from realign.contracts.investigation import TOOLS
                     if tc.function.name not in TOOLS:
-                        raise AdapterFailure('unapproved tool name')
+                        raise AdapterFailure('unapproved tool name',code='UNAPPROVED_TOOL')
                     # Validate the entire batch BEFORE any numerical execution.
-                    TOOLS[tc.function.name][0].model_validate_json(canonical(parsed))
+                    try:
+                        TOOLS[tc.function.name][0].model_validate_json(canonical(parsed))
+                    except ValueError:
+                        raise AdapterFailure('tool arguments rejected',code='INVALID_TOOL_ARGUMENTS') from None
                     if not isinstance(tc.id,str) or not 1<=len(tc.id)<=128:
                         raise AdapterFailure('invalid tool call identifier')
                     local_id='call_'+digest({'remote_call_id':tc.id})[:32]
                     self._raw_ids[local_id]=tc.id
                     calls.append(ToolCall(call_id=local_id,name=tc.function.name,arguments=canonical(parsed).decode()))
                 if len({x.call_id for x in calls})!=len(calls):
-                    raise AdapterFailure('duplicate tool call IDs')
+                    raise AdapterFailure('duplicate tool call IDs',code='DUPLICATE_TOOL_ID')
                 if any(x.call_id in self._seen_ids for x in calls):
-                    raise AdapterFailure('reused tool call ID')
+                    raise AdapterFailure('reused tool call ID',code='REUSED_TOOL_ID')
                 self._seen_ids.update(x.call_id for x in calls)
                 self._pending=tuple(calls)
                 self.messages.append(raw)
@@ -247,7 +257,7 @@ class MuseAdapter:
         except AdapterFailure:
             raise
         except Exception as exc:
-            raise AdapterFailure('invalid structured model response: '+type(exc).__name__) from None
+            raise AdapterFailure('invalid structured model response: '+type(exc).__name__,code='INVALID_STRUCTURED_RESPONSE') from None
 
     def deliver(self,calls,results):
         if len(calls)!=len(results) or [(c.call_id,c.name) for c in calls]!=[(c.call_id,c.name) for c in self._pending]:

@@ -1,0 +1,199 @@
+{
+  "status": "PASS_WITH_PHYSICAL_VALIDATION_PENDING",
+  "tests": [
+    {
+      "name": "initial targeted regression",
+      "command": "python -m pytest -q tests/test_physics.py tests/test_meta_validation.py tests/test_investigator_contracts.py --junitxml=data/processed/task05_initial_tests.xml",
+      "junit": "initial_tests.xml",
+      "passed": 68,
+      "elapsed_console_s": 10.02,
+      "tests": 68,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "existing scientific regressions",
+      "command": "python -m pytest -q tests/test_physics.py tests/test_baselines.py tests/test_perception.py tests/test_meta_validation.py tests/test_structural.py tests/test_investigator_contracts.py --junitxml=data/processed/task05_regressions.xml",
+      "junit": "scientific_regression_tests.xml",
+      "passed": 149,
+      "elapsed_console_s": 51341.81,
+      "tests": 149,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "new offline product tests",
+      "command": "python -m pytest -q tests/test_product.py tests/test_task05_adapters.py tests/test_product_external.py --tb=short --junitxml=artifacts/task05/offline_product_tests.xml",
+      "junit": "offline_product_tests.xml",
+      "passed": 102,
+      "elapsed_console_s": 27.35,
+      "tests": 102,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "isolated browser tests",
+      "command": "REALIGN_BROWSER_TESTS=1 REALIGN_BROWSER_EXECUTABLE=<installed Chrome> python -m pytest -q tests/test_product_browser.py --tb=short --junitxml=artifacts/task05/browser_tests.xml",
+      "junit": "browser_tests.xml",
+      "passed": 6,
+      "elapsed_console_s": 36.34,
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "isolated investigator integration",
+      "command": "wsl -d Ubuntu -- bash -lc 'cd /mnt/c/Users/mouad/Downloads/REALIGN && /home/mouad/.cache/realign-task04-venv/bin/python -m pytest -q tests/test_investigator_integration.py --junitxml=data/processed/task05_investigator_tests.xml'",
+      "junit": "isolated_investigator_tests.xml",
+      "passed": 9,
+      "elapsed_console_s": 766.8,
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "name": "native fail-closed isolation",
+      "command": "python -m pytest -q tests/test_investigator_integration.py -k native_windows --tb=short --junitxml=artifacts/task05/native_isolation_tests.xml",
+      "junit": "native_isolation_tests.xml",
+      "passed": 1,
+      "elapsed_console_s": 5.27,
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "HTTP final subset",
+      "command": "python -m pytest -q tests/test_product.py -k http --tb=short --junitxml=artifacts/task05/http_tests.xml",
+      "junit": "http_tests.xml",
+      "passed": 9,
+      "elapsed_console_s": 13.07,
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "g1": {
+    "scope": "G1 synthetic numerical verification only; not real experiments or Meta API validation",
+    "seed": 20261031,
+    "randomized_cases": 250,
+    "case_failures": 0,
+    "failure_examples": [],
+    "total_mode_transitions": 1516,
+    "max_absolute_energy_drift_j_per_kg": 1.709933528104557e-09,
+    "max_position_jump_m": 1.9849118084270064e-15,
+    "max_speed_jump_m_per_s": 4.440892098500626e-16,
+    "vertical_peg_period_reference_s": 1.6373648615869487,
+    "vertical_peg_period_abs_error_s": 6.247757866617576e-11,
+    "elapsed_seconds": 8.964,
+    "passed": true
+  },
+  "cached_product": {
+    "recorded_runs": 16,
+    "url": "http://127.0.0.1:8765",
+    "status": "AVAILABLE",
+    "performs_fitting_or_meta_requests": false
+  },
+  "live_muse": {
+    "status": "PASS",
+    "successful_investigation_calls": 9,
+    "failed_http_calls": 0,
+    "rounds": 2,
+    "experiments": 1,
+    "previous_partial_attempt_calls": 3,
+    "basic_capability_operations": 4
+  },
+  "external_sam": {
+    "status": "TRACKING_QA_COMPLETED",
+    "actual_operations_successful": 4,
+    "actual_operations_failed": 0,
+    "empty_match_attempt_preserved": true,
+    "mask_records": 600,
+    "valid_centers": 550,
+    "shape_rejected_centers": 50,
+    "manual_review": "NOT_PROVIDED",
+    "capture_time_scale_verified": false
+  },
+  "actual_meta_operations": {
+    "successful": 20,
+    "failed": 0,
+    "protocol_rejected_investigations": 1
+  },
+  "matched_comparison": {
+    "agentic_superiority_demonstrated": false,
+    "deterministic": {
+      "budget": {
+        "fit_jobs": 8,
+        "tool_calls": 14
+      },
+      "experiments": 1,
+      "outcome": "REPAIR_STRUCTURE",
+      "prediction_rmse_px": 0.8196110265191848
+    },
+    "live_attempts": [
+      {
+        "accepted": false,
+        "api": {
+          "actual_api_requests": 3,
+          "api_latency_s": 11.510781831000003,
+          "failed_requests": 0,
+          "fixture_requests": 0,
+          "input_tokens": 16896,
+          "output_tokens": 2377,
+          "source": "LIVE_MUSE",
+          "successful_requests": 3,
+          "token_cost_usd": null
+        },
+        "budget": {
+          "fit_jobs": 2,
+          "tool_calls": 3
+        },
+        "experiment_received": false,
+        "experiment_requested": false,
+        "id": "live-01",
+        "matched_initial_observations": true,
+        "outcome": "ABSTAIN",
+        "prediction_rmse_px": null
+      },
+      {
+        "accepted": true,
+        "api": {
+          "actual_api_requests": 9,
+          "api_latency_s": 34.368466103,
+          "failed_requests": 0,
+          "fixture_requests": 0,
+          "input_tokens": 118269,
+          "output_tokens": 7173,
+          "source": "LIVE_MUSE",
+          "successful_requests": 9,
+          "token_cost_usd": null
+        },
+        "budget": {
+          "fit_jobs": 8,
+          "tool_calls": 12
+        },
+        "experiment_received": true,
+        "experiment_requested": true,
+        "id": "live-02",
+        "matched_initial_observations": true,
+        "outcome": "REPAIR_STRUCTURE",
+        "prediction_rmse_px": 0.8196110265191848
+      }
+    ],
+    "scope": "MATCHED INITIAL SYNTHETIC OBSERVATIONS AND TOOL/SEARCH/EXPERIMENT BUDGETS; NO SUPERIORITY CLAIM"
+  },
+  "existing_numerical_calibration_valid": true,
+  "calibration_recomputed": false,
+  "validated_scientific_sources_changed": false,
+  "full_G2_passed": false,
+  "real_phone_measurements": "NOT_PROVIDED",
+  "blind_discovery_demonstrated": false,
+  "broad_regression_timing_note": "51341.81 seconds is actual pytest wall time including a long host/process interruption. It is not a computation performance benchmark.",
+  "task05_commit_or_push_performed": false
+}

@@ -1,6 +1,28 @@
 # REALIGN — Scientific Baselines and Bounded Investigator
 
-**Status: verified physics/baselines, an offline-tested perception pipeline, and an executable bounded investigator. Real phone validation and end-to-end live investigator validation remain pending. G2 is NOT PASSED.**
+**Status: verified physics/baselines, an executable two-round live Muse investigation over synthetic observations, actual external-video SAM tracking, and a local product interface. Controlled real-phone validation remains pending. G2 is NOT PASSED.**
+
+Start the integrated product (recorded playback, no API calls or fitting):
+
+```powershell
+python -m pip install -e ".[dev,perception]"
+python scripts/run_realign.py
+```
+
+Open http://127.0.0.1:8765. Explore the five views, change observation rounds,
+scrub trajectories and select the actual `Live Muse investigation · attempt 02`.
+Synthetic investigations, external SAM footage and pending phone experiments have
+separate source views. A local external video can be restored using
+`python scripts/prepare_external_video.py --download`; no replacement is shown if
+it is absent. See the [Task 05 demo script](docs/TASK05_DEMO_SCRIPT.md),
+[implementation](docs/TASK05_IMPLEMENTATION.md) and
+[measured readiness](artifacts/task05/TASK05_READINESS.md).
+
+The successful live and deterministic synthetic runs both reach 0.819611 px
+post-freeze development RMSE. Actual SAM accepts 550/600 external-video centers;
+independent human error measurements and physical calibration are pending.
+These are separate demonstrations, with no claim of real-world discovery or Muse
+superiority. `CORRECT_MEASUREMENT` means **measurement correction required**.
 
 REALIGN aims to audit physics simulations against phone-measured reality,
 request discriminating experiments, propose typed structural corrections and
@@ -95,7 +117,8 @@ nuisances. A single observed circle cannot rule out an unexcited peg. B2 uses a
 fixed bearing-boundary hypothesis family and an uncalibrated conservative CV
 penalty. MDE/power studies, parameter CI coverage, causal identification, sealed
 evaluation and full G3 acceptance remain unfinished. Task 04 adds the bounded
-investigator described below. No general compiler or frontend is implemented.
+investigator described below. Task 05 adds its read-only product interface; no
+general compiler is implemented.
 The numerical tool process now has OS-enforced resource isolation; a separate
 sealed storage/evaluation system remains future work.
 
@@ -193,7 +216,7 @@ The [readiness assessment](artifacts/task04/TASK04_READINESS.md) records exact
 test outcomes, the noise-scale false comparison flag, conservative abstention,
 optimizer failures and live/real-world checks still pending.
 Calibration is environment-bound; regenerate it after numerical version changes.
-Real phone recordings, measured calibration and actual SAM output are still
+Task 05 verifies live Muse integration and real external SAM output in separate
+evidence streams. Controlled phone recordings and measured calibration are still
 needed under the [collection protocol](docs/REAL_DATA_COLLECTION_PROTOCOL.md).
-Matched live Muse performance, broader power/coverage studies and G2/G3/G4/G5
-acceptance are not established by the offline investigator.
+Broader matched live studies, power/coverage and G2/G3/G4/G5 acceptance remain open.
