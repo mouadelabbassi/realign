@@ -50,3 +50,31 @@ def test_ui_refuses_unlabelled_payload(app):
     expect(page.locator('#content')).to_contain_text('Missing evidence_header.stage')
     assert page.locator('#time-scrubber').count()==0
     context.close()
+
+def test_expanded_review_can_lock_and_export_empty_visibility_decisions_locally(app,tmp_path):
+    """UI-only protocol exercise: no coordinates, no measurement-score admission."""
+    from playwright.sync_api import expect
+    browser,url=app;context=browser.new_context();page=context.new_page();page.goto(url+'/review')
+    expect(page.locator('#progress')).to_contain_text('/ 40')
+    expect(page.locator('#download')).to_be_disabled()
+    page.locator('#reviewer').fill('AUTOMATED_UI_TEST_NO_HUMAN_REFERENCES')
+    page.locator('#independent').check()
+    for i in range(40):
+        page.locator('#not-visible').click()
+        if i<39:page.locator('#next').click()
+    page.locator('#lock').click();expect(page.locator('#status')).to_contain_text('LOCKED locally')
+    with page.expect_download() as download:page.locator('#download').click()
+    target=tmp_path/'EMPTY_UI_PROTOCOL_ONLY.json';download.value.save_as(target)
+    doc=json.loads(target.read_text());assert all(r['center_px'] is None for r in doc['rows'])
+    from realign.perception.manual_review import verify_locked_annotations
+    assert verify_locked_annotations(doc)
+    # Deliberately never use this automated file as a human reference assessment.
+    context.close()
+
+def test_missing_media_is_visible_without_substitution(app):
+    from playwright.sync_api import expect
+    browser,url=app;context=browser.new_context();page=context.new_page();page.goto(url)
+    page.wait_for_selector('#time-scrubber');page.locator('[data-source="external"]').click()
+    expect(page.locator('#content')).to_contain_text('Local video is unavailable')
+    expect(page.locator('#content')).to_contain_text('No replacement video or tracking has been substituted')
+    context.close()

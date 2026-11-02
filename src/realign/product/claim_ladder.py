@@ -44,7 +44,7 @@ def compute_ladder(artifacts):
     tracking=tracking or (sam.get('observation_source')=='REAL_EXTERNAL' and sam.get('track') is not None and
         sam.get('sam',{}).get('receipt',{}).get('source')=='REAL_API')
     manual=artifacts.get('manual',{})
-    human=tracking and manual.get('status')=='VALIDATED_MANUAL_REFERENCES' and manual.get('attestation_status')=='SELF_DECLARED_INDEPENDENCE'
+    human=tracking and manual.get('status')=='VALIDATED_MANUAL_REFERENCES' and manual.get('attestation_status')=='SELF_DECLARED_INDEPENDENCE' and manual.get('reference_set_version')==2 and manual.get('review_locked') is True
     ceiling='C3b' if human else 'C3a' if tracking else 'C2' if live else 'C1' if baseline else 'C0' if g1 else 'UNVERIFIED'
     controls={k:artifacts[k]['independent_verdict'] for k in ('fixed','randomized') if k in artifacts}
     return {'overall_claim_ceiling':ceiling,'branches':{
@@ -56,8 +56,8 @@ def compute_ladder(artifacts):
         'next_unmet_prerequisites':['Independent human references including early tracking failures',
             'Controlled recordings, measured calibration and verified physical timing',
             'Independent custodian and fresh real heldouts'],
-        'negative_results':[{'kind':'RANDOMIZED_G5','status':controls.get('randomized','MISSING')},
-                            {'kind':'AGENT_VALUE','status':agent_value(artifacts.get('matched',{}))['label']} ]}
+        'negative_results':[{'kind':'SYNTHETIC_G5_WORKFLOW','status':controls.get('randomized','MISSING')},
+                            {'kind':'SYNTHETIC_AGENT_COMPARISON','status':agent_value(artifacts.get('matched',{}))['label']} ]}
 
 def release_evidence(root=ROOT):
     root=Path(root);path=root/'artifacts/release/evidence_manifest.json';items={};issues=[]
@@ -73,6 +73,10 @@ def release_evidence(root=ROOT):
             from .closure import validate_independent_report
             validate_independent_report(value)
         items[key]=value
+    release_root=root/'artifacts/release'
+    if (release_root/'closure_manifest.json').is_file():
+        from .closure import load_closure
+        items['manual']=load_closure(release_root)['manual']
     return {'ladder':compute_ladder(items),'artifacts':items,'issues':issues}
 
 def api_header(value,endpoint,ladder):
@@ -86,9 +90,14 @@ def api_header(value,endpoint,ladder):
         'stage':'POST_FREEZE_REPLAY' if run else 'PUBLIC_EVIDENCE_REPLAY',
         'ladder_level':ladder['overall_claim_ceiling']}
 
-def release_view(root=ROOT):
+def release_view(root=ROOT,*,review_root=None):
     evidence=release_evidence(root);a=evidence['artifacts']
+    from .closure import load_closure
+    from realign.physical.admission import calibration_grade
+    review=load_closure(review_root or Path(root)/'artifacts/release')
     return {'ladder':evidence['ladder'],'issues':evidence['issues'],'agent_value':agent_value(a.get('matched',{})),
+        'review':review,
+        'calibration_grades':{d:calibration_grade({'source_kind':d}) for d in ('REAL_EXTERNAL','REAL_PHONE')},
         'historical_g5':{k:a[k] for k in ('fixed','randomized') if k in a},
         'post_mortem':post_mortem(a),
         'execution':'READ_ONLY_REPLAY','new_meta_calls':0,'billed_cost_status':'UNVERIFIED',

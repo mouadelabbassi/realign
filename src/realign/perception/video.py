@@ -10,7 +10,8 @@ from realign.contracts.video import VideoMetadata
 
 
 class VideoError(ValueError):
-    pass
+    def __init__(self,message,code='UNREADABLE_CONTAINER'):
+        super().__init__(message);self.code=code
 
 
 def file_sha256(path):
@@ -22,28 +23,33 @@ def file_sha256(path):
 
 
 def metadata_from_ffprobe(data, *, video_sha256, source_kind,recording_start_utc=None,external_source=None):
+    if not data.get('streams'):raise VideoError('no video stream','NO_VIDEO_STREAM')
+    if not data.get('frames'):raise VideoError('no decoded presentation frames','ZERO_LENGTH')
     try:
         stream=data['streams'][0]
         pts=[]
         for frame in data['frames']:
             value=frame.get('pts')
             if isinstance(value,bool) or not re.fullmatch(r'-?\d+',str(value)):
-                raise VideoError('missing or malformed original PTS; no FPS fallback is allowed')
+                raise VideoError('missing or malformed original PTS; no FPS fallback is allowed','MISSING_PTS')
             pts.append(int(value))
         time_base=stream['time_base']
+        if len(pts)<2:raise VideoError('too few presentation frames','ZERO_LENGTH')
+        if any(b<=a for a,b in zip(pts,pts[1:])):raise VideoError('non-monotonic or duplicate original PTS','NON_MONOTONIC_PTS')
         if Fraction(time_base)<=0:
             raise VideoError('invalid video time base')
         rotation=next((x['rotation'] for x in stream.get('side_data_list',[]) if 'rotation' in x),
                       stream.get('tags',{}).get('rotate',0))
         rotation=float(rotation)
         if not np.isfinite(rotation) or rotation%90!=0:
-            raise VideoError('unsupported display rotation')
+            raise VideoError('unsupported display rotation','ROTATION_UNHANDLED')
         rotation=int(rotation)%360
         w,h=int(stream['width']),int(stream['height'])
         width,height=(h,w) if rotation%180 else (w,h)
         return VideoMetadata(video_sha256,source_kind,width,height,w,h,tuple(pts),time_base,
                              stream.get('codec_name','unknown'),rotation,recording_start_utc,
                              stream.get('tags',{}).get('creation_time',data.get('format',{}).get('tags',{}).get('creation_time')),external_source)
+    except VideoError:raise
     except (KeyError,IndexError,TypeError,ValueError,ZeroDivisionError) as exc:
         raise VideoError(f'invalid video metadata/PTS: {exc}') from exc
 
@@ -52,6 +58,7 @@ def probe_video(path, *, source_kind='REAL_PHONE',recording_start_utc=None,exter
     path=Path(path).resolve()
     if not path.is_file():
         raise VideoError('video file does not exist')
+    if path.stat().st_size==0:raise VideoError('empty recording','ZERO_LENGTH')
     try:
         p=subprocess.run(['ffprobe','-v','error','-select_streams','v:0','-read_intervals','%+61',
                           '-show_frames','-show_streams','-show_format','-of','json',str(path)],

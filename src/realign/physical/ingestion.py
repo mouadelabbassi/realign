@@ -68,6 +68,13 @@ async def ingest_phone(manifest,output,*,run_api=False,cache_dir=None):
     manifest=Path(manifest).resolve();root=manifest.parent;out=Path(output);out.mkdir(parents=True,exist_ok=True)
     config=read_json(manifest);blockers=input_blockers(config,root)
     if blockers:return {'status':'BLOCKED_INPUTS','blockers':blockers,'trials':[],'config':config}
+    from .admission import admit_recording
+    seen=set()
+    for record in [config['stationary'],*config['exploration']]:
+        admission=admit_recording(_path(record['video'],root),config,seen_hashes=seen)
+        if admission['status']!='ADMITTED':
+            return {'status':'BLOCKED_INPUTS','blockers':[admission['code']+':'+record['id']],'trials':[],'config':config}
+        seen.add(admission['video_sha256'])
     document=read_json(_path(config['manual_reviews'],root))
     try:rows=independent_rows(document)
     except ValueError:return {'status':'BLOCKED_INPUTS','blockers':['INDEPENDENT_MANUAL_ANNOTATIONS_NOT_VALIDATED'],'trials':[],'config':config}
@@ -88,6 +95,13 @@ async def ingest_phone(manifest,output,*,run_api=False,cache_dir=None):
         if len(reviewed)<20 or any(r['video_sha256']!=meta.video_sha256 or not 0<=r['frame_index']<len(meta.pts) for r in reviewed):
             return {'status':'BLOCKED_INPUTS','blockers':['TWENTY_HASH_BOUND_REVIEWS_REQUIRED:'+rid],'trials':[],'config':config}
     cal=capture['calibration'];cfg=capture['calibration_config']
+    from .admission import require_physical_calibration
+    grade=require_physical_calibration({'source_kind':config['source_kind'],
+        'scale_reference':cfg.get('board_xy_m'),'pivot_px':cfg.get('pivot_px'),
+        'roll_reference':cfg.get('hanging_px'),
+        'noise_reference':capture['metadata'][capture['stationary_id']].video_sha256,
+        'capture_time_scale_verified':config.get('capture_time_scale_verified'),
+        'capture_timing_reference':config.get('capture_timing_reference')})
     if cal.n_check_points<4 or cal.check_rms_px is None or cal.check_rms_px>1:
         return {'status':'BLOCKED_INPUTS','blockers':['INDEPENDENT_CALIBRATION_CHECKPOINTS_REQUIRED'],'trials':[],'config':config}
     import cv2
@@ -109,4 +123,4 @@ async def ingest_phone(manifest,output,*,run_api=False,cache_dir=None):
             raise ValueError('actual SAM receipt required')
         receipts[trial.observation.metadata.video_sha256]=receipt
     return {'status':'READY','trials':trials,'checks':checks,'config':config,'windows':windows,
-            'sam_receipts':receipts,'perception':report,'input_manifest_sha256':digest(config)}
+            'sam_receipts':receipts,'perception':report,'calibration_grade':grade,'input_manifest_sha256':digest(config)}

@@ -28,7 +28,7 @@ class PhysicalValidator(ScientificValidator):
 
 
 class PhysicalEnvironment:
-    def __init__(self,trials,checks,*,responses=None):
+    def __init__(self,trials,checks,*,responses=None,deadline_utc=None):
         self.initial=tuple(phone_trial(t) for t in trials)
         if len(self.initial)<2:raise ValueError('at least two independent exploration recordings required')
         self.checks=deepcopy(checks)
@@ -36,6 +36,7 @@ class PhysicalEnvironment:
         hashes=[t.observation.metadata.video_sha256 for t in self.initial]
         if len(set(hashes))!=len(hashes):raise ValueError('duplicate controlled recording')
         self.seen=set(hashes); self.responses=responses or {}; self.pending_action=None
+        self.admission_history=[];self.deadline_utc=deadline_utc
 
     def perform(self,candidate):
         candidate=ExperimentCandidate.model_validate_json(canonical(candidate)).model_dump(mode='json')
@@ -45,9 +46,34 @@ class PhysicalEnvironment:
                     'measured camera calibration','independent reviewed centers and uncertainty','release timing when dynamic'],
                  'action_completed':False,'physical_actuator_used':False}
         pending['request_id']=digest(pending)
+        if not self.admission_history:
+            self._admission_move('REQUESTED');self._admission_move('AWAITING_RECORDING')
+        if self.deadline_utc is not None:
+            from datetime import datetime,timezone
+            deadline=datetime.fromisoformat(self.deadline_utc.replace('Z','+00:00'))
+            if deadline.tzinfo is None:raise ValueError('timezone-aware physical deadline required')
+            if datetime.now(timezone.utc)>=deadline:
+                self._admission_move('EXPIRED')
+                from realign.agent.adapters import AdapterFailure
+                raise AdapterFailure('physical response budget expired',code='EXPERIMENT_BUDGET_EXPIRED')
         response=self.responses.get(pending['request_id'])
         if response is None:
             self.pending_action=pending; return None
+        self._admission_move('VALIDATING')
+        try:
+            result=self._admit_response(candidate,pending,response)
+        except ValueError:
+            self._admission_move('REJECTED');raise
+        self._admission_move('ADMITTED');self.pending_action=None;return result
+
+    def _admission_move(self,state):
+        allowed={None:('REQUESTED',),'REQUESTED':('AWAITING_RECORDING',),
+            'AWAITING_RECORDING':('VALIDATING','EXPIRED'),'VALIDATING':('ADMITTED','REJECTED')}
+        current=self.admission_history[-1] if self.admission_history else None
+        if state not in allowed.get(current,()):raise ValueError('invalid physical admission transition')
+        self.admission_history.append(state)
+
+    def _admit_response(self,candidate,pending,response):
         kind=candidate['action']['kind']; trials=tuple(response.get('trials',()))
         if response.get('request_id')!=pending['request_id'] or response.get('verified') is not True:
             raise ValueError('response must bind the requested action and validated ingestion')

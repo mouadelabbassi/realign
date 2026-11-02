@@ -244,7 +244,7 @@
     const domain=state.source==="synthetic"?"SYNTHETIC":state.source==="external"?"REAL_EXTERNAL":"REAL_PHONE";
     const policy=state.source==="synthetic" && state.run?state.run.policy:"RECORDED_EVIDENCE";
     const stage=state.run && state.source==="synthetic"?"POST_FREEZE_REPLAY":"PUBLIC_EVIDENCE_REPLAY";
-    host.replaceChildren(node("div",{class:"release-boundary"},node("div",{class:"badges"},badge(domain,"teal"),badge(policyLabel(policy),"muted"),badge(stage,"muted"),badge("Claim ceiling "+ladder.overall_claim_ceiling,"amber")),
+    host.replaceChildren(node("div",{class:"release-boundary"},node("div",{class:"badges"},badge(domain,domain==="REAL_EXTERNAL"?"amber":domain==="REAL_PHONE"?"muted":"teal"),badge(policyLabel(policy),"muted"),badge(stage,"muted"),badge("Claim ceiling "+ladder.overall_claim_ceiling,"amber")),
       node("p",{},"Run: "+(state.source==="synthetic"?state.selected:state.source)+" · Per-domain evidence; no physical validation certification."),
       node("p",{class:"negative-results"},list(ladder.negative_results).map(x=>x.kind+": "+x.status).join(" · ")),
       node("p",{},"Next: "+list(ladder.next_unmet_prerequisites).join("; ")),
@@ -578,12 +578,13 @@
     if (!data) return $("content").replaceChildren(empty("External tracking evidence unavailable", state.failures.external || "The external source record has not been loaded. This does not affect the separate synthetic demonstration.", "▷", button("Reload source evidence", () => loadApp())));
     if (data.observation_source !== "REAL_EXTERNAL") return $("content").replaceChildren(empty("External provenance could not be verified", "The response does not explicitly identify REAL_EXTERNAL evidence. No video or tracking result has been displayed.", "△"));
     const metadata = object(data.metadata) ? data.metadata : {}, provenance = object(data.provenance) ? data.provenance : {}, sam = object(data.sam) ? data.sam : {};
-    const assessment = state.closure && state.closure.manual;
+    const assessment = state.release && state.release.review && state.release.review.manual || state.closure && state.closure.manual;
     const review = assessment ? Object.assign({}, assessment, assessment.metrics) : object(data.manual_review) ? data.manual_review : {};
     const track = object(data.track) ? data.track : null;
     const validTrack = track && Array.isArray(metadata.t_s) && validXY(track.xy_px, metadata.t_s.length) && Array.isArray(track.valid) && track.valid.length === metadata.t_s.length && track.valid.every((v) => typeof v === "boolean") && track.xy_px.every((p, i) => !track.valid[i] || p.every(finite));
     const validFrames = validTrack ? track.valid.filter(Boolean).length : null;
     const root = node("div", {}, node("div", { class: "run-picker-bar" }, node("div", {}, node("span", { class: "tiny-label" }, "INDEPENDENT PERCEPTION SOURCE"), node("strong", { class: "subtle" }, "Third-party blocked-pendulum recording")), node("div", { class: "run-provenance" }, badge("REAL EXTERNAL", "teal"), statusBadge(sam.status), badge("TRACKING ONLY", "amber"))));
+    root.append(info("Calibration grade NONE · PTS_ONLY · Physical scale UNKNOWN. Pixel measurements only; metric dynamics fitting is refused.",true));
     root.append(node("div", { class: "metric-grid" }, metric("Tracked frames", integer(validFrames), null, validTrack ? `Of ${integer(metadata.t_s.length)} original timestamps` : "No validated tracked centers available", true), metric("SAM successful calls", integer(sam.successful_calls), null, `${integer(sam.failed_calls)} failed calls reported`), metric("Manual review discrepancy", number(review.rmse_px), "px RMS", text(review.status, "Manual review pending").replaceAll("_", " "))));
     const stage = node("div", { class: "video-stage" });
     stage.append(node("div",{class:"external-watermark"},"REAL_EXTERNAL · External footage, not our experiment · MikeRun · CC BY-SA 4.0"));

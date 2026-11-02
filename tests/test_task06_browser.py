@@ -12,7 +12,7 @@ pytestmark=pytest.mark.skipif(os.environ.get('REALIGN_BROWSER_TESTS')!='1',reaso
 @pytest.fixture(scope='module')
 def browser_app():
     from playwright.sync_api import sync_playwright
-    server=make_server(ROOT/'artifacts/task05/demo',port=0,closure_root=ROOT/'artifacts/task06')
+    server=make_server(ROOT/'artifacts/task05/demo',port=0,closure_root=ROOT/'artifacts/task06',review_root=ROOT/'artifacts/task06')
     thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
     with sync_playwright() as p:
         args={'headless':True,'env':{k:v for k,v in os.environ.items() if k!='MODEL_API_KEY'}}

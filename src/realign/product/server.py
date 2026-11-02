@@ -15,9 +15,11 @@ ASSETS.update({'/static/app.css':ASSETS['/app.css'],'/static/app.js':ASSETS['/ap
 CSP="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"
 
 
-def make_server(data_root,*,port=8765,media=None,closure_root=None):
+def make_server(data_root,*,port=8765,media=None,closure_root=None,review_root=None):
     root=Path(data_root).resolve(); media=dict(media or {})
     closure_root=Path(closure_root) if closure_root else Path(__file__).resolve().parents[3]/'artifacts/task06'
+    release_root=Path(__file__).resolve().parents[3]/'artifacts/release'
+    review_root=Path(review_root) if review_root else (release_root if (release_root/'manual_review/review.html').is_file() else closure_root)
     for name,p in media.items():
         if not re.fullmatch(r'[a-zA-Z0-9_-]+\.(mp4|png)',name) or not Path(p).is_file():
             raise ValueError('invalid explicitly approved media resource')
@@ -64,10 +66,10 @@ def make_server(data_root,*,port=8765,media=None,closure_root=None):
                     self._json(load_closure(closure_root));return
                 if path=='/api/release':
                     from .claim_ladder import release_view
-                    self._json(release_view());return
+                    self._json(release_view(review_root=review_root));return
                 if path=='/review':
                     from .closure import review_page
-                    data,policy=review_page(closure_root)
+                    data,policy=review_page(review_root)
                     self._headers(200,'text/html; charset=utf-8',len(data),policy=policy);self.wfile.write(data);return
                 if path.startswith('/media/'):
                     name=path.removeprefix('/media/')
