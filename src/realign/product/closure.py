@@ -32,7 +32,7 @@ def _documents(directory):
 
 
 def validate_independent_report(report):
-    from realign.validation import verify_reveal
+    from realign.audit.public_validation import verify_reveal
     if report.get('status')=='INCONCLUSIVE' and 'commitment' in report:
         if report.get('domain')!='SYNTHETIC' or report.get('full_physical_G5_passed') is not False:raise EvidenceError('invalid inconclusive exercise')
         return report

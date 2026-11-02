@@ -140,6 +140,8 @@ class Investigator:
                 # Snapshot mutable session dictionaries before recording a step.
                 # Later fits/scores must not rewrite previously hashed evidence.
                 context=json.loads(canonical(self._context()))
+                from realign.audit.exposure import assert_public_context
+                assert_public_context(context)
                 proposed_reply=self.adapter.next(json.loads(canonical(context)))
                 reply=AdapterReply.model_validate_json(canonical(proposed_reply.model_dump(mode='json')))
                 if reply.calls:

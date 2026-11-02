@@ -6,7 +6,19 @@ ROOT=Path(__file__).resolve().parents[3]
 RESOURCES={'g1':'artifacts/g1_verification.json','b01':'artifacts/poc0_baselines.json',
  'b3':'artifacts/b3_baselines.json','matched':'artifacts/task05/matched_live_comparison.json',
  'muse':'artifacts/task05/demo/live-02.json','sam':'artifacts/task05/external_yellow_disc/external_verification.json',
- 'fixed':'artifacts/task06/g5_positive_control/validation.json','randomized':'artifacts/task06/g5_demo/validation.json'}
+ 'fixed':'artifacts/task06/g5_positive_control/validation.json','randomized':'artifacts/task06/g5_demo/validation.json',
+ 'random_trace':'artifacts/task06/g5_demo/investigation.json'}
+
+def post_mortem(artifacts):
+    trace=artifacts.get('random_trace',{});report=artifacts.get('randomized',{})
+    ref=trace.get('freeze',{}).get('model_ref')
+    from realign.audit.chain import digest
+    model=next((m for m in trace.get('numerical_details',{}).get('fitted_models',[]) if digest({'kind':'MODEL','value':m})==ref),None)
+    return {'scope':'POST_MORTEM; ARCHIVED_EXPLORATION_DIAGNOSTICS_ONLY','classification':'UNDETERMINED',
+        'original_verdict':report.get('independent_verdict'),'identifiability':model['fit']['identifiability'] if model else None,
+        'profile_uncertainty_range':'NOT_RUN','credible_interval':'NOT_AVAILABLE',
+        'precise_geometry_claim_allowed':False,'new_predictions':0,'fit_calls':0,'heldout_evaluations':0,
+        'limitation':'Local full rank does not prove precise geometry or uniqueness. No consumed heldout is rescored or tuned.'}
 
 def agent_value(matched):
     accepted=[r for r in matched.get('live_attempts',[]) if r.get('accepted') and r.get('matched_initial_observations')]
@@ -78,6 +90,7 @@ def release_view(root=ROOT):
     evidence=release_evidence(root);a=evidence['artifacts']
     return {'ladder':evidence['ladder'],'issues':evidence['issues'],'agent_value':agent_value(a.get('matched',{})),
         'historical_g5':{k:a[k] for k in ('fixed','randomized') if k in a},
+        'post_mortem':post_mortem(a),
         'execution':'READ_ONLY_REPLAY','new_meta_calls':0,'billed_cost_status':'UNVERIFIED',
         'run_locally':{'replay':'python scripts/run_realign.py --port 8766 --no-browser',
             'physical':'python scripts/investigate_recordings.py configs/phone_investigation.example.json',
