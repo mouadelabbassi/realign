@@ -35,6 +35,10 @@ def make_server(data_root,*,port=8765,media=None,closure_root=None):
             self.end_headers()
 
         def _json(self,value,status=200):
+            from .claim_ladder import api_header,release_evidence,compute_ladder
+            try:ladder=release_evidence()['ladder']
+            except (OSError,ValueError,KeyError,TypeError):ladder=compute_ladder({})
+            value={**value,'evidence_header':api_header(value,urlsplit(self.path).path,ladder)}
             data=canonical(value); self._headers(status,'application/json; charset=utf-8',len(data))
             self.wfile.write(data)
 
@@ -58,6 +62,9 @@ def make_server(data_root,*,port=8765,media=None,closure_root=None):
                 if path=='/api/closure':
                     from .closure import load_closure
                     self._json(load_closure(closure_root));return
+                if path=='/api/release':
+                    from .claim_ladder import release_view
+                    self._json(release_view());return
                 if path=='/review':
                     from .closure import review_page
                     data,policy=review_page(closure_root)

@@ -20,7 +20,10 @@ def main():
     assert not subprocess.check_output(['git','status','--porcelain'],cwd=wt).strip()
     env={k:v for k,v in os.environ.items() if k not in ('MODEL_API_KEY','OPENAI_API_KEY','WSLENV')}
     env.update(PYTHONPATH=str(wt/'src'),OPENBLAS_NUM_THREADS='1',OMP_NUM_THREADS='1',MKL_NUM_THREADS='1',MPLBACKEND='Agg')
-    venv=out/('venv-'+uuid.uuid4().hex[:6]);subprocess.run([sys.executable,'-m','venv','--system-site-packages',str(venv)],check=True,env=env)
+    venv=out/('venv-'+uuid.uuid4().hex[:6]);subprocess.run([sys.executable,'-m','venv',str(venv)],check=True,env=env)
+    from importlib.metadata import version
+    constraints=out/'runtime_constraints.txt'
+    constraints.write_text(''.join(n+'=='+version(n)+'\n' for n in ('numpy','scipy','pydantic','pytest','matplotlib','opencv-python-headless','meta-sam-parser','openai','playwright')))
     py=str(venv/'bin/python');rows=[]
     def run(name,command,extra=None):
         start=time.monotonic()
@@ -32,9 +35,9 @@ def main():
     def save():
         report={'source_sha':rev,'checkout':str(wt),'initial_worktree_clean':True,'meta_api_calls':0,
                 'status':'PASS' if rows and all(r['exit_code']==0 for r in rows) else 'FAIL','commands':rows,
-                'dependency_mode':'Isolated venv reuses installed scientific dependency versions; editable source is the clean checkout.'}
+                'dependency_mode':'Isolated venv installs dependencies constrained to the verified runtime versions; editable source is the clean checkout.'}
         (out/'release_check.json').write_text(json.dumps(report,indent=2)+'\n')
-    run('install',[py,'-m','pip','install','--no-deps','-e',str(wt)+'[dev,perception,ui-test]'])
+    if not run('install',[py,'-m','pip','install','-c',str(constraints),'-e',str(wt)+'[dev,perception,ui-test]']):return 1
     run('full_tests',[py,'-m','pytest','-q','--tb=short','--junitxml='+str(out/'full_tests.xml')])
     run('g1',[py,'scripts/verify_g1.py'])
     for name,script in [('baselines','verify_baselines.py'),('g2','verify_g2.py'),('structural','verify_structural.py')]:

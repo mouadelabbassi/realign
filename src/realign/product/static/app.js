@@ -94,6 +94,13 @@
       if (!response.ok) throw new Error(`Local evidence request returned HTTP ${response.status}.`);
       const body = await response.json();
       if (!object(body)) throw new Error("The evidence response is malformed.");
+      const h=body.evidence_header;
+      if (!object(h)) throw new Error("Missing evidence_header; unlabelled payload refused.");
+      for (const key of ["source_domain","policy","run_id","stage","ladder_level"]) {
+        if (typeof h[key]!=="string" || !h[key]) throw new Error(`Missing evidence_header.${key}; unlabelled payload refused.`);
+      }
+      if (!["SYNTHETIC","REAL_EXTERNAL","REAL_PHONE","AGGREGATE"].includes(h.source_domain)) throw new Error("Invalid evidence source domain.");
+      if (body.observation_source && h.source_domain!==body.observation_source) throw new Error("Evidence header source differs from payload provenance.");
       return body;
     } catch (error) {
       if (error && error.name === "AbortError") throw new Error("The local evidence request timed out.");
@@ -131,8 +138,8 @@
   }
 
   async function loadApp() {
-    const responses = await Promise.allSettled([requestJSON("/api/catalog"), requestJSON("/api/status"), requestJSON("/api/external"), requestJSON("/api/closure")]);
-    const keys = ["catalog", "status", "external", "closure"];
+    const responses = await Promise.allSettled([requestJSON("/api/catalog"), requestJSON("/api/status"), requestJSON("/api/external"), requestJSON("/api/closure"), requestJSON("/api/release")]);
+    const keys = ["catalog", "status", "external", "closure", "release"];
     responses.forEach((result, i) => {
       const key = keys[i];
       if (result.status === "fulfilled") {
@@ -230,7 +237,22 @@
     return ["B0", "B1", "B3"].filter((key) => object(values[key]) && validXY(values[key].xy_px, trial.t_s.length) && values[key].xy_px.every((point) => point.every(finite))).map((key) => [key, values[key]]);
   }
 
+  function renderReleaseHeader() {
+    const release=state.release, host=$("release-header");
+    if(!release){host.replaceChildren(info("Release evidence summary unavailable. No higher claim is substituted.",true));return;}
+    const ladder=release.ladder;
+    const domain=state.source==="synthetic"?"SYNTHETIC":state.source==="external"?"REAL_EXTERNAL":"REAL_PHONE";
+    const policy=state.source==="synthetic" && state.run?state.run.policy:"RECORDED_EVIDENCE";
+    const stage=state.run && state.source==="synthetic"?"POST_FREEZE_REPLAY":"PUBLIC_EVIDENCE_REPLAY";
+    host.replaceChildren(node("div",{class:"release-boundary"},node("div",{class:"badges"},badge(domain,"teal"),badge(policyLabel(policy),"muted"),badge(stage,"muted"),badge("Claim ceiling "+ladder.overall_claim_ceiling,"amber")),
+      node("p",{},"Run: "+(state.source==="synthetic"?state.selected:state.source)+" · Per-domain evidence; no physical validation certification."),
+      node("p",{class:"negative-results"},list(ladder.negative_results).map(x=>x.kind+": "+x.status).join(" · ")),
+      node("p",{},"Next: "+list(ladder.next_unmet_prerequisites).join("; ")),
+      list(release.issues).map(x=>node("p",{class:"negative-results"},x))));
+  }
+
   function render() {
+    renderReleaseHeader();
     document.querySelectorAll("[data-view]").forEach((item) => {
       const active = state.source === "synthetic" && item.dataset.view === state.view;
       item.classList.toggle("active", active);
@@ -490,6 +512,13 @@
     baseline.append(node("p", { class: "policy-note" }, "All displayed bars use the same backend-reported trajectory RMS metric and evaluation scope. B2 circle reconstruction is a geometric diagnostic and is not compared on this scale."));
     const scope = panel("What this outcome establishes", null, node("div", {}, factList([["Contract outcome", text(decision.outcome)], ["Proposal accepted", decision.accepted === true ? "Yes" : "No"], ["Model reference", shortHash(decision.model_ref)], ["Scope", text(decision.scope).replaceAll("_", " ")], ["Physical causal discovery", "Not established"]]), node("p", { class: "policy-note" }, measurement ? "Measurement correction applied: no. Correction verified: no. The existing CORRECT_MEASUREMENT contract is presented as a required follow-up action." : "KEEP describes adequacy in the explored envelope. A predefined peg model selection supports its predictions, not unique mechanism identification or open-ended equation discovery.")));
     root.append(node("div", { class: "two-column section-gap" }, panel("Baseline comparison", "Recorded trajectory prediction error · lower is better.", baseline), scope));
+    root.append(panel("Structured selection among predefined typed models", "B2 uses a separate geometric metric.",
+      node("p", {}, "B2 circle fitting is executable in the synthetic baseline study. No B2 score was recorded for this selected investigation; a radial reconstruction error cannot be substituted for its trajectory RMSE.")));
+    const value=state.release && state.release.agent_value;
+    if(value) root.append(panel(value.label,"Recorded matched synthetic case · post-freeze development prediction, not exploration fitting error.",factList([
+      ["Muse error",number(value.live_rmse_px)+" px"],["Deterministic error",number(value.deterministic_rmse_px)+" px"],
+      ["Paired difference",number(value.difference_px,9)+" px"],["Logical fit jobs",integer(value.live_fit_jobs)+" / "+integer(value.deterministic_fit_jobs)],
+      ["Billed cost","UNVERIFIED"]])));
     root.append(panel("The decision is frozen", "Model identity and decision evidence remain attached to the record.", node("div", {}, hashBlock("FROZEN DECISION SHA-256", decision.freeze_sha256), hashBlock("MODEL RESOURCE", decision.model_ref), node("div", { class: "download-row" }, button("Inspect the audit and provenance →", () => setView("evidence"), "button button-primary")))));
     if (measurement) root.append(info("A completed stationary or camera reference check is evidence about quality. It is not evidence that a physical calibration correction has been completed.", true));
     return root;
@@ -530,6 +559,14 @@
           ["Freeze before evaluation", "Enforced by the independent custodian"], ["Holdout reuse", "Rejected after first evaluation"], ["Physical G5 passed", "No"]]) : null,
         info("A synthetic blind workflow exercise is not a real physical blind discovery. Local ordering is not external timestamp attestation.", true))));
     }
+    const fixed=state.release && state.release.historical_g5.fixed;
+    if(fixed) root.append(panel("Separate fixed synthetic positive control", "Historical G5 protocol and thresholds unchanged; not a physical blind discovery.",
+      node("div",{},statusBadge(fixed.independent_verdict),factList([["Trajectory RMSE",number(fixed.evaluation.trajectory_rmse_px)+" px"],
+      ["Peg-position error",number(1000*fixed.reveal.geometry_comparison.peg_position_error_m)+" mm"],
+      ["Registered peg tolerance",number(1000*fixed.commitment.protocol.peg_position_tolerance_m)+" mm"],
+      ["Challenge",fixed.commitment.challenge_id],["Content hash",shortHash(fixed.frozen_model.content_sha256)]]))));
+    if(state.release) root.append(panel("Run locally", "Viewing is read-only. Live execution requires separately authorized CLI use.",
+      node("div",{},Object.entries(state.release.run_locally).map(([k,v])=>node("p",{},node("strong",{},k+": "),node("code",{},v))))));
     if (run.policy === "LIVE_MUSE") root.append(panel("Actual Muse reasoning contribution", "The recorded model chose hypotheses, scientific tool calls and an experiment; numerical tools computed every score.",
       node("p", {class:"explain-text"}, "This authentic Muse trace runs over synthetic observations. The matched deterministic policy reaches the same predictive error. The result verifies integration without demonstrating Muse superiority.")));
     root.append(info("Integrity checks detect changes against the approved local artifact and its audit. They do not establish causal uniqueness, real-world validation, or a comparison showing Muse superiority."));
@@ -549,6 +586,7 @@
     const root = node("div", {}, node("div", { class: "run-picker-bar" }, node("div", {}, node("span", { class: "tiny-label" }, "INDEPENDENT PERCEPTION SOURCE"), node("strong", { class: "subtle" }, "Third-party blocked-pendulum recording")), node("div", { class: "run-provenance" }, badge("REAL EXTERNAL", "teal"), statusBadge(sam.status), badge("TRACKING ONLY", "amber"))));
     root.append(node("div", { class: "metric-grid" }, metric("Tracked frames", integer(validFrames), null, validTrack ? `Of ${integer(metadata.t_s.length)} original timestamps` : "No validated tracked centers available", true), metric("SAM successful calls", integer(sam.successful_calls), null, `${integer(sam.failed_calls)} failed calls reported`), metric("Manual review discrepancy", number(review.rmse_px), "px RMS", text(review.status, "Manual review pending").replaceAll("_", " "))));
     const stage = node("div", { class: "video-stage" });
+    stage.append(node("div",{class:"external-watermark"},"REAL_EXTERNAL · External footage, not our experiment · MikeRun · CC BY-SA 4.0"));
     const mediaOK = typeof data.media_url === "string" && /^\/media\/[A-Za-z0-9_.-]+$/.test(data.media_url);
     let video = null, overlay = null;
     if (finite(metadata.width) && finite(metadata.height) && metadata.width > 0 && metadata.height > 0) stage.style.aspectRatio = `${metadata.width} / ${metadata.height}`;
