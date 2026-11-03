@@ -1,5 +1,7 @@
 # REALIGN Release Definition of Done
 
+> Release audit update (2026-11-03): the original planning text below retains its initial hypotheses/statuses. Current verified results are in [RELEASE_READINESS.md](RELEASE_READINESS.md) and [the gap closure ledger](../artifacts/release/gap_closure.json). Task 06 CI 41533276918 is confirmed green in all four jobs; it is not pending. The independent review addendum governs conflicts.
+
 **Baseline:** commit `88b1e13a756c369e4131769ce734ab4dff843ea4`. **Target repo path:** `docs/RELEASE_DEFINITION_OF_DONE.md`.
 **Status values:** `PASS`, `FAIL`, `BLOCKED_INPUTS` (needs physical or human input), `UNVERIFIED` (needs the owner or organizer). Only an item with a recorded command, artifact or sign-off may be `PASS`.
 

@@ -5,13 +5,13 @@ The independent review addendum governs conflicts with the planning documents.
 
 ## Independent verdicts
 
-- SOFTWARE_RELEASE_READY: **UNVERIFIED until the final clean-checkout run finishes**.
+- SOFTWARE_RELEASE_READY: **PASS**, with the documented remote-CI exception below.
 - PHYSICAL_VALIDATION_STATUS: **BLOCKED_INPUTS**. Physical G2/G5 NOT_PASSED;
   independent external accuracy NOT_VALIDATED.
 - SUBMISSION_STATUS: **UNVERIFIED / OWNER_ACTION_REQUIRED**. No portal or
   participant sign-off, continuous narrated owner demo or media reuse permission.
 
-This is an in-progress release record. Final command results are recorded under
+This is the completed local release record. Final command results are recorded under
 `artifacts/release/`; their source SHA identifies exactly what was tested.
 
 ## Preserved baseline and checkpoints
@@ -95,3 +95,18 @@ CRLF checkouts without altering numbers; hash-bound review HTML is checkout-stab
 The owner must supply genuine labels, controlled recordings/calibration/timing,
 an independent custodian and a narrated demo, and complete the
 [submission checklist](SUBMISSION_CHECKLIST.md). Software cannot supply those.
+
+
+## Completed stable clean-checkout validation
+
+Tested source: `e9a6f0818aa061d96b6e07a366dc5c866ba9e7be`. The final delivery commit contains validation metadata only; `src/` and `scripts/` remain identical.
+
+The complete checker exited **0** with every stage PASS. Full suite: **370 passed, 15 skipped**. Linux browser: **12 passed, 1 skipped**. Native browser: **13 passed** with the approved local external video available. Native targeted tests: **156 passed, 7 skipped**. JUnit durations and exact commands are retained in `artifacts/release/validation/` and `RELEASE_STATUS.json`.
+
+The first final run passed all 370 scientific/unit/integration checks and numerical verifiers, but its browser header-rejection assertion inspected the loading shell after only five seconds. A test-only synchronization commit waits for completed bootstrap before the same exact error assertion. The clean synchronization rerun and full stable rerun pass. Original failure records are retained in `validation_attempts.json`. No scientific threshold or assertion was relaxed.
+
+G1, B0/B1/B2, offline G2 and B3 verifiers all passed; both historical G5 scores reproduced exactly without a new model fit or custodian evaluation. Fresh derivative reports are under `artifacts/release/reproduced/`; original evidence is unchanged. The original baseline runner additionally lacked a system Node executable; its supplemental bundled-Node check passed. The stable runner resolves that dependency and exits 0.
+
+Remote-CI exception: baseline CI is verified green; new release-branch CI is **UNVERIFIED**, because no push was authorized or performed. This is not described as a green CI run for the new commit. The local software gate passes with that explicit exception. Physical validation remains **BLOCKED_INPUTS**, submission remains **UNVERIFIED**, and billed spend remains **UNVERIFIED**.
+
+The verified running app is http://127.0.0.1:8767 (launch with `python scripts/run_realign.py --port 8767 --no-browser`); `/review` serves the forty-frame independent queue. Port 8766 is the configurable README example. A busy Windows port now fails visibly rather than sharing a stale listener.

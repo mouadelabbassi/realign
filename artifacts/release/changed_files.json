@@ -1,0 +1,526 @@
+{
+  "baseline_sha": "88b1e13a756c369e4131769ce734ab4dff843ea4",
+  "tested_source_sha": "e9a6f0818aa061d96b6e07a366dc5c866ba9e7be",
+  "files": [
+    {
+      "status": "A",
+      "path": ".gitattributes"
+    },
+    {
+      "status": "M",
+      "path": ".github/workflows/ci.yml"
+    },
+    {
+      "status": "M",
+      "path": "README.md"
+    },
+    {
+      "status": "D",
+      "path": "README_COPY_INSTRUCTIONS.md"
+    },
+    {
+      "status": "A",
+      "path": "THIRD_PARTY_NOTICES.md"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/BASELINE_AUDIT.md"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/RELEASE_STATUS.json"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/SCIENTIFIC_EVIDENCE_INDEX.md"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/capture/CAPTURE_NOTICE.json"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/capture/decision.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/capture/evidence.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/capture/experiment.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/capture/investigation.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/capture/page@40b2f6b8900156e59b2af9ed12e6dc2d.webm"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/capture/reality.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/changed_files.json"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/checkpoint_results.json"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/closure_manifest.json"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/evidence_manifest.json"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/evidence_summary.json"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/gap_closure.json"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/local_http.json"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/LICENSE_EXTERNAL_MEDIA.txt"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/annotations.template.json"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/frames/external_000000.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/frames/external_000005.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/frames/external_000007.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/frames/external_000017.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/frames/external_000028.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/frames/external_000033.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/frames/external_000034.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/frames/external_000046.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/frames/external_000054.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/frames/external_000059.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/frames/external_000060.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/frames/external_000062.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/frames/external_000064.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/frames/external_000067.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/frames/external_000070.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/frames/external_000074.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/frames/external_000083.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/frames/external_000095.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/frames/external_000107.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/frames/external_000119.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/frames/external_000157.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/frames/external_000173.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/frames/external_000200.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/frames/external_000207.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/frames/external_000252.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/frames/external_000279.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/frames/external_000297.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/frames/external_000330.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/frames/external_000347.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/frames/external_000369.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/frames/external_000424.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/frames/external_000438.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/frames/external_000465.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/frames/external_000494.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/frames/external_000498.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/frames/external_000526.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/frames/external_000550.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/frames/external_000586.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/frames/external_000590.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/frames/external_000598.png"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/measurement_validation.json"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/reference_manifest.json"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/manual_review/review.html"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/meta_evidence_index.md"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/reproduced/baselines/POC0_BASELINES.md"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/reproduced/baselines/poc0_baselines.json"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/reproduced/g1/g1_verification.json"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/reproduced/g2/G2_READINESS.md"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/reproduced/g2/g2_readiness.json"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/reproduced/structural/B3_BASELINES.md"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/reproduced/structural/b3_baselines.json"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/secret_scan.json"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/task06_ci.json"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/validation/browser_tests.xml"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/validation/checkpoint_e_tests.xml"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/validation/full_tests.xml"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/validation/native_browser_tests.xml"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/validation/native_tests.xml"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/validation/release_check.json"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/validation/runtime_constraints.txt"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/validation/sync_browser_tests.xml"
+    },
+    {
+      "status": "A",
+      "path": "artifacts/release/validation_attempts.json"
+    },
+    {
+      "status": "A",
+      "path": "docs/ARCHITECTURE_VFINAL.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/CODEX_TASK_VFINAL.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/G5_FAILURE_ANALYSIS.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/GAP_CLOSURE_MATRIX.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/IMPLEMENTATION_HISTORY.md"
+    },
+    {
+      "status": "M",
+      "path": "docs/META_COMPLIANCE.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/REALIGN_vFinal_Code_Review_Addendum.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/RELEASE_DEFINITION_OF_DONE.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/RELEASE_READINESS.md"
+    },
+    {
+      "status": "A",
+      "path": "docs/SUBMISSION_CHECKLIST.md"
+    },
+    {
+      "status": "A",
+      "path": "licenses/EXTERNAL_MEDIA.md"
+    },
+    {
+      "status": "M",
+      "path": "scripts/_wsl_entry.py"
+    },
+    {
+      "status": "A",
+      "path": "scripts/capture_demo.py"
+    },
+    {
+      "status": "A",
+      "path": "scripts/export_evidence.py"
+    },
+    {
+      "status": "A",
+      "path": "scripts/prepare_release.py"
+    },
+    {
+      "status": "A",
+      "path": "scripts/release_check.py"
+    },
+    {
+      "status": "M",
+      "path": "scripts/review_external.py"
+    },
+    {
+      "status": "M",
+      "path": "scripts/run_realign.py"
+    },
+    {
+      "status": "A",
+      "path": "scripts/scan_release_secrets.py"
+    },
+    {
+      "status": "M",
+      "path": "src/realign/agent/investigator.py"
+    },
+    {
+      "status": "A",
+      "path": "src/realign/audit/exposure.py"
+    },
+    {
+      "status": "A",
+      "path": "src/realign/audit/public_validation.py"
+    },
+    {
+      "status": "M",
+      "path": "src/realign/investigator_platform.py"
+    },
+    {
+      "status": "M",
+      "path": "src/realign/perception/manual_review.py"
+    },
+    {
+      "status": "M",
+      "path": "src/realign/perception/video.py"
+    },
+    {
+      "status": "A",
+      "path": "src/realign/physical/admission.py"
+    },
+    {
+      "status": "M",
+      "path": "src/realign/physical/ingestion.py"
+    },
+    {
+      "status": "M",
+      "path": "src/realign/physical/orchestration.py"
+    },
+    {
+      "status": "M",
+      "path": "src/realign/physical/session.py"
+    },
+    {
+      "status": "A",
+      "path": "src/realign/product/claim_ladder.py"
+    },
+    {
+      "status": "M",
+      "path": "src/realign/product/closure.py"
+    },
+    {
+      "status": "M",
+      "path": "src/realign/product/server.py"
+    },
+    {
+      "status": "M",
+      "path": "src/realign/product/static/app.css"
+    },
+    {
+      "status": "M",
+      "path": "src/realign/product/static/app.js"
+    },
+    {
+      "status": "M",
+      "path": "src/realign/product/static/index.html"
+    },
+    {
+      "status": "A",
+      "path": "src/realign/product/static/review_v2.js"
+    },
+    {
+      "status": "M",
+      "path": "src/realign/validation/contracts.py"
+    },
+    {
+      "status": "M",
+      "path": "src/realign/validation/vault.py"
+    },
+    {
+      "status": "M",
+      "path": "tests/test_task06_browser.py"
+    },
+    {
+      "status": "A",
+      "path": "tests/vfinal/test_admission_review.py"
+    },
+    {
+      "status": "A",
+      "path": "tests/vfinal/test_browser.py"
+    },
+    {
+      "status": "A",
+      "path": "tests/vfinal/test_evidence.py"
+    },
+    {
+      "status": "A",
+      "path": "tests/vfinal/test_package.py"
+    },
+    {
+      "status": "A",
+      "path": "tests/vfinal/test_security.py"
+    }
+  ]
+}

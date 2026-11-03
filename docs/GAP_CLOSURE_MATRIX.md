@@ -1,5 +1,7 @@
 # REALIGN Gap Closure Matrix
 
+> Release audit update (2026-11-03): the original planning text below retains its initial hypotheses/statuses. Current verified results are in [RELEASE_READINESS.md](RELEASE_READINESS.md) and [the gap closure ledger](../artifacts/release/gap_closure.json). Task 06 CI 41533276918 is confirmed green in all four jobs; it is not pending. The independent review addendum governs conflicts.
+
 **Baseline:** commit `88b1e13a756c369e4131769ce734ab4dff843ea4`. **Target repo path:** `docs/GAP_CLOSURE_MATRIX.md`.
 **Source basis:** `REALIGN_Architecture_vFinal_Execution_Contract.md` and earlier project documents. I could not read the repository itself, so module names are the directories named in the contract (`src/realign/agent/`, `src/realign/physical/`, `src/realign/validation/`, `src/realign/product/`) plus **NEW (proposed)** files. **VERIFY** means Codex must confirm against the code first.
 

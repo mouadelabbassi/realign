@@ -1,0 +1,859 @@
+{
+  "scope": "G2 READINESS; offline fixtures and actual measurements reported separately",
+  "offline_passed": true,
+  "g2_passed": false,
+  "actual_api": {
+    "status": "not_run",
+    "successful_calls": 0,
+    "failed_calls": 0,
+    "reason": "offline verifier never calls Meta; real phone recordings and local authorization pending"
+  },
+  "real_measurements": [],
+  "blockers": [
+    "actual SAM-processed exploration/development phone recordings not validated",
+    "measured calibration with at least four disjoint checkpoints pending",
+    "at least 20 manual frame checks within a 2 px design budget pending",
+    "three repeat releases and separation of release variability pending",
+    "disjoint real B0/B1/B2 comparison pending"
+  ],
+  "synthetic_fixture": {
+    "scope": "SYNTHETIC_RENDER + SIMULATED_API_FIXTURE",
+    "checks": [
+      {
+        "name": "rendered mask centers within 1 px RMS",
+        "passed": true
+      },
+      {
+        "name": "all original PTS retained in trial observations",
+        "passed": true
+      },
+      {
+        "name": "two deliberate missing masks stay invalid in each recording",
+        "passed": true
+      },
+      {
+        "name": "release offset estimated within 40 ms of rendered onset",
+        "passed": true
+      },
+      {
+        "name": "synthetic checkpoint calibration RMS below 0.001 px",
+        "passed": true
+      },
+      {
+        "name": "B1 converges using exploration recordings only",
+        "passed": true
+      },
+      {
+        "name": "unseen B1 rollout within 10 px timing/measurement design allowance",
+        "passed": true
+      },
+      {
+        "name": "no fabricated second pivot on a free pendulum",
+        "passed": true
+      }
+    ],
+    "tracking_rmse_px": 0.3894721594861471,
+    "calibration_check_rms_px": 1.6334126471761733e-06,
+    "baseline": {
+      "training_trial_ids": [
+        "fixture_0",
+        "fixture_1"
+      ],
+      "heldout_trial_ids": [
+        "fixture_2"
+      ],
+      "B0": {
+        "params": {
+          "length_m": 0.7,
+          "g": 9.80665,
+          "gamma_per_s": 0.04,
+          "quadratic_drag_per_m": 0.0,
+          "peg": null
+        },
+        "training": {
+          "rmse_xy_px": 16.169446797684888,
+          "mse_xy_px2": 261.4510097431621,
+          "rmse_metric_m": 0.03233889385238335,
+          "localization_floor_mse_px2": 0.25187908880831167,
+          "assumed_noise_floor_mse_px2": null,
+          "excess_nrmse": null,
+          "nrmse": 0.046198419198759826,
+          "valid_samples": 148,
+          "innovation_mean_square_per_coordinate": 562.0575337230381,
+          "lag1_x": 0.9895833425229152,
+          "uncertainty_model": "per-frame covariance, independent PTS quantization, common rank-one release timing",
+          "limitation": "local pivot scale normalizes NRMSE; systematic calibration errors and initial-condition uncertainty are not independent frame noise"
+        },
+        "heldout": {
+          "rmse_xy_px": 15.954945103652452,
+          "mse_xy_px2": 254.56027326056338,
+          "rmse_metric_m": 0.03190989046618249,
+          "localization_floor_mse_px2": 0.2320184168511233,
+          "assumed_noise_floor_mse_px2": null,
+          "excess_nrmse": null,
+          "nrmse": 0.04558555721877092,
+          "valid_samples": 74,
+          "innovation_mean_square_per_coordinate": 602.3653815507358,
+          "lag1_x": 0.9890509990064774,
+          "uncertainty_model": "per-frame covariance, independent PTS quantization, common rank-one release timing",
+          "limitation": "local pivot scale normalizes NRMSE; systematic calibration errors and initial-condition uncertainty are not independent frame noise"
+        }
+      },
+      "B1": {
+        "success": true,
+        "params": {
+          "length_m": 0.7201288075216038,
+          "g": 9.80665,
+          "gamma_per_s": 0.06497073181826436,
+          "quadratic_drag_per_m": 0.01568284031203375,
+          "peg": null
+        },
+        "starts": [
+          {
+            "initial": {
+              "length_m": 0.7,
+              "g": 9.80665,
+              "gamma_per_s": 0.04,
+              "quadratic_drag_per_m": 1e-09,
+              "peg": null
+            },
+            "success": true,
+            "cost": 82.34531036442458,
+            "nfev": 16,
+            "status": 2,
+            "message": "`ftol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7201287658390567,
+              "g": 9.80665,
+              "gamma_per_s": 0.06496351437687944,
+              "quadratic_drag_per_m": 0.0156887172950563,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.7474506578910146,
+              "g": 9.80665,
+              "gamma_per_s": 0.248528137422,
+              "quadratic_drag_per_m": 0.439230484542,
+              "peg": null
+            },
+            "success": true,
+            "cost": 82.34529811765486,
+            "nfev": 17,
+            "status": 2,
+            "message": "`ftol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7201288828669681,
+              "g": 9.80665,
+              "gamma_per_s": 0.06497849095014362,
+              "quadratic_drag_per_m": 0.015678006988916946,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.5078931690742823,
+              "g": 9.80665,
+              "gamma_per_s": 0.497056274844,
+              "quadratic_drag_per_m": 0.2784609690839999,
+              "peg": null
+            },
+            "success": true,
+            "cost": 82.34529128297315,
+            "nfev": 19,
+            "status": 3,
+            "message": "`xtol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7201288075216038,
+              "g": 9.80665,
+              "gamma_per_s": 0.06497073181826436,
+              "quadratic_drag_per_m": 0.01568284031203375,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.9490627084073112,
+              "g": 9.80665,
+              "gamma_per_s": 0.14558441226599997,
+              "quadratic_drag_per_m": 0.11769145362599999,
+              "peg": null
+            },
+            "success": true,
+            "cost": 82.352459490182,
+            "nfev": 22,
+            "status": 2,
+            "message": "`ftol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7201285037107488,
+              "g": 9.80665,
+              "gamma_per_s": 0.06519499317758062,
+              "quadratic_drag_per_m": 0.01549994030126903,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.6448886779807936,
+              "g": 9.80665,
+              "gamma_per_s": 0.394112549688,
+              "quadratic_drag_per_m": 0.5569219381679998,
+              "peg": null
+            },
+            "success": true,
+            "cost": 82.34529516991276,
+            "nfev": 22,
+            "status": 2,
+            "message": "`ftol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7201288218345001,
+              "g": 9.80665,
+              "gamma_per_s": 0.0649774969287246,
+              "quadratic_drag_per_m": 0.015678740714052508,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.43820224238473715,
+              "g": 9.80665,
+              "gamma_per_s": 0.04264068710999993,
+              "quadratic_drag_per_m": 0.3961524227099998,
+              "peg": null
+            },
+            "success": true,
+            "cost": 82.34556763492911,
+            "nfev": 26,
+            "status": 2,
+            "message": "`ftol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7201289997503658,
+              "g": 9.80665,
+              "gamma_per_s": 0.06501325710362718,
+              "quadratic_drag_per_m": 0.015645734543889286,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.8188363858994737,
+              "g": 9.80665,
+              "gamma_per_s": 0.29116882453199994,
+              "quadratic_drag_per_m": 0.23538290725199998,
+              "peg": null
+            },
+            "success": true,
+            "cost": 82.34553033759067,
+            "nfev": 25,
+            "status": 3,
+            "message": "`xtol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7201288350315939,
+              "g": 9.80665,
+              "gamma_per_s": 0.06501632974499615,
+              "quadratic_drag_per_m": 0.015646266490630577,
+              "peg": null
+            }
+          },
+          {
+            "initial": {
+              "length_m": 0.5563998139506023,
+              "g": 9.80665,
+              "gamma_per_s": 0.539696961954,
+              "quadratic_drag_per_m": 0.07461339179399963,
+              "peg": null
+            },
+            "success": true,
+            "cost": 82.34561991714308,
+            "nfev": 20,
+            "status": 3,
+            "message": "`xtol` termination condition is satisfied.",
+            "active_bounds": [
+              0,
+              0,
+              0
+            ],
+            "fitted_params": {
+              "length_m": 0.7201289207794489,
+              "g": 9.80665,
+              "gamma_per_s": 0.06493719518873169,
+              "quadratic_drag_per_m": 0.015714140478521762,
+              "peg": null
+            }
+          }
+        ],
+        "robust_cost": 82.34529128297315,
+        "f_scale": 14.551806880175347,
+        "jacobian_singular_values": [
+          13444.792254186134,
+          4811.431113221236,
+          423.40369635268803
+        ],
+        "warnings": [],
+        "training": {
+          "rmse_xy_px": 2.3731100784575943,
+          "mse_xy_px2": 5.63165144447701,
+          "rmse_metric_m": 0.004746220193125042,
+          "localization_floor_mse_px2": 0.25187908880831167,
+          "assumed_noise_floor_mse_px2": null,
+          "excess_nrmse": null,
+          "nrmse": 0.006780314477121316,
+          "valid_samples": 148,
+          "innovation_mean_square_per_coordinate": 0.5571377191632071,
+          "lag1_x": 0.9751657561031535,
+          "uncertainty_model": "per-frame covariance, independent PTS quantization, common rank-one release timing",
+          "limitation": "local pivot scale normalizes NRMSE; systematic calibration errors and initial-condition uncertainty are not independent frame noise"
+        },
+        "heldout": {
+          "rmse_xy_px": 2.302343475073965,
+          "mse_xy_px2": 5.300785477215661,
+          "rmse_metric_m": 0.004604686985817777,
+          "localization_floor_mse_px2": 0.2320184168511233,
+          "assumed_noise_floor_mse_px2": null,
+          "excess_nrmse": null,
+          "nrmse": 0.006578124182716354,
+          "valid_samples": 74,
+          "innovation_mean_square_per_coordinate": 0.6301420351904257,
+          "lag1_x": 0.9724044766741792,
+          "uncertainty_model": "per-frame covariance, independent PTS quantization, common rank-one release timing",
+          "limitation": "local pivot scale normalizes NRMSE; systematic calibration errors and initial-condition uncertainty are not independent frame noise"
+        }
+      },
+      "B2": {
+        "decision": "one_circle_only",
+        "reason": "no supported second pivot; unexcited mechanisms remain possible",
+        "first_circle": {
+          "center_m": [
+            0.0,
+            0.0
+          ],
+          "radius_m": 0.7201925089460354,
+          "arc_span_rad": 1.2553448781307566,
+          "radial_rmse_m": 0.0005774071358341262
+        },
+        "second_circle": null,
+        "threshold_rad": null,
+        "second_side": null,
+        "cv_one_score": 103.16901686064958,
+        "cv_two_score": 231.2230804019613,
+        "complexity_penalty": 27.81289510591275,
+        "failed_candidates": 50,
+        "training": {
+          "radial_rmse_px": 0.28870356550107923,
+          "valid_samples": 148,
+          "radial_rmse_m": 0.0005774071358341262,
+          "pixel_score_note": "local-area-scale equivalent; metric radial reconstruction is primary"
+        },
+        "heldout": {
+          "radial_rmse_px": 0.2652024970147276,
+          "valid_samples": 74,
+          "radial_rmse_m": 0.0005304049984443786,
+          "pixel_score_note": "local-area-scale equivalent; metric radial reconstruction is primary"
+        }
+      }
+    },
+    "repeatability": {
+      "status": "release_variability_reported_separately",
+      "n_trials": 3,
+      "release_angle_sd_rad": 0.10970912754922088,
+      "release_offsets_pts_s": [
+        0.3945000000000001,
+        0.3945000000000001,
+        0.3945000000000001
+      ],
+      "release_timing_sigma_s": [
+        0.023094010767585053,
+        0.023094010767585053,
+        0.023094010767585053
+      ],
+      "limitation": "repeat trajectory dispersion combines physical release variation and tracking error; no pure dynamic-noise claim"
+    },
+    "noise": {
+      "covariance_px2": [
+        [
+          0.08333333333333336,
+          1.6322884799690132e-18
+        ],
+        [
+          1.6322884799690132e-18,
+          0.08333333333333336
+        ]
+      ],
+      "bias_px": [
+        0.0,
+        0.0
+      ],
+      "ar1_phi": 0.0,
+      "reference_dt_s": 0.04000000000000002,
+      "source_ids": [
+        "fixture_stationary"
+      ],
+      "provenance": "SYNTHETIC",
+      "method": "stationary_center_covariance",
+      "limitations": [
+        "stationary motion/camera drift can inflate noise",
+        "eigenvalues floored at 1/12 px\u00b2 for digitization",
+        "nonnegative common-axis AR(1) approximation; dynamic correlation requires real checks"
+      ]
+    },
+    "fit_options": {
+      "n_starts": 8,
+      "max_nfev": 120,
+      "length_bounds_m": [
+        0.4,
+        1.1
+      ],
+      "gamma_bounds_per_s": [
+        0.0,
+        0.6
+      ],
+      "quadratic_bounds_per_m": [
+        0.0,
+        0.6
+      ],
+      "fit_quadratic_drag": true
+    },
+    "recordings": [
+      {
+        "id": "fixture_0",
+        "metadata": {
+          "video_sha256": "9cc44d3ad93d5dfe501f2f5f4c162fd70071a702d10edde435e1cc99fa042b64",
+          "source_kind": "SYNTHETIC_RENDER",
+          "width": 640,
+          "height": 480,
+          "coded_width": 640,
+          "coded_height": 480,
+          "pts": [
+            0,
+            512,
+            1024,
+            1536,
+            2048,
+            2560,
+            3072,
+            3584,
+            4096,
+            4608,
+            5120,
+            5632,
+            6144,
+            6656,
+            7168,
+            7680,
+            8192,
+            8704,
+            9216,
+            9728,
+            10240,
+            10752,
+            11264,
+            11776,
+            12288,
+            12800,
+            13312,
+            13824,
+            14336,
+            14848,
+            15360,
+            15872,
+            16384,
+            16896,
+            17408,
+            17920,
+            18432,
+            18944,
+            19456,
+            19968,
+            20480,
+            20992,
+            21504,
+            22016,
+            22528,
+            23040,
+            23552,
+            24064,
+            24576,
+            25088,
+            25600,
+            26112,
+            26624,
+            27136,
+            27648,
+            28160,
+            28672,
+            29184,
+            29696,
+            30208,
+            30720,
+            31232,
+            31744,
+            32256,
+            32768,
+            33280,
+            33792,
+            34304,
+            34816,
+            35328,
+            35840,
+            36352,
+            36864,
+            37376,
+            37888,
+            38400
+          ],
+          "time_base": "1/12800",
+          "codec": "h264",
+          "rotation_deg": 0,
+          "recording_start_utc": null,
+          "container_creation_utc": null,
+          "external_source": null
+        },
+        "release": {
+          "time_s": 0.3945000000000001,
+          "sigma_s": 0.023094010767585053,
+          "lower_s": 0.35450000000000004,
+          "upper_s": 0.4345000000000001,
+          "method": "local_quadratic_onset_profile"
+        },
+        "quality": {
+          "frames": 76,
+          "valid_frames": 74,
+          "missing_or_rejected_fraction": 0.02631578947368418,
+          "object_id": "0",
+          "unknown_confidence_frames": 76,
+          "quality": "ok",
+          "flag_counts": {
+            "MISSING": 2,
+            "EMPTY": 0,
+            "IDENTITY": 0,
+            "SHAPE": 0,
+            "AREA": 0,
+            "SPEED": 0,
+            "CONFIDENCE": 0,
+            "BOUNDARY": 0
+          }
+        },
+        "sam_receipt": {
+          "status": "completed",
+          "source": "SIMULATED_API_FIXTURE",
+          "model": "sam-3.1",
+          "prompt": "the pendulum bob",
+          "parser": "meta-sam-parser",
+          "parser_version": "0.1.0",
+          "response_id": "resp_SIMULATED_FIXTURE",
+          "mask_records": 74,
+          "diagnostic_count": 0
+        }
+      },
+      {
+        "id": "fixture_1",
+        "metadata": {
+          "video_sha256": "44089ad200f3327e6bee4b65411308dbceb9ccbe335b42386d25f9e2a4411a60",
+          "source_kind": "SYNTHETIC_RENDER",
+          "width": 640,
+          "height": 480,
+          "coded_width": 640,
+          "coded_height": 480,
+          "pts": [
+            0,
+            512,
+            1024,
+            1536,
+            2048,
+            2560,
+            3072,
+            3584,
+            4096,
+            4608,
+            5120,
+            5632,
+            6144,
+            6656,
+            7168,
+            7680,
+            8192,
+            8704,
+            9216,
+            9728,
+            10240,
+            10752,
+            11264,
+            11776,
+            12288,
+            12800,
+            13312,
+            13824,
+            14336,
+            14848,
+            15360,
+            15872,
+            16384,
+            16896,
+            17408,
+            17920,
+            18432,
+            18944,
+            19456,
+            19968,
+            20480,
+            20992,
+            21504,
+            22016,
+            22528,
+            23040,
+            23552,
+            24064,
+            24576,
+            25088,
+            25600,
+            26112,
+            26624,
+            27136,
+            27648,
+            28160,
+            28672,
+            29184,
+            29696,
+            30208,
+            30720,
+            31232,
+            31744,
+            32256,
+            32768,
+            33280,
+            33792,
+            34304,
+            34816,
+            35328,
+            35840,
+            36352,
+            36864,
+            37376,
+            37888,
+            38400
+          ],
+          "time_base": "1/12800",
+          "codec": "h264",
+          "rotation_deg": 0,
+          "recording_start_utc": null,
+          "container_creation_utc": null,
+          "external_source": null
+        },
+        "release": {
+          "time_s": 0.3945000000000001,
+          "sigma_s": 0.023094010767585053,
+          "lower_s": 0.35450000000000004,
+          "upper_s": 0.4345000000000001,
+          "method": "local_quadratic_onset_profile"
+        },
+        "quality": {
+          "frames": 76,
+          "valid_frames": 74,
+          "missing_or_rejected_fraction": 0.02631578947368418,
+          "object_id": "0",
+          "unknown_confidence_frames": 76,
+          "quality": "ok",
+          "flag_counts": {
+            "MISSING": 2,
+            "EMPTY": 0,
+            "IDENTITY": 0,
+            "SHAPE": 0,
+            "AREA": 0,
+            "SPEED": 0,
+            "CONFIDENCE": 0,
+            "BOUNDARY": 0
+          }
+        },
+        "sam_receipt": {
+          "status": "completed",
+          "source": "SIMULATED_API_FIXTURE",
+          "model": "sam-3.1",
+          "prompt": "the pendulum bob",
+          "parser": "meta-sam-parser",
+          "parser_version": "0.1.0",
+          "response_id": "resp_SIMULATED_FIXTURE",
+          "mask_records": 74,
+          "diagnostic_count": 0
+        }
+      },
+      {
+        "id": "fixture_2",
+        "metadata": {
+          "video_sha256": "8067e1d118763ba9a91ae9abb571d6ab832ae73b1caa2386dce4faf073f322fa",
+          "source_kind": "SYNTHETIC_RENDER",
+          "width": 640,
+          "height": 480,
+          "coded_width": 640,
+          "coded_height": 480,
+          "pts": [
+            0,
+            512,
+            1024,
+            1536,
+            2048,
+            2560,
+            3072,
+            3584,
+            4096,
+            4608,
+            5120,
+            5632,
+            6144,
+            6656,
+            7168,
+            7680,
+            8192,
+            8704,
+            9216,
+            9728,
+            10240,
+            10752,
+            11264,
+            11776,
+            12288,
+            12800,
+            13312,
+            13824,
+            14336,
+            14848,
+            15360,
+            15872,
+            16384,
+            16896,
+            17408,
+            17920,
+            18432,
+            18944,
+            19456,
+            19968,
+            20480,
+            20992,
+            21504,
+            22016,
+            22528,
+            23040,
+            23552,
+            24064,
+            24576,
+            25088,
+            25600,
+            26112,
+            26624,
+            27136,
+            27648,
+            28160,
+            28672,
+            29184,
+            29696,
+            30208,
+            30720,
+            31232,
+            31744,
+            32256,
+            32768,
+            33280,
+            33792,
+            34304,
+            34816,
+            35328,
+            35840,
+            36352,
+            36864,
+            37376,
+            37888,
+            38400
+          ],
+          "time_base": "1/12800",
+          "codec": "h264",
+          "rotation_deg": 0,
+          "recording_start_utc": null,
+          "container_creation_utc": null,
+          "external_source": null
+        },
+        "release": {
+          "time_s": 0.3945000000000001,
+          "sigma_s": 0.023094010767585053,
+          "lower_s": 0.35450000000000004,
+          "upper_s": 0.4345000000000001,
+          "method": "local_quadratic_onset_profile"
+        },
+        "quality": {
+          "frames": 76,
+          "valid_frames": 74,
+          "missing_or_rejected_fraction": 0.02631578947368418,
+          "object_id": "0",
+          "unknown_confidence_frames": 76,
+          "quality": "ok",
+          "flag_counts": {
+            "MISSING": 2,
+            "EMPTY": 0,
+            "IDENTITY": 0,
+            "SHAPE": 0,
+            "AREA": 0,
+            "SPEED": 0,
+            "CONFIDENCE": 0,
+            "BOUNDARY": 0
+          }
+        },
+        "sam_receipt": {
+          "status": "completed",
+          "source": "SIMULATED_API_FIXTURE",
+          "model": "sam-3.1",
+          "prompt": "the pendulum bob",
+          "parser": "meta-sam-parser",
+          "parser_version": "0.1.0",
+          "response_id": "resp_SIMULATED_FIXTURE",
+          "mask_records": 74,
+          "diagnostic_count": 0
+        }
+      }
+    ]
+  },
+  "implementation_provenance": {
+    "source_sha256": "0d8875ec85992bd544a3c5371fe00e4655c19ebfb68b110a9c85cf64149b344a",
+    "versions": {
+      "python": "3.14.4",
+      "numpy": "2.5.4",
+      "scipy": "1.18.1",
+      "opencv-python-headless": "4.14.0.94",
+      "meta-sam-parser": "0.1.0",
+      "openai": "2.54.0"
+    }
+  }
+}

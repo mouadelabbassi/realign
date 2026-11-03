@@ -1,5 +1,7 @@
 # REALIGN Architecture vFinal
 
+> Release audit update (2026-11-03): the original planning text below retains its initial hypotheses/statuses. Current verified results are in [RELEASE_READINESS.md](RELEASE_READINESS.md) and [the gap closure ledger](../artifacts/release/gap_closure.json). Task 06 CI 41533276918 is confirmed green in all four jobs; it is not pending. The independent review addendum governs conflicts.
+
 **Status:** delta-only release architecture for commit `88b1e13a756c369e4131769ce734ab4dff843ea4`. Not a certification of physical validation.
 **Target repo path:** `docs/ARCHITECTURE_VFINAL.md`
 
