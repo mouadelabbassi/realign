@@ -14,6 +14,8 @@ if __name__=='__main__':
     p.add_argument('--port',type=int,default=8765)
     p.add_argument('--data-dir',type=Path,default=ROOT/'artifacts/task05/demo')
     p.add_argument('--no-browser',action='store_true')
+    p.add_argument('--lab-dir',type=Path,default=ROOT/'data/raw/live_lab')
+    p.add_argument('--phone-output',type=Path,help='Explicit public output folder from investigate_recordings.py')
     args=p.parse_args()
     if not (args.data_dir/'catalog.json').exists():
         subprocess.run([sys.executable,str(ROOT/'scripts/prepare_demo.py'),'--output-dir',str(args.data_dir)],check=True)
@@ -23,7 +25,7 @@ if __name__=='__main__':
         from realign.product.evidence import sha256_file
         if sha256_file(video)==external.get('metadata',{}).get('video_sha256'):
             media['external.mp4']=video
-    try:server=make_server(args.data_dir,port=args.port,media=media)
+    try:server=make_server(args.data_dir,port=args.port,media=media,lab_root=args.lab_dir,phone_root=args.phone_output)
     except OSError:
         print('Cannot bind REALIGN loopback port '+str(args.port)+'. Stop the older instance or choose --port.',file=sys.stderr)
         raise SystemExit(2)

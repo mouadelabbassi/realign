@@ -35,6 +35,34 @@ The optional ignored external video is not bundled as owned footage. Without it,
 the player reports missing media while source/tracking records remain inspectable.
 No replacement video is displayed.
 
+## Local Live Physical Lab
+
+Launch capture explicitly in a second native Windows terminal (FFmpeg and
+`.[perception]` are required):
+
+```powershell
+python scripts/run_live_lab.py --port 8770
+```
+
+Open **http://127.0.0.1:8770**. Find and connect the camera, start/stop a clip,
+or use **Import Video / Analyze Pilot** with your original local MP4 path.
+No API key or paid calls are needed. The controller stores MP4 bytes, SHA-256,
+ordered software arrival timestamps, source provenance and original container
+PTS separately under ignored `data/raw/live_lab/`. Software CFR playback is
+**not independently verified physical time**. A saved or WhatsApp-compressed
+pilot remains **BLOCKED_INPUTS**, with exact missing references shown.
+
+The existing five-view product shows the library under **Real Phone**. Refresh
+local evidence after recording. To show an existing phone investigation output:
+
+```powershell
+python scripts/run_realign.py --port 8766 --phone-output data/processed/phone_investigation --no-browser
+```
+
+The product stays read-only. Actual SAM processing, numerical analysis and
+checkpoint-bound continuation use the existing Task 06 commands. See the
+[Live Lab guide and demonstration procedure](docs/TASK08_LIVE_LAB.md).
+
 ## What is demonstrated
 
 | Evidence branch | Actual result | Boundary |

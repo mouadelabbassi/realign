@@ -1,0 +1,101 @@
+{
+  "schema_version": "1.0",
+  "baseline_sha": "91613066fe16b725ff0068ba6cae753cfa7392ac",
+  "tested_source_sha": "bfe7981c7b52777490848de2bf13adfb42ba69a6",
+  "software_status": "LOCAL_TESTS_PASS",
+  "physical_evidence_status": "BLOCKED_INPUTS",
+  "new_meta_requests": 0,
+  "full_suite": {
+    "tests": "402",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "17",
+    "time": "942.119",
+    "local_file": "data/processed/task08/final_tests.xml",
+    "sha256": "26f6a40f6db7053c9e9dba88efeed4f108f579799ce6ba0969ba00337b5f2917"
+  },
+  "native_browser": {
+    "tests": "15",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "56.347",
+    "local_file": "data/processed/task08/browser.xml",
+    "sha256": "d953bbc883d0606bbde44c0769ed6cff38ee895e7a19f9722503a89a866639f9"
+  },
+  "native_targeted": {
+    "tests": "46",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "1",
+    "time": "12.941",
+    "local_file": "data/processed/task08/native_targeted.xml",
+    "sha256": "53205795c5099edc460986623923078b588856335ac1442915073b3cd5927de0"
+  },
+  "baseline_reproducibility_rerun": {
+    "tests": "1",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "383.947",
+    "local_file": "data/processed/task08/baseline_reproducibility.xml",
+    "sha256": "9fdbad43222967fe1e70550449359b446137fde96951f5e9a811634bce56c6a6"
+  },
+  "mvp_before_product_integration": {
+    "tests": "8",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "4.055",
+    "local_file": "data/processed/task08/mvp.xml",
+    "sha256": "e12b5aa7c6e9768fdf3ccf45a573ea2e179cebc079ce8889273eee72430889f4"
+  },
+  "full_suite_command": [
+    "wsl.exe",
+    "-d",
+    "Ubuntu",
+    "--cd",
+    "/mnt/c/Users/mouad/Downloads/REALIGN/data/processed/task08/final-checkout",
+    "--exec",
+    "env",
+    "PYTHONPATH=/mnt/c/Users/mouad/Downloads/REALIGN/data/processed/task08/final-checkout/src",
+    "OPENBLAS_NUM_THREADS=1",
+    "OMP_NUM_THREADS=1",
+    "MKL_NUM_THREADS=1",
+    "/home/mouad/.cache/realign-task04-venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "--tb=short",
+    "--durations=10",
+    "--junitxml=/mnt/c/Users/mouad/Downloads/REALIGN/data/processed/task08/final_tests.xml"
+  ],
+  "hardware": {
+    "camera_0_access": "PASS",
+    "backend": "DSHOW",
+    "decoded_frames": 34,
+    "dimensions_px": [
+      640,
+      480
+    ],
+    "arrival_fps": 11.106723768240775,
+    "encoded_nominal_fps": 30.0,
+    "phone_identity": "NOT_VERIFIED",
+    "pendulum_motion": "NOT_VERIFIED",
+    "physical_unplug": "NOT_HARDWARE_TESTED",
+    "physical_time": "UNVERIFIED",
+    "admission": "BLOCKED_INPUTS"
+  },
+  "pilot_inspection": "BLOCKED_OWNER_LOCAL_PATH_NOT_SUPPLIED",
+  "remote_ci": {
+    "status_at_metadata_write": "IN_PROGRESS",
+    "implementation_run_url": "https://github.com/mouadelabbassi/realign/actions/runs/41717070212"
+  },
+  "limitations": [
+    "No actual owner pilot was inspected",
+    "No admitted physical experiment or real physical model comparison",
+    "No new Meta calls authorized or made",
+    "Independent physical G5 NOT_PASSED",
+    "Driver stalls may require restarting the controller"
+  ]
+}

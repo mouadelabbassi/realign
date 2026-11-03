@@ -46,7 +46,7 @@ def main():
     run('g5_random_reproduction',[py,'scripts/verify_g5.py','reproduce','artifacts/task06/g5_demo'])
     run('g5_control_reproduction',[py,'scripts/verify_g5.py','reproduce','artifacts/task06/g5_positive_control'])
     browser=['tests/test_product_browser.py','tests/test_task06_browser.py']
-    if not args.baseline:browser+=['tests/vfinal/test_browser.py']
+    if not args.baseline:browser+=['tests/vfinal/test_browser.py','tests/test_live_lab_browser.py']
     # Reuse a local installed browser executable when Playwright's cache is absent.
     browser_env={'REALIGN_BROWSER_TESTS':'1','REALIGN_SCREENSHOT_DIR':str(out/'screenshots')}
     if os.environ.get('REALIGN_BROWSER_EXECUTABLE'):browser_env['REALIGN_BROWSER_EXECUTABLE']=os.environ['REALIGN_BROWSER_EXECUTABLE']
@@ -54,6 +54,7 @@ def main():
     import shutil,playwright
     node=shutil.which('node') or str(Path(playwright.__file__).parent/'driver/node')
     run('javascript',[node,'--check','src/realign/product/static/app.js'])
+    if not args.baseline:run('lab_javascript',[node,'--check','src/realign/product/static/live_lab.js'])
     # Tests/verifiers may write derivative evidence in this disposable checkout;
     # scientific source must remain the pinned committed content.
     changed=subprocess.check_output(['git','diff','--name-only','--','src','scripts'],cwd=wt,text=True).strip()
