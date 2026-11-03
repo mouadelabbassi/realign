@@ -47,6 +47,7 @@ def test_ui_refuses_unlabelled_payload(app):
         response=route.fetch();body=response.json();body['evidence_header'].pop('stage')
         route.fulfill(response=response,body=json.dumps(body))
     page.route('**/api/runs/*',unlabel);page.goto(url)
+    page.wait_for_selector('#content[aria-busy="false"]',timeout=30000)
     expect(page.locator('#content')).to_contain_text('Missing evidence_header.stage')
     assert page.locator('#time-scrubber').count()==0
     context.close()
