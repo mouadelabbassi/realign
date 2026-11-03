@@ -111,7 +111,8 @@ async def parse_sam_events(events, metadata, *, source):
 
 
 class SamClient:
-    def __init__(self,api,*,source='REAL_API',retry_delay=.5,concept=PROMPT):
+    def __init__(self,api,*,source='REAL_API',retry_delay=.5,concept=PROMPT,
+                 before_request=None,max_attempts=3):
         if not isinstance(concept,str) or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9 -]{0,79}',concept):
             raise SamError('one short visual noun phrase required',code='concept')
         self.api=api
@@ -119,6 +120,9 @@ class SamClient:
         self.concept=concept
         self.retry_delay=retry_delay
         self.calls=[]
+        self.before_request=before_request
+        if type(max_attempts) is not int or not 1<=max_attempts<=3: raise ValueError('retry limit')
+        self.max_attempts=max_attempts
 
     @classmethod
     def from_environment(cls,*,standard_tier_confirmed=False,concept=PROMPT):
@@ -131,7 +135,8 @@ class SamClient:
         return cls(AsyncOpenAI(api_key=key,base_url=BASE_URL,timeout=120,max_retries=0),concept=concept)
 
     async def _request(self,operation,call):
-        for attempt in range(3):
+        for attempt in range(self.max_attempts):
+            if self.before_request is not None: self.before_request('sam',operation)
             try:
                 result=await call()
                 self.calls.append({'operation':operation,'attempt':attempt+1,'status':'completed'})
@@ -142,7 +147,7 @@ class SamClient:
                                    'error_type':type(exc).__name__,'http_status':status})
                 retryable=(isinstance(exc,SamError) and exc.code=='stream_source_failed') or (
                     not isinstance(exc,SamError) and (status is None or status in (408,429) or status>=500))
-                if not retryable or attempt==2:
+                if not retryable or attempt==self.max_attempts-1:
                     raise SamError(f'SAM {operation} failed ({type(exc).__name__}); no fallback',
                                    code=operation+'_failed',calls=self.calls) from None
                 await asyncio.sleep(self.retry_delay*2**attempt)

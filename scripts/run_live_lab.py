@@ -43,7 +43,7 @@ def main():
         print('Live Lab port unavailable. Choose --port or stop the old controller.'); return 1
     url = f'http://127.0.0.1:{server.server_port}'
     print('REALIGN Live Lab:', url, flush=True)
-    print('No camera is opened until Connect. No Meta calls. Ctrl+C saves an active clip as interrupted.', flush=True)
+    print('Offline until explicit AI authorization in the workspace. No camera until Connect. Ctrl+C saves an interrupted clip.', flush=True)
     if not args.no_browser: webbrowser.open(url)
     try: server.serve_forever()
     except KeyboardInterrupt: pass

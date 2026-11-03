@@ -96,3 +96,58 @@ def test_phone_views_show_actual_local_blockers_and_keep_replay_available(lab_ui
     expect(page.locator('#time-scrubber')).to_be_visible()
     assert not errors
     context.close()
+
+
+def test_authorized_concurrent_investigation_and_stop_keeps_recording(lab_ui):
+    """TEST_FIXTURE camera + mocked Meta + official SAM parser, no remote calls."""
+    from playwright.sync_api import expect
+    from test_live_investigation import MockMeta, ScriptedAdapter
+    from realign.physical.live_investigation import LiveInvestigation
+    from realign.physical.live_science import LiveScientificSession
+    from realign.perception.sam_client import SamClient
+    browser, controller, urls, tmp = lab_ui
+    transport = MockMeta()
+    holder = {}
+    class Client(SamClient):
+        async def segment_video(self, path, metadata):
+            transport.frame_count = len(metadata.pts)
+            return await super().segment_video(path, metadata)
+    def factory(root, policy, **kwargs):
+        def client():
+            return Client(transport, source='SIMULATED_API_FIXTURE', before_request=holder['live'].ledger.reserve)
+        live = LiveInvestigation(root, policy, source='TEST_FIXTURE', sam_factory=client,
+            reasoner_factory=lambda owner: LiveScientificSession(owner, adapter_factory=ScriptedAdapter), **kwargs)
+        holder['live'] = live
+        return live
+    controller.live_factory = factory
+    context = browser.new_context(viewport={'width': 1200, 'height': 950})
+    context.route('**/*', lambda r: r.continue_() if r.request.url.startswith(urls[0] + '/') else r.abort())
+    page = context.new_page(); errors = []; page.on('pageerror', lambda e: errors.append(str(e)))
+    page.goto(urls[0])
+    page.get_by_role('button', name='Connect', exact=True).click()
+    page.get_by_role('button', name='Start recording', exact=True).click()
+    assert controller.live is None
+    page.locator('#authorization').evaluate('(e)=>e.open=true')
+    page.locator('#window-seconds').fill('1'); page.locator('#overlap-seconds').fill('0.2')
+    page.locator('#spend-cap').fill('1'); page.locator('#sam-reserve').fill('0.01'); page.locator('#muse-reserve').fill('0.02')
+    page.locator('#ai-consent').check()
+    page.locator('#ai-start').click()
+    expect(page.locator('#ai-state')).to_contain_text('TEST_FIXTURE')
+    page.wait_for_function('async()=>{const s=await(await fetch("/api/status")).json();return s.investigation?.processed_windows>=1;}', timeout=30000, polling=250)
+    expect(page.locator('#processed')).to_be_visible(timeout=15000)
+    page.locator('#ai-reason').click()
+    expect(page.locator('#pending-action')).to_be_visible(timeout=15000)
+    expect(page.locator('#action-text')).to_contain_text('STATIONARY_REFERENCE')
+    page.locator('#confirm-action').click()
+    expect(page.locator('#action-text')).to_contain_text('confirmed_utc')
+    shots = Path(os.environ.get('REALIGN_SCREENSHOT_DIR', str(tmp / 'screenshots'))); shots.mkdir(parents=True, exist_ok=True)
+    page.screenshot(path=str(shots / 'live_investigation_TEST_FIXTURE.png'), full_page=True)
+    page.locator('#ai-stop').click()
+    expect(page.locator('#ai-state')).to_contain_text('STOPPED')
+    expect(page.locator('#camera-state')).to_have_text('RECORDING')
+    count = controller.live.ledger.snapshot()['total_requests']
+    page.wait_for_timeout(500)
+    assert controller.live.ledger.snapshot()['total_requests'] == count
+    assert not errors
+    page.get_by_role('button', name='Stop and analyze', exact=True).click()
+    context.close()

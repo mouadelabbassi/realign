@@ -133,10 +133,11 @@ class ReplayAdapter(DeterministicAdapter):
 
 class MuseAdapter:
     source='LIVE_MUSE'
-    def __init__(self,client,*,budget,source='LIVE_MUSE',retry_delay=.2):
+    def __init__(self,client,*,budget,source='LIVE_MUSE',retry_delay=.2,before_request=None):
         if source not in ('LIVE_MUSE','SIMULATED_API_FIXTURE'):
             raise ValueError('explicit adapter provenance required')
         self.source=source; self.client=client; self.budget=budget; self.retry_delay=retry_delay
+        self.before_request=before_request
         self.messages=[{'role':'developer','content':
             'You are REALIGN, one bounded scientific investigator. Use only the five supplied scientific tools and opaque approved references. '
             'Do not invent numerical results, fault labels, posterior probabilities or tool replies. Hypothesize, test, request one approved '
@@ -172,6 +173,7 @@ class MuseAdapter:
         count=self.stats['actual_api_requests']+self.stats['fixture_requests']
         if count>=self.budget.max_api_requests:
             raise AdapterFailure('API request budget exhausted',code='API_BUDGET')
+        if self.before_request is not None: self.before_request('muse','reasoning')
         self.stats['actual_api_requests' if self.source=='LIVE_MUSE' else 'fixture_requests']+=1
         start=time.monotonic()
         try:

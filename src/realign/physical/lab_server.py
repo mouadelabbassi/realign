@@ -1,11 +1,11 @@
-"""Explicit loopback capture controller. No scientific tools or paid API routes."""
+"""Explicit loopback capture and separately authorized bounded AI routes."""
 from http.server import BaseHTTPRequestHandler
 import json
 from pathlib import Path
 import re
 import secrets
 import threading
-from urllib.parse import urlsplit
+from urllib.parse import urlsplit, parse_qs
 
 from realign.product.server import LoopbackServer
 
@@ -49,6 +49,14 @@ def make_lab_server(controller, *, port=8770):
                 return self.send((STATIC / name).read_bytes(), kind)
             if path == '/api/status': return self.send({**controller.snapshot(), 'control_token': token})
             if path == '/api/recordings': return self.send(controller.library.catalog())
+            if path == '/api/investigations':
+                from .live_investigation import inspect_interrupted
+                return self.send({'sessions': inspect_interrupted(controller.library.root)})
+            if path == '/processed.jpg':
+                live = controller.live
+                window = parse_qs(urlsplit(self.path).query).get('window', [None])[0]
+                jpeg = (live.processed_frames.get(window) if window else live.processed_jpeg) if live else None
+                return self.send(jpeg or b'', 'image/jpeg', status=200 if jpeg else 404)
             if path == '/preview.jpg':
                 with controller.lock: jpeg = controller.jpeg
                 return self.send(jpeg or b'', 'image/jpeg', status=200 if jpeg else 404)
@@ -77,6 +85,11 @@ def make_lab_server(controller, *, port=8770):
                 body = json.loads(self.rfile.read(length))
                 if type(body) is not dict: raise ValueError('JSON object required')
             except (ValueError, TypeError): return self.send({'error': 'INVALID_REQUEST'}, status=400)
+            # Revocation cannot wait behind media finalization or another control.
+            if urlsplit(self.path).path == '/api/ai/stop':
+                if controller.live is None: return self.send({'error': 'No AI investigation'}, status=409)
+                controller.live.stop()
+                return self.send(controller.live.snapshot())
             if not actions.acquire(blocking=False): return self.send({'error': 'CONTROLLER_BUSY'}, status=409)
             try:
                 path = urlsplit(self.path).path
@@ -98,6 +111,24 @@ def make_lab_server(controller, *, port=8770):
                             controller.latest = result
                             controller.move('REVIEW_REQUIRED')
                 elif path == '/api/stop': result = controller.stop()
+                elif path == '/api/ai/start':
+                    result = controller.authorize_live(body.get('authorization', {}), body.get('windowing'))
+                elif path == '/api/ai/stop':
+                    if controller.live is None: raise ValueError('No AI investigation')
+                    controller.live.stop(); result = controller.live.snapshot()
+                elif path in ('/api/ai/reason', '/api/ai/admit', '/api/ai/confirm-action'):
+                    live = controller.live
+                    if live is None or live.cancel.is_set(): raise ValueError('Authorize an active AI investigation first')
+                    if path == '/api/ai/confirm-action': live.confirm_action(body.get('request_id'))
+                    elif path == '/api/ai/admit':
+                        from realign.perception.workflow import _path
+                        source = body.get('manifest')
+                        if not isinstance(source, str) or not 1 <= len(source) <= 2048: raise ValueError('Local approved manifest required')
+                        source = _path(source, Path.cwd())
+                        if not source.is_file() or source.suffix != '.json': raise ValueError('Local JSON manifest required')
+                        live.enqueue_science('admit', {'manifest': str(source)})
+                    else: live.enqueue_science('operator', {})
+                    result = {'status': 'QUEUED', 'investigation': live.snapshot()}
                 else: return self.send({'error': 'NOT_FOUND'}, status=404)
                 self.send(result)
             except ValueError as exc: self.send({'error': str(exc)}, status=409)

@@ -26,9 +26,45 @@
       $("connect").disabled=connected; $("scan").disabled=connected;
       $("disconnect").disabled=!s.camera; $("import").disabled=s.state==="RECORDING";
       $("preview").hidden=!connected;
+      renderInvestigation(s.investigation, s.state);
       if(connected && !previewTimer) nextPreview();
       if(!connected && previewTimer) {clearTimeout(previewTimer);previewTimer=null;}
     } catch(e) { $("error").textContent=`Controller unavailable: ${e.message}`; }
+  }
+  let processedWindow = null, pendingRequest = null;
+  function renderInvestigation(live, captureState) {
+    const active=live && live.usage.enabled;
+    $("ai-start").disabled=!connected || Boolean(live);
+    for(const id of ["ai-stop","ai-reason","admit-evidence"]) $(id).disabled=!active;
+    if(!live) return;
+    $("ai-state").textContent=`${captureState==="RECORDING" ? "LIVE CAPTURE · " : ""}${live.state.replaceAll("_"," ")} · ${live.source}`;
+    const u=live.usage;
+    $("ai-usage").textContent=`Actual dispatched/reserved attempts: SAM ${u.attempted_requests.sam}, Muse ${u.attempted_requests.muse}; total ${u.total_requests}. Reserved USD ${u.reserved_usd} / ${u.ceiling_usd}. ${u.billing_status}`;
+    $("ai-queues").textContent=`Windows finalized ${live.finalized_windows}, processed ${live.processed_windows}; queues ${live.queued_frames} frames / ${live.queued_windows} windows. Backpressure drops: ${JSON.stringify(live.dropped)}. Unique source observations: ${live.unique_observations}.`;
+    const latest=live.latest;
+    $("ai-detection").textContent=latest ? `${latest.status} · ${latest.window_id} · service ${latest.latency_s.toFixed(2)} s · queue + service ${latest.end_to_end_latency_s.toFixed(2)} s · ${latest.identity_continuity}` : "SAM PENDING · waiting for a finalized window";
+    if(latest && latest.rows.length && latest.window_id!==processedWindow) {
+      processedWindow=latest.window_id; $("processed").hidden=false; $("processed").src="/processed.jpg?window="+encodeURIComponent(latest.window_id)+"&t="+Date.now();
+      $("processed-label").textContent=`${latest.window_id} · source frame ${latest.rows.at(-1).capture_sequence} · delayed SAM result; not live preview`;
+      const canvas=$("trajectory"),ctx=canvas.getContext("2d"),size=latest.rows[0].processed_size;
+      ctx.clearRect(0,0,640,480); ctx.strokeStyle="#24845c";ctx.lineWidth=2;ctx.beginPath();
+      latest.rows.forEach((r,i)=>{const x=r.xy_px[0]*640/size[0],y=r.xy_px[1]*480/size[1];if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y);});ctx.stroke();
+    }
+    $("science-status").textContent=JSON.stringify(live.scientific,null,2);
+    const comparison=live.scientific.trajectory_comparison;
+    if(comparison) {
+      $("simulation-status").textContent=`${comparison.trial_id} · ${comparison.scope} · measured green / nominal simulation amber`;
+      const ctx=$("trajectory").getContext("2d");ctx.clearRect(0,0,640,480);
+      for(const [key,color] of [["measured_px","#45b985"],["simulated_px","#ffb457"]]) {
+        ctx.strokeStyle=color;ctx.beginPath();comparison[key].forEach((p,i)=>{const x=p[0]*640/comparison.image_size[0],y=p[1]*480/comparison.image_size[1];if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y);});ctx.stroke();
+      }
+    }
+    $("experiment-history").textContent=JSON.stringify({experiments:live.experiment_history,audit_head:live.audit_head},null,2);
+    const pending=live.pending_action; pendingRequest=pending?.request_id;
+    $("pending-action").hidden=!pending;
+    if(pending) {$("action-text").textContent=JSON.stringify(pending,null,2);$("confirm-action").disabled=!active || Boolean(pending.confirmed_utc);$("request").value=pending.request_id;}
+    const events=$("ai-events");events.replaceChildren();
+    for(const event of live.events.slice(-20).reverse()) events.append(element("li",`${event.payload.utc} · ${event.kind} · ${JSON.stringify(event.payload).slice(0,500)}`));
   }
   function nextPreview() {
     if(!connected) {previewTimer=null;return;}
@@ -61,6 +97,13 @@
   $("start").onclick=()=>action("/api/start",metadata());
   $("stop").onclick=()=>action("/api/stop");
   $("import").onclick=()=>action("/api/import",{...metadata(),path:$("path").value});
+  $("ai-start").onclick=()=>action("/api/ai/start",{authorization:{consent:$("ai-consent").checked,standard_tier_confirmed:$("ai-consent").checked,sam_requests:Number($("sam-cap").value),muse_requests:Number($("muse-cap").value),ceiling_usd:$("spend-cap").value,sam_reserve_usd:$("sam-reserve").value,muse_reserve_usd:$("muse-reserve").value},windowing:{window_s:Number($("window-seconds").value),overlap_s:Number($("overlap-seconds").value)}});
+  // Revocation stays available while another local media action is busy.
+  $("ai-stop").onclick=()=>api("/api/ai/stop",{}).then(status).catch(e=>$("error").textContent=e.message);
+  $("processed").onerror=()=>{processedWindow=null;};
+  $("ai-reason").onclick=()=>action("/api/ai/reason");
+  $("confirm-action").onclick=()=>action("/api/ai/confirm-action",{request_id:pendingRequest});
+  $("admit-evidence").onclick=()=>action("/api/ai/admit",{manifest:$("approved-manifest").value});
   $("refresh").onclick=()=>recordings().catch(e=>$("error").textContent=e.message);
   status();recordings().catch(e=>$("error").textContent=e.message);setInterval(status,1500);
 })();

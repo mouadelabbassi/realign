@@ -115,4 +115,4 @@ def release_view(root=ROOT,*,review_root=None):
             'physical':'python scripts/investigate_recordings.py configs/phone_investigation.example.json',
             'review':'python scripts/review_external.py evaluate --annotations data/reviews/external_independent.json',
             'live_opt_in':'python scripts/verify_task05.py --run-live --standard-tier-confirmed --env-file .env',
-            'warning':'Paid model execution is CLI-only and requires separate explicit authorization. No browser endpoint starts it.'}}
+            'warning':'The evidence viewer is read-only. Paid calls require explicit authorization in the separate Live Investigation workspace or separate CLI flags.'}}

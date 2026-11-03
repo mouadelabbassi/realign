@@ -217,7 +217,7 @@ def read_catalog(root):
 
 class CaptureController:
     """One explicit camera owner. Only the latest preview JPEG is retained."""
-    def __init__(self, library, *, camera_factory=None):
+    def __init__(self, library, *, camera_factory=None, live_factory=None):
         import cv2
         self.cv = cv2
         self.library = library
@@ -237,6 +237,8 @@ class CaptureController:
         self.latest = None
         self.arrivals = []
         self.device = None
+        self.live = None
+        self.live_factory = live_factory
 
     def move(self, state):
         self.state = state
@@ -249,7 +251,20 @@ class CaptureController:
                     'error': self.error, 'latest': deepcopy(self.latest),
                     'capture': interval_summary(self.arrivals), 'preview_age_s': age,
                     'camera_stalled': self.camera is not None and age is not None and age > 3,
-                    'capture_time_scale_verified': False, 'new_meta_calls': 0}
+                    'capture_time_scale_verified': False,
+                    'new_meta_calls': self.live.ledger.snapshot()['total_requests'] if self.live else 0,
+                    'investigation': self.live.snapshot() if self.live else None}
+
+    def authorize_live(self, policy, config=None):
+        from .live_investigation import LiveInvestigation, LiveConfig
+        with self.lock:
+            if self.camera is None or self.frame is None:
+                raise ValueError('Connect and identify the camera before authorizing AI')
+            if self.live is not None:
+                raise ValueError('This controller already has an investigation; restart to authorize a new budget')
+            settings = LiveConfig(**(config or {}))
+            self.live = (self.live_factory or LiveInvestigation)(self.library.root, policy, config=settings)
+            return self.live.snapshot()
 
     def enumerate_devices(self, maximum=6):
         if not 1 <= maximum <= 16: raise ValueError('device scan limit must be 1..16')
@@ -304,9 +319,11 @@ class CaptureController:
                 if self.writer is not None:
                     if frame.shape[:2] != self.record_shape: raise ValueError('CAMERA_RESOLUTION_CHANGED')
                     self.writer.write(frame)
-                    self.arrival_file.write(json.dumps({'encoded_frame_index': len(self.arrivals),
-                        'capture_sequence': self.sequence, 'arrival_monotonic_ns': arrival}) + '\n')
+                    mapping = {'encoded_frame_index': len(self.arrivals), 'recording_id': self.recording.name,
+                        'capture_sequence': self.sequence, 'arrival_monotonic_ns': arrival}
+                    self.arrival_file.write(json.dumps(mapping) + '\n')
                     self.arrival_file.flush()
+                    if self.live is not None: self.live.offer(frame, mapping)
                     self.arrivals.append(arrival)
                     if (arrival - self.arrivals[0]) / 1e9 >= 55 or len(self.arrivals) >= int(self.fps * 55):
                         self.stop(reason='RECORDING_LIMIT_REACHED')
@@ -324,6 +341,7 @@ class CaptureController:
                 finally:
                     camera.release(); self.camera = None; self.jpeg = None
                     self.move('FAILED'); self.stop_event.set()
+                    if self.live is not None: self.live.stop('CAMERA_DISCONNECTED')
 
     def start(self, *, role='pilot', operator='', rig_id='', response_to_request_id=None):
         if role not in ROLES: raise ValueError('invalid recording role')
@@ -367,6 +385,7 @@ class CaptureController:
     def _finalize(self, *, reason):
         with self.lock:
             writer, self.writer = self.writer, None
+            if self.live is not None: self.live.boundary(reason)
             try: writer.release()
             finally: self.arrival_file.close()
             summary = interval_summary(self.arrivals)
@@ -376,13 +395,24 @@ class CaptureController:
                 arrivals_sha256=file_sha256(self.recording / 'arrivals.jsonl'))
             write_json(self.recording / 'capture.json', summary)
             self.provenance['video_sha256'] = file_sha256(self.recording / 'recording.mp4')
+            if self.live is not None:
+                self.live.record('SOURCE_RECORDING_FINALIZED', {'recording_id': self.recording.name,
+                    'video_sha256': self.provenance['video_sha256'], 'capture': summary,
+                    'response_to_request_id': self.live.active_action})
             write_json(self.recording / 'provenance.json', self.provenance)
             self.move('SAVED'); self.move('ADMISSION')
             self.latest = self.library.analyze(self.recording)
+            if self.live is not None:
+                media = self.latest.get('media', {})
+                self.live.record('SOURCE_PTS_FINALIZED', {'recording_id': self.recording.name,
+                    'video_sha256': self.provenance['video_sha256'],
+                    'original_pts': media.get('original_pts'), 'time_base': media.get('time_base'),
+                    'blockers': self.latest['blockers']})
             self.move('REVIEW_REQUIRED')
             return deepcopy(self.latest)
 
     def close(self):
+        if self.live is not None: self.live.close()
         self.stop_event.set()
         # release() can unblock read() on supported camera backends.
         camera = self.camera

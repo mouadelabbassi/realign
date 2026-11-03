@@ -59,9 +59,20 @@ local evidence after recording. To show an existing phone investigation output:
 python scripts/run_realign.py --port 8766 --phone-output data/processed/phone_investigation --no-browser
 ```
 
-The product stays read-only. Actual SAM processing, numerical analysis and
-checkpoint-bound continuation use the existing Task 06 commands. See the
-[Live Lab guide and demonstration procedure](docs/TASK08_LIVE_LAB.md).
+The evidence product stays read-only. The separate Live Investigation workspace
+can now process bounded overlapping MP4 windows while recording continues.
+Review models, upload strategy, request caps, owner-reviewed USD reserves and the
+estimated spending ceiling, then explicitly select **Start AI-assisted Live
+Investigation**. Ordinary recording never authorizes Meta calls. **Stop AI calls**
+revokes further attempts while recording continues. Actual billing may differ
+from the reserved estimates.
+
+SAM results remain preliminary pixels until independent timing, measured
+calibration, release review and the existing phone admission all pass. Muse uses
+the same bounded scientific tools and waits for human experiment responses.
+Original MP4 import and the existing Task 06 workflow remain available. See the
+[concurrent investigation guide, verification and limitations](docs/TASK09_LIVE_INVESTIGATION.md)
+and the [capture/import guide](docs/TASK08_LIVE_LAB.md).
 
 ## What is demonstrated
 
