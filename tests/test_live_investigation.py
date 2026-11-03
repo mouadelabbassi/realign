@@ -292,10 +292,12 @@ def test_known_admitted_observations_enter_existing_tools_in_same_live_session(l
     trials = [video_fixture('a' * 64), video_fixture('b' * 64)]
     trials[1] = replace(trials[1], observation=replace(trials[1].observation, xy_px=trials[1].observation.xy_px + [4., 0.]))
     config = {'nominal_params': asdict(NOMINAL)}
+    ingestions = []
     async def admitted(*args, **kwargs):
+        ingestions.append(1)
         return {'status': 'READY', 'trials': trials, 'checks': {'source': 'REAL_MEASURED'},
             'config': config, 'windows': {}, 'sam_receipts': {}, 'input_manifest_sha256': 'c' * 64,
-            'calibration_grade': 'TEST_FIXTURE', 'perception': {'stationary_reference': {'metadata': {'video_sha256': 'd' * 64}}}}
+            'calibration_grade': 'TEST_FIXTURE', 'perception': {'stationary_reference': {'metadata': {'video_sha256': ('d' if len(ingestions) == 1 else 'e') * 64}}}}
     monkeypatch.setattr(module, 'ingest_phone', admitted)
     class FixtureWorker:
         isolation = 'TEST_FIXTURE_IN_PROCESS_ONLY'; probe = {}
@@ -308,6 +310,9 @@ def test_known_admitted_observations_enter_existing_tools_in_same_live_session(l
                     'budget_ref': r.budget_ref, 'protocol_ref': r.protocol_ref, 'checks_ref': r.checks_ref}
             if value['command'] == 'candidates': self.registry.register_candidates(value['candidates']); return {}
             if value['command'] == 'audit': return {'events': self.registry.audit.events, 'head': self.registry.audit.head}
+            if value['command'] == 'admit':
+                self.registry.admit(value['records'], value['checks'])
+                return {'trial_refs': list(self.registry.trial_refs), 'checks_ref': self.registry.checks_ref}
             raise AssertionError('Unexpected fixture command')
         def call(self, name, arguments): return self.registry.dispatch(name, arguments)
         def close(self): pass
@@ -326,6 +331,24 @@ def test_known_admitted_observations_enter_existing_tools_in_same_live_session(l
     with pytest.raises(ValueError, match='approved experiment'):
         science._admit({'manifest': 'TEST_FIXTURE.json'})
     assert science.agent is original_agent
+    # Resume the SAME numerical session through the original physical admission
+    # contract, preserving its validated transition history and one-action budget.
+    from realign.contracts.investigation import CameraCheck
+    from realign.tools.client import candidate
+    selected = candidate(CameraCheck(reference_ref=science.agent.session.checks_ref)).model_dump(mode='json')
+    env = science.agent.environment
+    assert env.perform(selected) is None
+    live.pending_action = deepcopy(env.pending_action)
+    live.confirm_action(live.pending_action['request_id'])
+    config['response_to_request_id'] = live.pending_action['request_id']
+    science.agent.machine.move('TEST'); science.agent.machine.move('REQUEST_EVIDENCE')
+    science.experiments = science.agent.experiments = 1
+    science._admit({'manifest': 'TEST_FIXTURE_RESPONSE.json'})
+    assert science.agent is original_agent and science.agent.round == 2
+    assert science.agent.experiments == 1
+    assert env.admission_history == ['REQUESTED', 'AWAITING_RECORDING', 'VALIDATING', 'ADMITTED']
+    assert live.pending_action is None and live.history[-1]['state'] == 'ADMITTED'
+    assert live.scientific['physical_evidence_accepted'] is True
     science.close()
 
 

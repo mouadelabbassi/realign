@@ -1,0 +1,118 @@
+{
+  "task": "09",
+  "baseline_sha": "0f9a35b9fea3cbd1313f81c6612ddaad0f0d2564",
+  "baseline_ci": "https://github.com/mouadelabbassi/realign/actions/runs/41725197141",
+  "source_label": "TEST_FIXTURE",
+  "actual_remote_meta_requests": 0,
+  "real_hardware_tests": "NOT_RUN; no owner authorization",
+  "native_targeted": {
+    "tests": "103",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "44.512"
+  },
+  "native_final_core": {
+    "tests": "37",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "35.639"
+  },
+  "browser_suite": {
+    "tests": "16",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "128.001"
+  },
+  "latest_lab_browser": {
+    "tests": "3",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "52.892"
+  },
+  "g1": {
+    "passed": true,
+    "randomized_cases": 250,
+    "case_failures": 0,
+    "mode_transitions": 1516
+  },
+  "linux_isolation": "LINUX_LANDLOCK_SECCOMP; all actual isolation probes passed",
+  "native_wsl_bridge": "PASS; persistent stdio bridge and actual isolation probes, no hardware or Meta",
+  "fixture_timeline": {
+    "file": "artifacts/task09/TEST_FIXTURE_TIMELINE.jsonl",
+    "processed_windows": 4,
+    "reserved_mock_attempts": {
+      "sam": 8,
+      "muse": 2
+    },
+    "service_latencies_s": [
+      1.0516070000012405,
+      1.5091185999917798,
+      1.3904235000372864,
+      1.2482517000171356
+    ],
+    "queue_plus_service_latencies_s": [
+      1.0613948000245728,
+      1.8347319000167772,
+      1.8027595999883488,
+      2.1109127000090666
+    ],
+    "latency_scope": "MOCKED_LOCAL_SOFTWARE_ONLY; NOT_HOSTED_THROUGHPUT"
+  },
+  "full_regression": {
+    "native_initial": {
+      "passed": 376,
+      "skipped": 24,
+      "failures": 2,
+      "seconds": 1741.75
+    },
+    "initial_failure_cause": "Only source_sha256 differed while implementation was being edited. Numerical results identical.",
+    "resolution": "Both complete numerical reproducibility tests passed on frozen source. Final affected code passed 103 targeted tests; 37 core tests also passed under Linux.",
+    "scope": "Native baseline full run plus final targeted and numerical reruns; remote CI performs a fresh complete checkout run."
+  },
+  "limitations": [
+    "No real SAM or Muse live-service latency was measured",
+    "No independent physical timing/calibration supplied",
+    "No physical G2/G5 passed",
+    "55-second original recording limit retained",
+    "Recovery after process death is stopped inspection, not automatic numerical resume",
+    "USD reserves enforce estimated authorized spending, not verified provider billing"
+  ],
+  "status_at_metadata_write": "LOCAL_CHECKS_PASS_WITH_REPRODUCIBILITY_RERUNS; REMOTE_CI_PENDING_PUSH",
+  "linux_final_core": {
+    "tests": "37",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "51.988"
+  },
+  "frozen_numerical_reproducibility": {
+    "tests": "2",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "728.788"
+  },
+  "final_live_browser": {
+    "tests": "1",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "25.085"
+  },
+  "source_tree_sha256": "afffd3bbe46c154168dde3fb175b5660e0480609c0b8f1d649da1c6f7a5944a3",
+  "source_hash_mode": "RELATIVE_PATH_PLUS_LF_NORMALIZED_PYTHON_BYTES",
+  "staged_secret_scan": {
+    "status": "PASS",
+    "findings": 0
+  },
+  "workspace_smoke": {
+    "url": "http://127.0.0.1:8770",
+    "state": "IDLE",
+    "camera": null,
+    "new_meta_calls": 0
+  }
+}

@@ -251,7 +251,9 @@ class LiveScientificSession:
             response = {'request_id': pending['request_id'], 'verified': True,
                 'trials': data['trials'] if kind in ('RELEASE', 'REPEAT') else (), 'checks': data['checks'],
                 'new_reference_video_sha256': data['perception']['stationary_reference']['metadata']['video_sha256']}
-            received = env._admit_response(pending['candidate'], env.pending_action, response)
+            env.responses[pending['request_id']] = response
+            received = env.perform(pending['candidate'])
+            if received is None: raise ValueError('Physical response was not admitted')
             self.agent.session.admit(received['trials'], received['checks'])
             self.agent.last_receipt = received['receipt']
             self.agent.round += 1
@@ -265,7 +267,7 @@ class LiveScientificSession:
             # the supported WSL bridge; the camera remains owned by Windows.
             from .live_worker import scientific_worker
             self.worker = scientific_worker(self.worker_factory, timeout_s=self.budget.worker_timeout_s)
-            env = PhysicalEnvironment(data['trials'], data['checks'])
+            env = PhysicalEnvironment(data['trials'], data['checks'], deadline_utc=data['config'].get('experiment_deadline_utc'))
             env.seen.add(data['perception']['stationary_reference']['metadata']['video_sha256'])
             session = ScientificSession(self.worker, data['trials'], PendulumParams(**data['config']['nominal_params']),
                                         data['checks'], budget=self.budget, gate=None)
