@@ -140,6 +140,8 @@ class Investigator:
                 # Snapshot mutable session dictionaries before recording a step.
                 # Later fits/scores must not rewrite previously hashed evidence.
                 context=json.loads(canonical(self._context()))
+                from realign.audit.exposure import assert_public_context
+                assert_public_context(context)
                 proposed_reply=self.adapter.next(json.loads(canonical(context)))
                 reply=AdapterReply.model_validate_json(canonical(proposed_reply.model_dump(mode='json')))
                 if reply.calls:
@@ -210,7 +212,7 @@ class Investigator:
         except Exception as exc:
             code=exc.code if isinstance(exc,AdapterFailure) else 'CONTROLLER_INPUT_REJECTED'
             self.audit.append('EXECUTION_FAILURE',{'stage':self.machine.stage,'error_type':type(exc).__name__,'code':code})
-            failure=failure or ('BUDGET' if code in ('API_BUDGET','CONTEXT_BUDGET') else 'API_ERROR' if isinstance(exc,AdapterFailure) else 'INVALID_INPUT')
+            failure=failure or ('BUDGET' if code in ('API_BUDGET','CONTEXT_BUDGET','EXPERIMENT_BUDGET_EXPIRED') else 'API_ERROR' if isinstance(exc,AdapterFailure) else 'INVALID_INPUT')
         if self.machine.stage!='DECIDE':
             self.machine.move('DECIDE')
         outcome=proposal.outcome if proposal is not None and accepted else 'ABSTAIN'

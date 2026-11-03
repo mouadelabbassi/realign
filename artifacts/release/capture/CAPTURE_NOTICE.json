@@ -1,0 +1,13 @@
+{
+  "status": "SCRIPTED_OFFLINE_REPLAY_FALLBACK",
+  "owner_continuous_narrated_demo": "BLOCKED_INPUTS",
+  "external_pixels": false,
+  "meta_calls": 0,
+  "source_views": [
+    "reality",
+    "investigation",
+    "experiment",
+    "decision",
+    "evidence"
+  ]
+}

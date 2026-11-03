@@ -79,7 +79,7 @@ jobs:
     timeout-minutes: 15
     env:
       REALIGN_BROWSER_TESTS: "1"
-      REALIGN_SCREENSHOT_DIR: artifacts/task06/screenshots
+      REALIGN_SCREENSHOT_DIR: artifacts/release/ci_screenshots
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -91,11 +91,11 @@ jobs:
           python -m pip install -e ".[dev,perception,ui-test]"
           python -m playwright install --with-deps chromium
       - name: Verify cached product without credentials or fitting
-        run: python -m pytest -q tests/test_product_browser.py tests/test_task06_browser.py --junitxml=artifacts/task06/browser_tests.xml
+        run: python -m pytest -q tests/test_product_browser.py tests/test_task06_browser.py tests/vfinal/test_browser.py --junitxml=artifacts/release/browser_tests.xml
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: task06-product-browser
+          name: vfinal-product-browser
           path: |
-            artifacts/task06/browser_tests.xml
-            artifacts/task06/screenshots/
+            artifacts/release/browser_tests.xml
+            artifacts/release/ci_screenshots/

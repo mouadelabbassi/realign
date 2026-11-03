@@ -49,24 +49,7 @@ def _domain(trial):
     raise ValidationError("heldout lacks compatible physical/synthetic provenance")
 
 
-def _commitment(challenge_id, domain, dataset, protocol, geometry, nonce):
-    return digest({"schema_version":"1.0","challenge_id":challenge_id,"domain":domain,
-                   "heldout_dataset_sha256":dataset,"protocol":protocol,"geometry":geometry,"nonce_hex":nonce})
-
-
-def verify_reveal(commitment, reveal):
-    """Verify an already released reveal. It never reads any private vault file."""
-    try:
-        nonce=reveal["nonce_hex"]
-        if (not isinstance(nonce,str) or not re.fullmatch(r"[0-9a-f]{64,256}",nonce) or len(nonce)%2 or
-                len(bytes.fromhex(nonce))<32): return False
-        geometry=_typed(GeometryMeasurements,reveal["geometry"]).model_dump(mode="json")
-        if reveal["challenge_id"]!=commitment["challenge_id"] or reveal["domain"]!=commitment["domain"]: return False
-        expected=_commitment(commitment["challenge_id"],commitment["domain"],commitment["heldout_dataset_sha256"],
-                             commitment["protocol"],geometry,nonce)
-        return hmac.compare_digest(expected,commitment["commitment_sha256"])
-    except (KeyError,TypeError,ValueError):
-        return False
+from realign.audit.public_validation import _commitment,verify_reveal
 
 
 class ValidationVault:
@@ -98,10 +81,16 @@ class ValidationVault:
         finally: path.unlink(missing_ok=True)
 
     def _events(self):
-        if not self.ledger_path.exists(): return []
+        if not self.ledger_path.exists():
+            if (self.directory/'ledger.head.json').exists():raise ValidationError('independent ledger missing behind committed frontier')
+            return []
         try:
             events=[json.loads(line) for line in self.ledger_path.read_text(encoding="utf-8").splitlines()]
             if not AuditChain.verify(events): raise ValueError
+            head=self.directory/'ledger.head.json'
+            if head.exists():
+                expected=json.loads(head.read_text(encoding='utf-8'))
+                if expected!={'events':len(events),'hash':events[-1]['hash'] if events else '0'*64}:raise ValueError
             return events
         except (KeyError,TypeError,ValueError):
             raise ValidationError("independent validation ledger integrity failed") from None
@@ -114,6 +103,14 @@ class ValidationVault:
         descriptor=os.open(self.ledger_path,os.O_WRONLY|os.O_APPEND|os.O_CREAT,0o600)
         with os.fdopen(descriptor,"ab") as file:
             file.write(canonical(event)+b"\n"); file.flush(); os.fsync(file.fileno())
+        # New sidecar detects prefix truncation, which a valid hash chain alone
+        # cannot detect. Legacy v1 ledgers without it remain readable. A crash
+        # between writes fails closed; the trusted custodian must investigate.
+        head=self.directory/'ledger.head.json';temporary=head.with_suffix('.tmp')
+        descriptor=os.open(temporary,os.O_WRONLY|os.O_CREAT|os.O_TRUNC,0o600)
+        with os.fdopen(descriptor,'wb') as file:
+            file.write(canonical({'events':len(events)+1,'hash':event['hash']}));file.flush();os.fsync(file.fileno())
+        os.replace(temporary,head)
         return event
 
     @staticmethod

@@ -6,32 +6,7 @@ from pydantic import BaseModel, ConfigDict, Field, FiniteFloat, model_validator
 from realign.audit.chain import digest
 
 
-class Closed(BaseModel):
-    model_config = ConfigDict(extra="forbid", frozen=True, strict=True, allow_inf_nan=False)
-
-
-class GeometryMeasurements(Closed):
-    """Independent geometry, not a generator parameter dump or mode/event labels."""
-    schema_version: Literal["1.0"] = "1.0"
-    length_unit: Literal["m"] = "m"
-    coordinate_frame: Literal["pivot_relative_x_right_y_up"] = "pivot_relative_x_right_y_up"
-    string_length_m: Annotated[FiniteFloat, Field(gt=0)]
-    string_length_sigma_m: Annotated[FiniteFloat, Field(ge=0)]
-    peg_xy_m: tuple[FiniteFloat, FiniteFloat] | None = None
-    peg_sigma_m: tuple[Annotated[FiniteFloat, Field(ge=0)], Annotated[FiniteFloat, Field(ge=0)]] | None = None
-    method: Literal["SYNTHETIC_FIXTURE", "INDEPENDENT_PHYSICAL_MEASUREMENT"]
-    reference_ids: Annotated[tuple[str, ...], Field(min_length=1, max_length=16)]
-
-    @model_validator(mode="after")
-    def paired(self):
-        if (self.peg_xy_m is None) != (self.peg_sigma_m is None):
-            raise ValueError("peg coordinates and their uncertainty must be supplied together")
-        if any(not x or len(x)>120 for x in self.reference_ids):
-            raise ValueError("bounded independent reference identities required")
-        if self.method == "INDEPENDENT_PHYSICAL_MEASUREMENT" and (
-                self.string_length_sigma_m <= 0 or self.peg_sigma_m is not None and min(self.peg_sigma_m) <= 0):
-            raise ValueError("physical geometry requires positive measurement uncertainty")
-        return self
+from realign.audit.public_validation import Closed,GeometryMeasurements
 
 
 class EvaluationProtocol(Closed):

@@ -5,13 +5,14 @@ import pytest
 from realign.product.server import make_server
 
 ROOT=Path(__file__).resolve().parents[1]
+SHOTS=Path(os.environ.get('REALIGN_SCREENSHOT_DIR',str(ROOT/'artifacts/task06/screenshots')))
 pytestmark=pytest.mark.skipif(os.environ.get('REALIGN_BROWSER_TESTS')!='1',reason='Opt-in isolated browser regression')
 
 
 @pytest.fixture(scope='module')
 def browser_app():
     from playwright.sync_api import sync_playwright
-    server=make_server(ROOT/'artifacts/task05/demo',port=0,closure_root=ROOT/'artifacts/task06')
+    server=make_server(ROOT/'artifacts/task05/demo',port=0,closure_root=ROOT/'artifacts/task06',review_root=ROOT/'artifacts/task06')
     thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
     with sync_playwright() as p:
         args={'headless':True,'env':{k:v for k,v in os.environ.items() if k!='MODEL_API_KEY'}}
@@ -42,7 +43,7 @@ def test_annotation_page_is_clean_interactive_and_exports_only_supplied_centers(
     expect(review.locator('#frame-description')).to_contain_text('frame 157')
     review.wait_for_function('()=>document.querySelector("canvas").width===1280')
     expect(review.locator('#coordinate')).to_have_text('No center placed.')
-    shots=ROOT/'artifacts/task06/screenshots';shots.mkdir(parents=True,exist_ok=True)
+    shots=SHOTS;shots.mkdir(parents=True,exist_ok=True)
     review.screenshot(path=str(shots/'clean_annotation_interface.png'),full_page=True)
     # UI protocol exercise only: the arbitrary click is explicitly cleared and
     # no fabricated reference center is saved or passed to an accuracy scorer.
@@ -81,7 +82,7 @@ def test_phone_blockers_and_synthetic_independent_evidence_are_explicit(browser_
     page.locator('#run-select').select_option('live-02')
     expect(page.locator('#content')).to_contain_text('Actual Muse reasoning contribution')
     expect(page.locator('#content')).to_contain_text('same predictive error')
-    shots=ROOT/'artifacts/task06/screenshots';shots.mkdir(parents=True,exist_ok=True)
+    shots=SHOTS;shots.mkdir(parents=True,exist_ok=True)
     page.screenshot(path=str(shots/'independent_evidence.png'),full_page=True)
     assert not errors
     c.close()

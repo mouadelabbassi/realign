@@ -118,3 +118,23 @@ eligibility or resolve participant-specific obligations. Next owner inputs are
 the accepted rules/amendments, participant/track confirmation, final portal
 checklist and third-party media submission permission. Engineering work can
 continue while these remain unresolved.
+
+## vFinal release update
+
+Baseline CI run [41533276918](https://github.com/mouadelabbassi/realign/actions/runs/41533276918)
+at `88b1e13` is **PASS in all four jobs**, confirmed through GitHub. It is not
+pending. New release-branch tests identify their own revisions separately.
+
+vFinal makes **zero new Meta calls**. Request/token accounting from the authentic
+Task 05 receipts is indexed in `artifacts/release/meta_evidence_index.md`; billed
+spend remains **UNVERIFIED**. No hosted-model usage is relabelled open weights.
+Original external media and derived frames retain CC BY-SA 4.0 outside the MIT
+scope, documented in `THIRD_PARTY_NOTICES.md` and `licenses/EXTERNAL_MEDIA.md`.
+The scripted Cut A is a labelled offline fallback with no external pixels, not
+the owner's continuous narrated submission demo.
+
+Software evidence does not complete participant acceptance, track/roster,
+organizer reuse permission, final video or portal upload. Those requirements
+remain **UNVERIFIED** or **BLOCKED_INPUTS** in
+[SUBMISSION_CHECKLIST.md](SUBMISSION_CHECKLIST.md). No permission or successful
+submission has been invented.

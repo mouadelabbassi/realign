@@ -1,0 +1,27 @@
+{
+  "run_id": 41533276918,
+  "source_sha": "88b1e13a756c369e4131769ce734ab4dff843ea4",
+  "url": "https://github.com/mouadelabbassi/realign/actions/runs/41533276918",
+  "jobs": [
+    {
+      "name": "offline-verification (3.12)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "offline-verification (3.11)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "investigator-evidence",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "product-browser",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ]
+}

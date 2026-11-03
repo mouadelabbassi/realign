@@ -66,12 +66,13 @@ async def investigate_phone(manifest,output,*,run_api=False,live=False,standard_
             'limitations':['No synthetic observations substitute for controlled recordings.',
                 'Synthetic null calibration cannot authorize real structural repair.',
                 'A supplied recording receipt is not proof of a physical actuator or an independently timestamped intervention.']}
-    original=None;adapter=None;own=worker is None
+    original=None;adapter=None;env=None;own=worker is None
     def save():
         muse=adapter.stats['actual_api_requests'] if adapter is not None else 0
         status['actual_api_requests']=muse+sum(p.get('successful_calls',0)+p.get('failed_calls',0)
                                               for p in status['sam_api'].values())
         status['api_accounting_scope']='CURRENT_SAM_OPERATIONS_PLUS_CUMULATIVE_MUSE_ATTEMPTS; cached SAM calls excluded'
+        if env is not None:status['physical_admission_history']=list(env.admission_history)
         write_json(out/'phone_status.json',status);return status
     try:
         if resume:
@@ -83,7 +84,7 @@ async def investigate_phone(manifest,output,*,run_api=False,live=False,standard_
         ingested=await ingest_phone(manifest,out/'initial',run_api=run_api,cache_dir=out/'sam_cache')
         if 'perception' in ingested:status['sam_api']['initial']=ingested['perception']['actual_api']
         if ingested['status']!='READY':status['blockers']=ingested['blockers'];return save()
-        config=ingested['config'];nominal=PendulumParams(**config['nominal_params'])
+        config=ingested['config'];nominal=PendulumParams(**config['nominal_params']);status['calibration_grade']=ingested['calibration_grade']
         if nominal.peg is not None:raise ValueError('public nominal model must be free')
         responses={};response_data=None
         if original:
@@ -100,7 +101,7 @@ async def investigate_phone(manifest,output,*,run_api=False,live=False,standard_
                 'trials':response_data['trials'] if kind in ('RELEASE','REPEAT') else (),
                 'checks':response_data['checks'],
                 'new_reference_video_sha256':response_data['perception']['stationary_reference']['metadata']['video_sha256']}
-        env=PhysicalEnvironment(ingested['trials'],ingested['checks'],responses=responses)
+        env=PhysicalEnvironment(ingested['trials'],ingested['checks'],responses=responses,deadline_utc=config.get('experiment_deadline_utc'))
         env.seen.add(ingested['perception']['stationary_reference']['metadata']['video_sha256'])
         budget=Budget()
         adapter=MuseAdapter.from_environment(budget=budget,standard_tier_confirmed=standard_tier_confirmed) if live else DeterministicAdapter()
