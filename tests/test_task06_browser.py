@@ -73,6 +73,9 @@ def test_phone_blockers_and_synthetic_independent_evidence_are_explicit(browser_
     expect(page.locator('#content')).to_contain_text('BLOCKED INPUTS')
     expect(page.locator('#content')).to_contain_text('MEASURED_CALIBRATION_NOT_SUPPLIED')
     expect(page.locator('#content')).to_contain_text('No physical experiment has been requested')
+    # Task 08 keeps the phone source across its five views. Select the separate
+    # synthetic replay explicitly before asserting its historical G5 evidence.
+    page.locator('[data-source="synthetic"]').click()
     page.locator('[data-view="evidence"]').click()
     expect(page.locator('#content')).to_contain_text('Separate precommitted dataset and model')
     independent=json.loads((ROOT/'artifacts/task06/g5_demo/validation.json').read_text())

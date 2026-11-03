@@ -24,8 +24,9 @@ class LoopbackServer(ThreadingHTTPServer):
         super().server_bind()
 
 
-def make_server(data_root,*,port=8765,media=None,closure_root=None,review_root=None):
+def make_server(data_root,*,port=8765,media=None,closure_root=None,review_root=None,lab_root=None,phone_root=None):
     root=Path(data_root).resolve(); media=dict(media or {})
+    lab_root=Path(lab_root) if lab_root else Path(__file__).resolve().parents[3]/'data/raw/live_lab'
     closure_root=Path(closure_root) if closure_root else Path(__file__).resolve().parents[3]/'artifacts/task06'
     release_root=Path(__file__).resolve().parents[3]/'artifacts/release'
     review_root=Path(review_root) if review_root else (release_root if (release_root/'manual_review/review.html').is_file() else closure_root)
@@ -73,6 +74,9 @@ def make_server(data_root,*,port=8765,media=None,closure_root=None,review_root=N
                 if path=='/api/closure':
                     from .closure import load_closure
                     self._json(load_closure(closure_root));return
+                if path=='/api/lab':
+                    from .lab import load_lab
+                    self._json(load_lab(lab_root,phone_root));return
                 if path=='/api/release':
                     from .claim_ladder import release_view
                     self._json(release_view(review_root=review_root));return

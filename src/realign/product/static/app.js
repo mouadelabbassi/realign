@@ -141,8 +141,8 @@
   }
 
   async function loadApp() {
-    const responses = await Promise.allSettled([requestJSON("/api/catalog"), requestJSON("/api/status"), requestJSON("/api/external"), requestJSON("/api/closure"), requestJSON("/api/release")]);
-    const keys = ["catalog", "status", "external", "closure", "release"];
+    const responses = await Promise.allSettled([requestJSON("/api/catalog"), requestJSON("/api/status"), requestJSON("/api/external"), requestJSON("/api/closure"), requestJSON("/api/release"), requestJSON("/api/lab")]);
+    const keys = ["catalog", "status", "external", "closure", "release", "lab"];
     responses.forEach((result, i) => {
       const key = keys[i];
       if (result.status === "fulfilled") {
@@ -207,7 +207,7 @@
   }
   function setView(view) {
     state.view = view;
-    state.source = "synthetic";
+    if (state.source === "external") state.source = "synthetic";
     state.playing = false;
     render();
   }
@@ -638,7 +638,37 @@
   function renderPhone() {
     const phone = state.status && state.status.phone || state.catalog && state.catalog.phone || {};
     const root = node("div", {}, node("section", { class: "decision-hero" }, badge("REAL PHONE", "teal"), node("h2", {}, "The next evidence comes from the rig."), node("p", {}, "Controlled physical recordings, independent calibration and reviewed tracking are required before this source can support a real-world investigation."), node("div", { class: "badges" }, statusBadge(phone.status), badge("PHYSICAL VALIDATION PENDING", "amber"))));
-    const physical = state.closure && state.closure.phone;
+    const lab = state.lab;
+    const physical = lab && lab.investigation || state.closure && state.closure.phone;
+    root.append(panel("Live Physical Lab", "Capture runs in a separate controller launched explicitly from your terminal.", node("div", {},
+      node("pre", {}, "python scripts/run_live_lab.py --port 8770"),
+      node("a", {href:"http://127.0.0.1:8770",target:"_blank",rel:"noopener",class:"button"}, "Open local capture controller"),
+      button("Refresh local evidence", async () => {try {state.lab=await requestJSON("/api/lab");delete state.failures.lab;}catch(e){state.failures.lab=e.message;}render();}),
+      info("Camera preview, recording and pilot analysis require no API key. Complete MP4 → authorized SAM → reviewed observations → existing numerical analysis → optional Muse. Software timestamps are not independently verified physical time."),
+      state.failures.lab ? info(state.failures.lab,true) : null,
+      factList([["Last recorded lab stage", lab ? text(lab.state) : "Unavailable"], ["Saved physical recordings", lab ? integer(list(lab.recordings).length) : "Unavailable"], ["Capture control here", "Read-only; use the separate local controller"]]))));
+    if (lab && list(lab.progress).length && state.view === "investigation") {
+      root.append(panel("Operator-assisted progress", "Recorded CLI stages; a stage label does not establish physical admission or a currently running process.",
+        node("ol", {}, lab.progress.map(e=>node("li", {}, `${text(e.state)} · ${text(e.utc)}`)))));
+    }
+    if (lab && ["reality","experiment","evidence"].includes(state.view)) {
+      root.append(panel("Saved recordings / admission", "Media preflight and calibrated scientific evidence are separate gates.",
+        list(lab.recordings).length ? node("div", {}, lab.recordings.map(r=>panel(text(r.id), null, node("div", {},
+          statusBadge(r.status), r.media ? factList([["Dimensions", `${r.media.width || "?"} × ${r.media.height || "?"}`],
+            ["Decoded frames", integer(r.media.decoded_frames)], ["Presentation timestamps", r.media.variable_frame_rate ? "Original PTS · variable spacing" : "Original PTS"],
+            ["SAM tracking", text(r.sam && r.sam.status)], ["Calibration", text(r.calibration_grade)], ["Physical time", "UNVERIFIED"],
+            ["Capture arrival FPS", number(r.capture && r.capture.effective_fps,2)], ["Independent validation", text(r.independent_validation && r.independent_validation.status)]]) : null,
+          hashBlock("SOURCE MP4 SHA-256",r.video_sha256), node("ul", {class:"limitations"},list(r.blockers).map(x=>node("li",{},text(x)))))))) :
+          node("p", {}, "No local recordings yet. Import the owner's original MP4 or connect the camera in the separate controller.")));
+    }
+    if (lab && state.view === "decision") {
+      root.append(panel("Real recording model comparison", "B0–B3 use the existing exploration-only pipeline after real admission.",
+        physical && physical.baselines ? node("pre",{},JSON.stringify(physical.baselines,null,2)) : info("NOT_RUN: measured calibration, independent timing, reviewed real SAM observations and release timing are required. No synthetic observations substitute for these inputs.",true)));
+    }
+    if (lab && state.view === "evidence") {
+      root.append(panel("Independent physical evaluation", "Separate from tracking, fitting and the historical synthetic G5 exercise.",
+        node("div",{},statusBadge(lab.independent_validation && lab.independent_validation.status),info("A frozen accepted model, independent precommitted challenge and fresh sealed recordings are required. Existing synthetic G5 results remain separately accessible."))));
+    }
     if (physical) {
       root.append(panel("Controlled investigation status", "A physical request is completed only by a matching, validated recording response.", node("div", {},
         statusBadge(physical.status), node("ul", {class:"limitations"}, list(physical.blockers).map(x=>node("li", {}, text(x)))),

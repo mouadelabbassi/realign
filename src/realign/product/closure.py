@@ -67,20 +67,24 @@ def load_closure(directory):
             'first_pts_s':min(f['pts_s'] for f in frames),'frames':len(frames)}
     if 'g5' in docs:result['independent']=validate_independent_report(docs['g5'])
     if 'phone' in docs:
-        phone=docs['phone']
-        if phone.get('observation_source')!='REAL_PHONE' or phone.get('full_G2_passed') is not False:
-            raise EvidenceError('controlled phone evidence boundary failed')
-        if phone['status']=='PENDING_PHYSICAL_ACTION':
-            from realign.physical.session import validate_checkpoint
-            cp=validate_checkpoint(docs['checkpoint'])
-            if cp['pending_action']!=phone['pending_action'] or cp['checkpoint_sha256']!=phone['checkpoint_sha256']:raise EvidenceError('pending action differs from checkpoint')
-        if phone['status']=='FROZEN':
-            from realign.report.investigator_run import verify_replay
-            trace=docs['phone_trace']
-            if not verify_replay(trace) or trace['freeze']!=phone['decision'] or digest(trace)!=phone['trace_sha256']:
-                raise EvidenceError('physical freeze/audit integrity failed')
-        result['phone']=phone
+        result['phone']=validate_phone(docs['phone'],checkpoint=docs.get('checkpoint'),trace=docs.get('phone_trace'))
     return result
+
+
+def validate_phone(phone, *, checkpoint=None, trace=None):
+    """Same Task 06 admission for closure bundles and explicit local outputs."""
+    if phone.get('observation_source')!='REAL_PHONE' or phone.get('full_G2_passed') is not False:
+        raise EvidenceError('controlled phone evidence boundary failed')
+    if phone['status']=='PENDING_PHYSICAL_ACTION':
+        from realign.physical.session import validate_checkpoint
+        cp=validate_checkpoint(checkpoint)
+        if cp['pending_action']!=phone['pending_action'] or cp['checkpoint_sha256']!=phone['checkpoint_sha256']:
+            raise EvidenceError('pending action differs from checkpoint')
+    if phone['status']=='FROZEN':
+        from realign.report.investigator_run import verify_replay
+        if not trace or not verify_replay(trace) or trace['freeze']!=phone['decision'] or digest(trace)!=phone['trace_sha256']:
+            raise EvidenceError('physical freeze/audit integrity failed')
+    return phone
 
 
 def review_page(directory):

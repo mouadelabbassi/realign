@@ -60,6 +60,14 @@ def baseline_summary(trace,trial_refs,nominal_ref,geometry):
 async def investigate_phone(manifest,output,*,run_api=False,live=False,standard_tier_confirmed=False,
                             resume=None,response_manifest=None,vault_directory=None,challenge_id=None,worker=None):
     out=Path(output);out.mkdir(parents=True,exist_ok=True)
+    from .lab_progress import record_progress
+    def progress(state):record_progress(out/'lab_progress.json',state)
+    def archive(name,value):
+        directory=out/'history';directory.mkdir(exist_ok=True)
+        path=directory/(name+'-'+digest(value)+'.json')
+        if path.exists():
+            if read_json(path)!=value:raise ValueError('archived investigation record changed')
+        else:write_json(path,value)
     status={'schema_version':'1.0','observation_source':'REAL_PHONE','status':'BLOCKED_INPUTS',
             'blockers':[],'pending_action':None,'model_frozen':False,'full_G2_passed':False,
             'full_physical_G5_passed':False,'actual_api_requests':0,'sam_api':{},
@@ -73,10 +81,16 @@ async def investigate_phone(manifest,output,*,run_api=False,live=False,standard_
                                               for p in status['sam_api'].values())
         status['api_accounting_scope']='CURRENT_SAM_OPERATIONS_PLUS_CUMULATIVE_MUSE_ATTEMPTS; cached SAM calls excluded'
         if env is not None:status['physical_admission_history']=list(env.admission_history)
-        write_json(out/'phone_status.json',status);return status
+        archive('status',status)
+        write_json(out/'phone_status.json',status)
+        progress('ABSTAIN' if status.get('decision',{}).get('outcome')=='ABSTAIN' else
+                 'REVIEW_REQUIRED' if status['status']=='BLOCKED_INPUTS' else status['status'])
+        return status
     try:
+        progress('ADMISSION')
         if resume:
             original=validate_checkpoint(read_json(resume))
+            archive('checkpoint',original)
             if response_manifest is None:
                 status.update(status='PENDING_PHYSICAL_ACTION',pending_action=original['pending_action'],
                               blockers=['REQUESTED_RECORDINGS_NOT_SUPPLIED'],checkpoint_sha256=original['checkpoint_sha256'])
@@ -84,6 +98,7 @@ async def investigate_phone(manifest,output,*,run_api=False,live=False,standard_
         ingested=await ingest_phone(manifest,out/'initial',run_api=run_api,cache_dir=out/'sam_cache')
         if 'perception' in ingested:status['sam_api']['initial']=ingested['perception']['actual_api']
         if ingested['status']!='READY':status['blockers']=ingested['blockers'];return save()
+        progress('ANALYSIS_READY')
         config=ingested['config'];nominal=PendulumParams(**config['nominal_params']);status['calibration_grade']=ingested['calibration_grade']
         if nominal.peg is not None:raise ValueError('public nominal model must be free')
         responses={};response_data=None
@@ -117,7 +132,9 @@ async def investigate_phone(manifest,output,*,run_api=False,live=False,standard_
         if worker is None:worker=WorkerClient(timeout_s=budget.worker_timeout_s)
         if vault:status['holdout_isolation']=vault.prove_agent_file_isolation(challenge_id,worker)
         session=ScientificSession(worker,env.initial,nominal,env.checks,budget=budget,gate=None)
+        progress('INVESTIGATING')
         trace=Investigator(session,adapter,env,independent_start=start,validator=PhysicalValidator()).run()
+        if 'ADMITTED' in env.admission_history:progress('RESPONSE_RECORDED')
         trace['observation_source']='REAL_PHONE'
         trace['input_manifest_sha256']=ingested['input_manifest_sha256']
         trace['observation_windows']=ingested['windows']
@@ -127,11 +144,12 @@ async def investigate_phone(manifest,output,*,run_api=False,live=False,standard_
             trace['resume_mode']='RECORDED_ACTION_REEXECUTION_THEN_NEW_MODEL_CONVERSATION' if live else 'RECORDED_ACTION_REEXECUTION_THEN_POLICY_CONTINUATION'
         if trace.get('status')=='PENDING_PHYSICAL_ACTION':
             trace.pop('checkpoint_sha256');trace['checkpoint_sha256']=digest(trace)
+            archive('checkpoint',trace)
             write_json(out/'checkpoint.json',trace)
             status.update(status=trace['status'],pending_action=trace['pending_action'],
                           checkpoint_sha256=trace['checkpoint_sha256'],blockers=['REQUESTED_RECORDINGS_NOT_SUPPLIED'])
         else:
-            trace['status']='COMPLETED';write_json(out/'investigation.json',trace)
+            trace['status']='COMPLETED';archive('investigation',trace);write_json(out/'investigation.json',trace)
             status.update(status='FROZEN',model_frozen=True,decision=trace['freeze'],
                           trace_sha256=digest(trace),policy=trace['source'])
             selected=model_resource(trace,nominal)
