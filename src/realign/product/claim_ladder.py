@@ -1,6 +1,7 @@
 """Per-domain evidence claims from pinned public artifacts; no scientific work."""
 from pathlib import Path
 from .evidence import EvidenceError,read_json,sha256_file
+import hashlib
 
 ROOT=Path(__file__).resolve().parents[3]
 RESOURCES={'g1':'artifacts/g1_verification.json','b01':'artifacts/poc0_baselines.json',
@@ -8,6 +9,14 @@ RESOURCES={'g1':'artifacts/g1_verification.json','b01':'artifacts/poc0_baselines
  'muse':'artifacts/task05/demo/live-02.json','sam':'artifacts/task05/external_yellow_disc/external_verification.json',
  'fixed':'artifacts/task06/g5_positive_control/validation.json','randomized':'artifacts/task06/g5_demo/validation.json',
  'random_trace':'artifacts/task06/g5_demo/investigation.json'}
+
+def evidence_sha(path):
+    """Canonical LF transport for JSON reports; values/whitespace otherwise exact.
+
+    Historical JSON bytes in Git are preserved. Windows autocrlf in an existing
+    checkout must not remove an otherwise authentic capability branch.
+    """
+    return hashlib.sha256(Path(path).read_bytes().replace(b'\r\n',b'\n')).hexdigest()
 
 def post_mortem(artifacts):
     trace=artifacts.get('random_trace',{});report=artifacts.get('randomized',{})
@@ -66,7 +75,8 @@ def release_evidence(root=ROOT):
     for key,entry in manifest['entries'].items():
         if key not in RESOURCES or entry['file']!=RESOURCES[key]:raise EvidenceError('unapproved release evidence resource')
         p=root/entry['file']
-        if not p.is_file() or sha256_file(p)!=entry['sha256']:
+        actual=(evidence_sha(p) if entry.get('hash_mode')=='LF_TRANSPORT' else sha256_file(p)) if p.is_file() else None
+        if actual!=entry['sha256']:
             issues.append('Missing or changed: '+entry['file']);continue
         value=read_json(p)
         if key in ('fixed','randomized'):

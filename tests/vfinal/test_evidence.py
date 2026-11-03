@@ -8,6 +8,12 @@ from realign.product.server import make_server
 
 ROOT=Path(__file__).resolve().parents[2]
 
+def test_duplicate_loopback_listener_is_refused():
+    first=make_server(ROOT/'artifacts/task05/demo',port=0)
+    try:
+        with pytest.raises(OSError):make_server(ROOT/'artifacts/task05/demo',port=first.server_port)
+    finally:first.server_close()
+
 def test_ladder_golden_current_state():
     evidence=release_evidence(ROOT);ladder=evidence['ladder']
     assert not evidence['issues']

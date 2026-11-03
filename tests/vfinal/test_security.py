@@ -13,7 +13,7 @@ def test_legitimate_peg_hypotheses_survive_precise_guard():
     assert_public_context({'candidate':'PEG_ONE_SIDE','params':{'peg':{'distance_m':.16}},'registered_threshold':1.,'fault':'candidate'})
 
 @pytest.mark.parametrize('payload',[{'nonce_hex':'private'},{'nested':[{'groundTruth':{}}]},
-    {'heldout_observations':[]},{'path':'data/vault/private.json'},{'hidden_geometry':{}}])
+    {'heldout_observations':[]},{'path':'data/vault/private.json'},{'hidden_geometry':{}},{'NONCE_HEX':'private'},{'ground-truth':{}}])
 def test_private_fields_and_paths_never_enter_model_context(payload):
     with pytest.raises(ValueError):assert_public_context(payload)
 
@@ -30,6 +30,8 @@ def test_v1_historical_records_and_commitment_encoding_remain_authentic():
         relative='artifacts/task06/'+folder+'/validation.json';path=ROOT/relative
         assert path.read_bytes()==subprocess.check_output(['git','show','88b1e13:'+relative],cwd=ROOT)
         report=json.loads(path.read_bytes());assert verify_reveal(report['commitment'],report['reveal'])
+        typed=dict(report['reveal'],geometry=GeometryMeasurements.model_validate_json(canonical(report['reveal']['geometry'])))
+        assert verify_reveal(report['commitment'],typed)
         c=report['commitment'];r=report['reveal']
         assert _commitment(c['challenge_id'],c['domain'],c['heldout_dataset_sha256'],c['protocol'],r['geometry'],r['nonce_hex'])==c['commitment_sha256']
         bad=dict(r,challenge_id='another');assert not verify_reveal(c,bad)
@@ -54,11 +56,13 @@ def new_vault(tmp_path):
     vault.prepare_challenge('challenge',trials,GeometryMeasurements(string_length_m=.72,string_length_sigma_m=0.,method='SYNTHETIC_FIXTURE',reference_ids=('SYNTHETIC_UNIT',)))
     vault.start_investigation('challenge');return vault
 
-@pytest.mark.parametrize('kind',['truncate','reorder','protocol','reuse_id','before_commitment'])
+@pytest.mark.parametrize('kind',['truncate','delete','reorder','protocol','reuse_id','before_commitment'])
 def test_missing_adversarial_cases_fail_closed(new_vault,kind):
     v=new_vault
     with pytest.raises(ValidationError):
-        if kind in ('truncate','reorder'):
+        if kind=='delete':
+            v.ledger_path.unlink();v.start_investigation('challenge')
+        elif kind in ('truncate','reorder'):
             lines=v.ledger_path.read_bytes().splitlines(keepends=True)
             v.ledger_path.write_bytes(b''.join(lines[:-1] if kind=='truncate' else list(reversed(lines))))
             v.start_investigation('challenge')

@@ -23,6 +23,7 @@ def file_sha256(path):
 
 
 def metadata_from_ffprobe(data, *, video_sha256, source_kind,recording_start_utc=None,external_source=None):
+    if not isinstance(data,dict):raise VideoError('invalid probe container')
     if not data.get('streams'):raise VideoError('no video stream','NO_VIDEO_STREAM')
     if not data.get('frames'):raise VideoError('no decoded presentation frames','ZERO_LENGTH')
     try:

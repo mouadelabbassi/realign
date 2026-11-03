@@ -12,6 +12,9 @@ def scan(root):
     tracked=git('ls-files','-z').decode().split('\0')
     for path in filter(None,tracked):
         if Path(path).name=='.env':findings.append({'resource':path,'reason':'TRACKED_ENV_FILE'})
+        p=Path(root)/path
+        if p.is_file() and any(pattern.search(p.read_bytes()) for pattern in PATTERNS):
+            findings.append({'resource':path,'reason':'CURRENT_TREE_CREDENTIAL_PATTERN'})
     blobs={row.split(b' ',1)[0] for row in git('rev-list','--objects','--all').splitlines()}
     batch=subprocess.run(['git','-C',str(root),'cat-file','--batch'],input=b'\n'.join(sorted(blobs))+b'\n',capture_output=True,check=True).stdout
     cursor=0

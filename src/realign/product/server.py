@@ -1,6 +1,7 @@
 """One loopback Python application serving a read-only scientific product slice."""
 from http.server import BaseHTTPRequestHandler,ThreadingHTTPServer
 import mimetypes
+import os,socket
 from pathlib import Path
 import re
 from urllib.parse import urlsplit,unquote
@@ -13,6 +14,14 @@ ASSETS={'/':('index.html','text/html; charset=utf-8'),
         '/app.css':('app.css','text/css; charset=utf-8'),'/app.js':('app.js','text/javascript; charset=utf-8')}
 ASSETS.update({'/static/app.css':ASSETS['/app.css'],'/static/app.js':ASSETS['/app.js']})
 CSP="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"
+
+class LoopbackServer(ThreadingHTTPServer):
+    # Windows SO_REUSEADDR can route traffic to an older listener after a
+    # seemingly successful bind. Fail visibly instead of sharing the port.
+    allow_reuse_address=os.name!='nt'
+    def server_bind(self):
+        if os.name=='nt':self.socket.setsockopt(socket.SOL_SOCKET,socket.SO_EXCLUSIVEADDRUSE,1)
+        super().server_bind()
 
 
 def make_server(data_root,*,port=8765,media=None,closure_root=None,review_root=None):
@@ -109,4 +118,4 @@ def make_server(data_root,*,port=8765,media=None,closure_root=None,review_root=N
                     chunk=f.read(min(65536,remaining))
                     if not chunk:break
                     self.wfile.write(chunk); remaining-=len(chunk)
-    return ThreadingHTTPServer(('127.0.0.1',port),Handler)
+    return LoopbackServer(('127.0.0.1',port),Handler)

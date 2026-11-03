@@ -9,8 +9,9 @@ def assert_public_context(value):
         if depth>64:raise ValueError('context nesting exceeds approved scope')
         if isinstance(x,dict):
             for key,v in x.items():
-                normalized=re.sub(r'(?<!^)(?=[A-Z])','_',str(key)).lower().replace('-','_')
-                if normalized in PRIVATE_KEYS:raise ValueError('private sealed-context field refused')
+                raw=str(key)
+                normalized=(raw.lower() if raw.isupper() else re.sub(r'(?<!^)(?=[A-Z])','_',raw).lower()).replace('-','_')
+                if normalized.replace('_','') in {k.replace('_','') for k in PRIVATE_KEYS}:raise ValueError('private sealed-context field refused')
                 visit(v,depth+1)
         elif isinstance(x,(list,tuple)):
             for v in x:visit(v,depth+1)

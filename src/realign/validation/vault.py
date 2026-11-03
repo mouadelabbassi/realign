@@ -81,7 +81,9 @@ class ValidationVault:
         finally: path.unlink(missing_ok=True)
 
     def _events(self):
-        if not self.ledger_path.exists(): return []
+        if not self.ledger_path.exists():
+            if (self.directory/'ledger.head.json').exists():raise ValidationError('independent ledger missing behind committed frontier')
+            return []
         try:
             events=[json.loads(line) for line in self.ledger_path.read_text(encoding="utf-8").splitlines()]
             if not AuditChain.verify(events): raise ValueError

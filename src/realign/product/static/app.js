@@ -100,7 +100,10 @@
         if (typeof h[key]!=="string" || !h[key]) throw new Error(`Missing evidence_header.${key}; unlabelled payload refused.`);
       }
       if (!["SYNTHETIC","REAL_EXTERNAL","REAL_PHONE","AGGREGATE"].includes(h.source_domain)) throw new Error("Invalid evidence source domain.");
+      if(h.schema_version!=="1.0" || !Array.isArray(h.source_domains) || h.source_domains.length<1 || h.source_domains.length>3 || h.source_domains.some(x=>!["SYNTHETIC","REAL_EXTERNAL","REAL_PHONE"].includes(x))) throw new Error("Unsupported evidence header version or source set.");
       if (body.observation_source && h.source_domain!==body.observation_source) throw new Error("Evidence header source differs from payload provenance.");
+      if(body.policy && h.policy!==body.policy) throw new Error("Evidence header policy differs from payload provenance.");
+      if(body.id && h.run_id!==body.id) throw new Error("Evidence header run differs from payload identity.");
       return body;
     } catch (error) {
       if (error && error.name === "AbortError") throw new Error("The local evidence request timed out.");

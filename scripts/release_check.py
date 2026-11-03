@@ -20,7 +20,8 @@ def main():
     assert not subprocess.check_output(['git','status','--porcelain'],cwd=wt).strip()
     env={k:v for k,v in os.environ.items() if k not in ('MODEL_API_KEY','OPENAI_API_KEY','WSLENV')}
     env.update(PYTHONPATH=str(wt/'src'),OPENBLAS_NUM_THREADS='1',OMP_NUM_THREADS='1',MKL_NUM_THREADS='1',MPLBACKEND='Agg')
-    venv=out/('venv-'+uuid.uuid4().hex[:6]);subprocess.run([sys.executable,'-m','venv',str(venv)],check=True,env=env)
+    cache=Path.home()/'.cache/realign-release-checks';cache.mkdir(parents=True,exist_ok=True)
+    venv=cache/('venv-'+uuid.uuid4().hex[:8]);subprocess.run([sys.executable,'-m','venv',str(venv)],check=True,env=env)
     from importlib.metadata import version
     constraints=out/'runtime_constraints.txt'
     constraints.write_text(''.join(n+'=='+version(n)+'\n' for n in ('numpy','scipy','pydantic','pytest','matplotlib','opencv-python-headless','meta-sam-parser','openai','playwright')))
@@ -50,7 +51,9 @@ def main():
     browser_env={'REALIGN_BROWSER_TESTS':'1','REALIGN_SCREENSHOT_DIR':str(out/'screenshots')}
     if os.environ.get('REALIGN_BROWSER_EXECUTABLE'):browser_env['REALIGN_BROWSER_EXECUTABLE']=os.environ['REALIGN_BROWSER_EXECUTABLE']
     run('browser',[py,'-m','pytest','-q',*browser,'--junitxml='+str(out/'browser_tests.xml')],browser_env)
-    run('javascript',['node','--check','src/realign/product/static/app.js'])
+    import shutil,playwright
+    node=shutil.which('node') or str(Path(playwright.__file__).parent/'driver/node')
+    run('javascript',[node,'--check','src/realign/product/static/app.js'])
     # Tests/verifiers may write derivative evidence in this disposable checkout;
     # scientific source must remain the pinned committed content.
     changed=subprocess.check_output(['git','diff','--name-only','--','src','scripts'],cwd=wt,text=True).strip()

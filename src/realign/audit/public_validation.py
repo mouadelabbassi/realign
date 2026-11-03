@@ -46,7 +46,8 @@ def verify_reveal(commitment, reveal):
         nonce=reveal["nonce_hex"]
         if (not isinstance(nonce,str) or not re.fullmatch(r"[0-9a-f]{64,256}",nonce) or len(nonce)%2 or
                 len(bytes.fromhex(nonce))<32): return False
-        geometry=GeometryMeasurements.model_validate_json(canonical(reveal["geometry"])).model_dump(mode="json")
+        raw=reveal['geometry']
+        geometry=(raw if type(raw) is GeometryMeasurements else GeometryMeasurements.model_validate_json(canonical(raw))).model_dump(mode='json')
         if reveal["challenge_id"]!=commitment["challenge_id"] or reveal["domain"]!=commitment["domain"]: return False
         expected=_commitment(commitment["challenge_id"],commitment["domain"],commitment["heldout_dataset_sha256"],
                              commitment["protocol"],geometry,nonce)

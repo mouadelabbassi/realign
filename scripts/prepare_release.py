@@ -2,13 +2,13 @@
 import json,sys
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT/'src'))
-from realign.product.claim_ladder import RESOURCES,release_view
+from realign.product.claim_ladder import RESOURCES,release_view,evidence_sha
 from realign.product.evidence import sha256_file
 from realign.product.store import write_json
 
 if __name__=='__main__':
     write_json(ROOT/'artifacts/release/evidence_manifest.json',{'schema_version':1,'entries':{
-        k:{'file':p,'sha256':sha256_file(ROOT/p)} for k,p in RESOURCES.items()}})
+        k:{'file':p,'sha256':evidence_sha(ROOT/p),'hash_mode':'LF_TRANSPORT'} for k,p in RESOURCES.items()}})
     review=ROOT/'artifacts/release/manual_review'
     if (review/'reference_manifest.json').is_file():
         from realign.perception.manual_review import assess_manual_reviews,read_review_json,write_review_json
