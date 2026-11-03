@@ -1,3 +1,0 @@
-# Hash-bound evidence must survive Windows/Linux checkout unchanged.
-artifacts/**/*.json text eol=lf
-artifacts/**/review.html -text

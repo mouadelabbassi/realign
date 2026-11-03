@@ -23,10 +23,7 @@ if __name__=='__main__':
         from realign.product.evidence import sha256_file
         if sha256_file(video)==external.get('metadata',{}).get('video_sha256'):
             media['external.mp4']=video
-    try:server=make_server(args.data_dir,port=args.port,media=media)
-    except OSError:
-        print('Cannot bind REALIGN loopback port '+str(args.port)+'. Stop the older instance or choose --port.',file=sys.stderr)
-        raise SystemExit(2)
+    server=make_server(args.data_dir,port=args.port,media=media)
     url='http://127.0.0.1:'+str(server.server_port)
     print('REALIGN:',url,flush=True)
     print('Recorded artifact playback. API calls and numerical fitting are never triggered by viewing.',flush=True)

@@ -13,7 +13,6 @@ SCRIPTS={'run_investigator.py','verify_investigator.py','calibrate_investigator.
          'replay_investigation.py','setup_investigator_runtime.py'}
 SCRIPTS.update({'prepare_demo.py','verify_task05.py'})
 SCRIPTS.update({'investigate_recordings.py','verify_task06.py','verify_g5.py'})
-SCRIPTS.add('release_check.py')
 
 
 def linux_path(value):

@@ -1,9 +1,0 @@
-numpy==2.5.4
-scipy==1.18.1
-pydantic==2.14.2
-pytest==9.2.0
-matplotlib==3.11.2
-opencv-python-headless==4.14.0.94
-meta-sam-parser==0.1.0
-openai==2.54.0
-playwright==1.58.0

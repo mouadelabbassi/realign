@@ -32,7 +32,7 @@ def _documents(directory):
 
 
 def validate_independent_report(report):
-    from realign.audit.public_validation import verify_reveal
+    from realign.validation import verify_reveal
     if report.get('status')=='INCONCLUSIVE' and 'commitment' in report:
         if report.get('domain')!='SYNTHETIC' or report.get('full_physical_G5_passed') is not False:raise EvidenceError('invalid inconclusive exercise')
         return report
@@ -87,12 +87,9 @@ def review_page(directory):
     index,_=_documents(directory)
     if 'review_html' not in index['entries']:raise EvidenceError('clean review package not prepared')
     data=(Path(directory)/FILES['review_html']).read_bytes()
-    if len(data)>32_000_000:raise EvidenceError('review package too large')
+    if len(data)>20_000_000:raise EvidenceError('review package too large')
     scripts=re.findall(rb'<script>(.*?)</script>',data,re.S)
     if len(scripts)!=1:raise EvidenceError('unexpected annotation page script structure')
-    # HTML parsers normalize CRLF/CR before applying CSP to inline script text.
-    # Hash that same text so a package written on Windows remains executable.
-    script=scripts[0].replace(b'\r\n',b'\n').replace(b'\r',b'\n')
-    signature=base64.b64encode(hashlib.sha256(script).digest()).decode()
+    signature=base64.b64encode(hashlib.sha256(scripts[0]).digest()).decode()
     policy="default-src 'none'; script-src 'sha256-"+signature+"'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"
     return data,policy

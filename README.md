@@ -1,109 +1,248 @@
-﻿# REALIGN
+# REALIGN — Scientific Baselines and Bounded Investigator
 
-**Can a lab still trust its simulator after the mechanism changes?** REALIGN
-compares observations with executable pendulum models, inspects discrepancies,
-requests an informative experiment and freezes an evidence-cited decision.
-Meta Muse Spark 1.3 reasons through bounded tools; Meta SAM 3.1 tracks the bob.
-Deterministic code computes the physics, fits and scores.
+**Status: verified physics/baselines, an executable two-round live Muse investigation over synthetic observations, actual external-video SAM tracking, and a local product interface. Controlled real-phone validation remains pending. G2 is NOT PASSED.**
 
-The five-view product replays authentic Meta investigations on **synthetic
-observations** beside actual SAM tracking on **licensed external footage**.
-Controlled phone physics and independent localization accuracy remain unvalidated.
-
-## Two-minute replay
-
-Use Python 3.11+ from this repository. After dependencies are installed:
+Start the integrated product (recorded playback, no API calls or fitting):
 
 ```powershell
-python -m venv .venv
-.venv\Scripts\Activate.ps1
-# Linux/macOS: source .venv/bin/activate
-python -m pip install -e ".[perception]"
-python scripts/run_realign.py --port 8766 --no-browser
+python -m pip install -e ".[dev,perception]"
+python scripts/run_realign.py
 ```
 
-Open **http://127.0.0.1:8766**. Playback needs **no API key, paid calls, WSL or
-refitting**. Select "Live Muse investigation - attempt 02" and inspect:
+Open http://127.0.0.1:8765. Explore the five views, change observation rounds,
+scrub trajectories and select the actual `Live Muse investigation · attempt 02`.
+Synthetic investigations, external SAM footage and pending phone experiments have
+separate source views. A local external video can be restored using
+`python scripts/prepare_external_video.py --download`; no replacement is shown if
+it is absent. See the [Task 05 demo script](docs/TASK05_DEMO_SCRIPT.md),
+[implementation](docs/TASK05_IMPLEMENTATION.md) and
+[measured readiness](artifacts/task05/TASK05_READINESS.md).
 
-1. **Reality vs Simulation:** scrub observations, B0/B1/B3 predictions and residuals.
-2. **Investigation:** actual recorded hypotheses and scientific tool calls. This is replay.
-3. **Experiment Loop:** a scored release request and two new **synthetic** trajectories; no actuator is claimed.
-4. **Model Decision:** frozen model and a matched deterministic comparison. Selection is among predefined typed models.
-5. **Evidence:** both original G5 outcomes, registered thresholds, provenance and safe CLI commands.
+The successful live and deterministic synthetic runs both reach 0.819611 px
+post-freeze development RMSE. Actual SAM accepts 550/600 external-video centers;
+independent human error measurements and physical calibration are pending.
+These are separate demonstrations, with no claim of real-world discovery or Muse
+superiority. `CORRECT_MEASUREMENT` means **measurement correction required**.
 
-The optional ignored external video is not bundled as owned footage. Without it,
-the player reports missing media while source/tracking records remain inspectable.
-No replacement video is displayed.
+REALIGN aims to audit physics simulations against phone-measured reality,
+request discriminating experiments, propose typed structural corrections and
+validate them using sealed independent evidence.
 
-## What is demonstrated
+Implemented and tested:
 
-| Evidence branch | Actual result | Boundary |
-|---|---|---|
-| G1 physics | 250 cases, zero failures, 1,516 hybrid transitions | Ideal planar taut-string model, one supported peg wrap side |
-| B0-B3 | Nominal free, fitted free, circle geometry and fitted peg dynamics | Synthetic baselines; B2 radial error is separate from trajectory RMSE |
-| Actual Muse | Successful two-round run: 9 completed operations, one experiment | Synthetic observations; first rejected attempt retained |
-| Matched prediction | Muse and deterministic: **0.8196110265191848 px** development RMS | **No predictive advantage demonstrated** in this recorded case |
-| Fixed synthetic G5 | **PASS**: 0.6930905745225341 px RMS; 5.602553 mm peg error | Workflow positive control |
-| Randomized synthetic G5 | **FAIL**: 0.7519408442222819 px RMS; **14.477706 mm** peg error vs **10 mm** | Accurate prediction did not establish accurate geometry; failure preserved |
-| Actual external SAM | 600 masks; 550 accepted centers, 50 rejected | REAL_EXTERNAL; physical capture timing and metric scale unknown |
-| Independent localization accuracy | **NOT_VALIDATED** | Genuine human references pending; AI labels excluded |
-| Controlled phone G2 / physical G5 | **BLOCKED_INPUTS / NOT_PASSED** | Actual recordings, calibration and independent validation missing |
+- Ideal ordinary pendulum and exact nonlinear period oracle (elliptic integral).
+- Hybrid peg-contact pendulum using SciPy `solve_ivp`, directed event guards,
+  explicit Cartesian position and tangential speed preserving reset maps.
+- One selectable wrapped side of a fixed point peg (off-vertical supported).
+- Viscous and quadratic bob drag, and optional explicitly empirical contact
+  loss coefficients (ideal default = 1).
+- Unsupported slack-string conditions rejected rather than silently ignored.
+- Automated physics tests and deterministic randomized configuration sweep.
+- Synthetic-only comparison of an original fixed-pivot simulator with a peg
+  reference, clearly labeled as *not* real measurements or AI model repair.
+- Validated observation/experiment records with explicit px, px², s and plane frames.
+- Seeded synthetic localization noise, optional stationary AR(1) correlation and
+  missing samples, with separate observation and evaluation-only truth records.
+- B0 nominal free-pendulum prediction; B1 bounded multistart nonlinear fitting of
+  length, viscous and quadratic drag using complete trajectory rollouts.
+- B2 recurring one-circle/two-circle geometry, with short-arc rejection and
+  leave-one-whole-training-trial-out comparison.
+- Disjoint synthetic development trials, no-fault and unexcited controls, explicit
+  ambiguous cases, solver-failure tests and truth dependency/input checks.
+- Separately executable Meta capability probes and a budgeted Muse adapter; live
+  investigation evidence is reported separately from local capability probes.
+- Five executable numerical tools, isolated exploration-only resources, a bounded
+  state machine, experiment planning, conservative synthetic model selection and
+  immutable investigation traces with fresh numerical replay.
 
-The per-domain Evidence Ladder currently caps the overall claim at **C3a**:
-SAM tracking on real external footage. Synthetic Muse and G5 are separate branches.
-No physical discovery, causal uniqueness, credible interval or billed cost is
-invented. [G5 failure analysis](docs/G5_FAILURE_ANALYSIS.md) reports archived local
-sensitivity with its limitations. Billed Meta spend is **UNVERIFIED**.
+## Install and run
 
-## Independent review and real data
+```bash
+python -m venv .venv
+# Linux/macOS: source .venv/bin/activate
+# Windows PowerShell: .venv\\Scripts\\Activate.ps1
+python -m pip install -e '.[dev,perception]'
+python -m pytest -q
+python scripts/verify_g1.py
+python scripts/verify_baselines.py
+python scripts/verify_structural.py
+```
 
-Open **http://127.0.0.1:8766/review**: forty clean shuffled frames include twenty
-from early 0-4 s tracking intervals. Supply centers and uncertainty or mark not
-visible, attest independent review, lock locally and download JSON. No server
-writes or predicted-center hints are supplied. Independence is self-declared.
+Outputs: `artifacts/G1_REPORT.md`, `artifacts/g1_verification.json`,
+`artifacts/synthetic_trajectory_comparison.csv`, and (with matplotlib)
+`artifacts/synthetic_discrepancy.png`.
+
+The baseline command produces [POC0_BASELINES.md](artifacts/POC0_BASELINES.md),
+`poc0_baselines.json`, `poc0_baselines.png`, `poc0_observations.npz` and the separate
+post-fit `poc0_truth_evaluation.json`. It exits nonzero when its acceptance checks fail.
+Use `--output-dir PATH` to write a separate evidence run; the named default seed is
+`20261031`. The integration test reproduces JSON, Markdown, plot and observation
+archive bytes twice in the same environment.
+
+## Actual synthetic results
+
+**SYNTHETIC ONLY — NO META API / REAL-WORLD VALIDATION**
+
+Two training trials and one unseen whole development trial per case; 4 s at 60 Hz;
+assumed localization SD 0.5 px per coordinate; known scale 600 px/m.
+
+| Case | B0 held-out xy RMSE (px) | B1 held-out xy RMSE (px) | B2 geometry |
+|---|---:|---:|---|
+| No fault | 0.7204 | 0.7215 | One circle only |
+| Parameter fault | 40.7895 | 0.6890 | One circle only |
+| Vertical peg | 72.2366 | 39.7715 | Two circles; peg error 2.49 mm |
+| Off-vertical peg, 10% missing samples | 40.2429 | 22.8737 | Two circles; peg error 16.77 mm |
+| Unexcited peg | 0.6975 | 0.6968 | One circle only; peg presence remains ambiguous |
+| Short noisy arc | 0.6752 | 0.6774 | Ambiguous |
+
+B2 measures observation-conditioned radial reconstruction, **not** a time-trajectory
+prediction. Its residual is reported separately in the evidence report. Near-floor
+B0/B1 differences in no-fault data do not establish improvement. A low radial
+residual does not guarantee precise center recovery or a unique physical cause.
+
+Methods, verification results, scope resolutions and limitations are documented in
+[POC0_BASELINES_IMPLEMENTATION.md](docs/POC0_BASELINES_IMPLEMENTATION.md).
+
+## Scientific scope
+
+The initial release begins on the free side of the peg, with one designated
+contact side. A peg on both sides, flexible or slack string, finite-size peg,
+3D motion, and stick-slip contact are **not** implemented. Velocity continuity
+is enforced for ideal point-peg contact; the angular speed changes with the
+radius. These constraints are scientific scope boundaries, not hidden features.
+
+This phase assumes known projection, gravity, release angle, release velocity and
+release time. It has no measured phone noise, camera calibration or fitted camera
+nuisances. A single observed circle cannot rule out an unexcited peg. B2 uses a
+fixed bearing-boundary hypothesis family and an uncalibrated conservative CV
+penalty. MDE/power studies, parameter CI coverage, causal identification, sealed
+evaluation and full G3 acceptance remain unfinished. Task 04 adds the bounded
+investigator described below. Task 05 adds its read-only product interface; no
+general compiler is implemented.
+The numerical tool process now has OS-enforced resource isolation; a separate
+sealed storage/evaluation system remains future work.
+
+## Meta API and eligibility
+
+Task 02 adds original-PTS video ingestion, the official SAM 3.1 streamed parser,
+mask contour centers and tracking QA, planar/lens calibration, independent release
+timing, uncertainty and calibrated B0/B1/B2 interfaces. Original synthetic
+contracts and G1 physics are preserved. Real and synthetic evidence are separate.
+GitHub Actions is configured to run offline tests and verifiers on pushes/pull requests without keys.
+
+    python scripts/verify_g2.py
+
+Read [G2_READINESS.md](artifacts/G2_READINESS.md),
+[G2_IMPLEMENTATION.md](docs/G2_IMPLEMENTATION.md) and the
+[real data collection protocol](docs/REAL_DATA_COLLECTION_PROTOCOL.md).
+The protocol specifies rig construction, phone placement, measured fiducials/pivot,
+stationary/repeated recordings, independent annotations and the frozen split.
+Tracked data folders contain empty markers; example inputs contain no invented
+footage, coordinates or measured length.
+
+Separate actual SAM verification and real processing:
+
+    python scripts/smoke_sam.py data/raw/free/run_001.mp4 --standard-tier-confirmed --output-dir data/processed/sam_smoke
+    python scripts/process_recordings.py configs/g2_manifest.local.json --run-api --output-dir data/processed/g2
+
+Configure local access and complete the example manifest/measurements first.
+Missing inputs produce a pending report. Run without --run-api to reuse matching
+completed real SAM caches. Fixture caches are rejected. This perception workflow
+does not implement a compiler, frontend or sealed evaluator.
+
+Keep MODEL_API_KEY local and use the separate smoke commands. Capability reports
+and end-to-end investigations are separate evidence. Full accepted-participant
+hackathon rules must still be checked.
+
+## Task 03 structural dynamics and API readiness
+
+B3 fits the validated peg-contact dynamics with deterministic bounded multistart
+least squares, directed events, complete trajectories, explicit failed starts
+and local sensitivity diagnostics. Run python scripts/verify_structural.py for
+the fixed synthetic comparison on whole exploration/development trials. See
+[B3_BASELINES.md](artifacts/B3_BASELINES.md) and
+[TASK03_IMPLEMENTATION.md](docs/TASK03_IMPLEMENTATION.md). B2 radial error remains
+a separate geometric statistic. Predictive accuracy alone does not identify a
+physical mechanism. Task 04 adds a finite synthetic null-calibration pilot;
+broad structural acceptance and full G3 remain pending.
+
+Muse structured output and a validated local numerical tool round trip remain
+separately executable probes:
+
+    python scripts/smoke_meta.py --standard-tier-confirmed
+
+External physical video ingestion has its own REAL_EXTERNAL provenance with
+source URLs, creator, open license and original/processed hashes:
+
+    python scripts/prepare_external_video.py --download
+    python scripts/smoke_sam.py data/raw/external/blocked-pendulum.mp4 --external-source artifacts/external_source_verified.json --standard-tier-confirmed
+
+The attributed MikeRun CC BY-SA 4.0 example is slow motion. It has no verified
+physical time scale or measured camera calibration and cannot supply dynamics
+metrics or satisfy the phone G2 gate. Actual SAM/Muse API checks remain NOT_RUN
+without a locally configured key. No external clip is classified as self-recorded
+phone footage. Public external provenance is separate from synthetic test fixtures.
+
+The Task 03 design has five closed typed schema pairs in
+[INVESTIGATOR_TOOL_CONTRACTS.md](docs/INVESTIGATOR_TOOL_CONTRACTS.md) and
+[investigator_tool_schemas.json](docs/investigator_tool_schemas.json).
+Those v1.0 schemas remain reproducible. Task 04 implements the five tools using
+the backwards-preserved numerical modules and closed runtime v1.1 contracts.
+
+## Task 04 executable investigation
+
+The investigator observes, hypothesizes, tests, requests one bounded experiment,
+and submits an evidence-cited proposal to a separate scientific validator before
+freezing. Outcomes include KEEP_UNCHANGED, CALIBRATE_PARAMETERS,
+CORRECT_MEASUREMENT, REPAIR_STRUCTURE and ABSTAIN. Structural acceptance selects
+the predefined peg-contact model for prediction, not a uniquely identified cause
+or an open-ended equation. The mock policy is explicitly not Muse evidence.
 
 ```powershell
-python scripts/review_external.py evaluate --output-dir artifacts/release/manual_review --annotations data/reviews/external_independent.json
-python scripts/prepare_release.py
+# Windows requires Ubuntu WSL; Linux x86-64 uses Landlock/seccomp directly.
+python scripts/setup_investigator_runtime.py
+python scripts/verify_investigator.py --calibrate
+python scripts/run_investigator.py --mode deterministic --case off_vertical_peg --seed 51300
+python scripts/replay_investigation.py artifacts/task04/traces/deterministic_off_vertical_peg.json
+# Separate opt-in live arm; absent authorization is NOT_RUN, never a mock.
+python scripts/verify_investigator.py --run-live --standard-tier-confirmed
+```
+
+See [Task 04 implementation and operating limits](docs/TASK04_IMPLEMENTATION.md),
+[runtime schemas](docs/investigator_runtime_schemas.json) and the measured
+[investigation report](artifacts/task04/INVESTIGATOR_REPORT.md). The registered
+pilot uses twenty synthetic null datasets and disjoint post-calibration seeds.
+The [readiness assessment](artifacts/task04/TASK04_READINESS.md) records exact
+test outcomes, the noise-scale false comparison flag, conservative abstention,
+optimizer failures and live/real-world checks still pending.
+Calibration is environment-bound; regenerate it after numerical version changes.
+Task 05 verifies live Muse integration and real external SAM output in separate
+evidence streams. Controlled phone recordings and measured calibration are still
+needed under the [collection protocol](docs/REAL_DATA_COLLECTION_PROTOCOL.md).
+Broader matched live studies, power/coverage and G2/G3/G4/G5 acceptance remain open.
+
+## Task 06 evidence closure
+
+The existing app now includes independent clean-frame annotation, controlled
+phone-input blockers/pending actions and separate post-freeze validation evidence.
+External SAM accuracy is **NOT_VALIDATED** until human references are supplied.
+Controlled phone G2 and full physical G5 remain **NOT_PASSED**.
+
+```powershell
+python scripts/verify_task06.py
+python scripts/run_realign.py
+# http://127.0.0.1:8765/review — independently annotate the twenty clean frames.
+python scripts/verify_g5.py reproduce artifacts/task06/g5_demo
 python scripts/investigate_recordings.py configs/phone_investigation.example.json
 ```
 
-The phone example exits 2 with exact blockers and zero API calls. Follow the
-[collection protocol](docs/REAL_DATA_COLLECTION_PROTOCOL.md) and
-[real workflow](docs/TASK06_IMPLEMENTATION.md). Physical actions wait for actual
-new validated recordings. Synthetic calibration cannot authorize real repair.
-Original monotonic PTS, including valid variable frame rate, are preserved.
+The randomized synthetic exercise predicts at 0.751941 px RMS but fails the
+10 mm peg-position tolerance (14.477706 mm error). The separate fixed positive
+control passes. Both results are retained and reproducible; neither is real
+physical discovery. The phone example exits 2 with exact missing-input blockers.
+Default commands make no Meta API calls and do not refit cached product runs.
 
-## Evidence and reproduction
-
-```powershell
-python scripts/export_evidence.py --output data/processed/REALIGN_evidence.zip
-python scripts/export_evidence.py --verify data/processed/REALIGN_evidence.zip
-python scripts/verify_g5.py reproduce artifacts/task06/g5_demo
-python scripts/verify_g5.py reproduce artifacts/task06/g5_positive_control
-```
-
-G5 reproduction checks the original revealed scores; it does not evaluate another
-model. Windows numerical investigation/reproduction requires the existing Ubuntu
-WSL isolation runtime (`python scripts/setup_investigator_runtime.py`). Native
-Windows refuses unsupported worker isolation. Ordinary product replay needs no WSL.
-Live execution remains explicit CLI-only and needs separate authorization. Keep
-MODEL_API_KEY local. No browser endpoint starts a paid request.
-
-- [Release readiness, exact tests and revisions](docs/RELEASE_READINESS.md)
-- [Actual Meta receipts and request/token accounting](artifacts/release/meta_evidence_index.md)
-- [Computed evidence summary](artifacts/release/evidence_summary.json)
-- [Randomized G5 failure](artifacts/task06/g5_demo/validation.json) and [fixed control](artifacts/task06/g5_positive_control/validation.json)
-- [G1](artifacts/G1_REPORT.md), [B0/B1/B2](artifacts/POC0_BASELINES.md), [B3](artifacts/B3_BASELINES.md)
-- [Submission checklist](docs/SUBMISSION_CHECKLIST.md), [Meta compliance](docs/META_COMPLIANCE.md)
-- [vFinal architecture](docs/ARCHITECTURE_VFINAL.md), [independent review corrections](docs/REALIGN_vFinal_Code_Review_Addendum.md)
-- [Earlier implementation history](docs/IMPLEMENTATION_HISTORY.md)
-
-Task 06 baseline: `88b1e13a756c369e4131769ce734ab4dff843ea4`.
-[CI 41533276918](https://github.com/mouadelabbassi/realign/actions/runs/41533276918)
-passed all four jobs. Release-specific verification is reported at its actual SHA.
-
-Original software is MIT. MikeRun's external media and derived frames retain
-**CC BY-SA 4.0**, outside MIT: [third-party notices](THIRD_PARTY_NOTICES.md).
-Participant eligibility, organizer media rights, portal submission and the owner's
-continuous narrated demo remain separate unresolved obligations.
+See [Task 06 implementation and commands](docs/TASK06_IMPLEMENTATION.md),
+[readiness and exact test evidence](artifacts/task06/TASK06_READINESS.md),
+[event compliance record](docs/META_COMPLIANCE.md) and
+[demo storyboard](docs/TASK06_DEMO_STORYBOARD.md).
