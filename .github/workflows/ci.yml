@@ -19,6 +19,10 @@ jobs:
       MPLBACKEND: Agg
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Historical G5 authenticity tests compare files to commit 88b1e13.
+          # Default shallow checkout omits that commit on GitHub Actions.
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
