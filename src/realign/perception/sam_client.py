@@ -134,7 +134,7 @@ class SamClient:
         from openai import AsyncOpenAI
         return cls(AsyncOpenAI(api_key=key,base_url=BASE_URL,timeout=120,max_retries=0),concept=concept)
 
-    async def _request(self,operation,call):
+    async def _request(self,operation,call,*,first_call=0):
         for attempt in range(self.max_attempts):
             if self.before_request is not None: self.before_request('sam',operation)
             try:
@@ -143,13 +143,16 @@ class SamClient:
                 return result
             except Exception as exc:
                 status=getattr(exc,'status_code',None)
+                category=('SAM_PROTOCOL' if isinstance(exc,SamError) else 'META_HTTP' if type(status) is int else
+                          'META_TRANSPORT' if type(exc).__name__ in ('APIConnectionError','APITimeoutError') else 'SDK_RUNTIME')
                 self.calls.append({'operation':operation,'attempt':attempt+1,'status':'failed',
-                                   'error_type':type(exc).__name__,'http_status':status})
+                                   'error_type':type(exc).__name__,'http_status':status if type(status) is int and 100<=status<=599 else None,
+                                   'category':category,'code':exc.code if isinstance(exc,SamError) else category+'_ERROR'})
                 retryable=(isinstance(exc,SamError) and exc.code=='stream_source_failed') or (
                     not isinstance(exc,SamError) and (status is None or status in (408,429) or status>=500))
                 if not retryable or attempt==self.max_attempts-1:
                     raise SamError(f'SAM {operation} failed ({type(exc).__name__}); no fallback',
-                                   code=operation+'_failed',calls=self.calls) from None
+                                   code=operation+'_failed',calls=self.calls[first_call:]) from None
                 await asyncio.sleep(self.retry_delay*2**attempt)
 
     async def segment_video(self,path,metadata):
@@ -163,17 +166,17 @@ class SamClient:
         async def upload():
             with path.open('rb') as f:
                 return await self.api.files.create(file=(path.name,f,'video/mp4'),purpose='user_data')
-        uploaded=await self._request('upload',upload)
+        uploaded=await self._request('upload',upload,first_call=first_call)
         file_id=uploaded.id
         if not isinstance(file_id,str) or not file_id.startswith('file-'):
-            raise SamError('Files API returned an invalid file ID',code='file_id',calls=self.calls)
+            raise SamError('Files API returned an invalid file ID',code='file_id',calls=self.calls[first_call:])
         request={'model':MODEL,'stream':True,'input':[{'type':'message','role':'user','content':[
             {'type':'input_text','text':self.concept},{'type':'input_video','file_id':file_id}]}]}
         async def segment():
             stream=await self.api.responses.create(**request)
             async with stream:
                 return await parse_sam_events(stream,metadata,source=self.source)
-        run=await self._request('segmentation',segment)
+        run=await self._request('segmentation',segment,first_call=first_call)
         receipt=dict(run.receipt,upload_file_id=file_id,
             prompt=self.concept,
             request_sha256=hashlib.sha256(json.dumps(request,sort_keys=True).encode()).hexdigest(),

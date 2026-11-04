@@ -9,7 +9,7 @@
     const result = await response.json(); if(!response.ok) throw new Error(result.error || `HTTP ${response.status}`); return result;
   }
   async function action(path, body={}) {
-    if(busy) return; busy=true; $("error").textContent="";
+    if(busy) {$("error").textContent="A local control is still finishing; retry when it completes.";return;} busy=true; $("error").textContent="";
     try { const r=await api(path,body); await status(); await recordings(); return r; }
     catch(e) { $("error").textContent=e.message; }
     finally {busy=false;}
@@ -40,9 +40,23 @@
     $("ai-state").textContent=`${captureState==="RECORDING" ? "LIVE CAPTURE · " : ""}${live.state.replaceAll("_"," ")} · ${live.source}`;
     const u=live.usage;
     $("ai-usage").textContent=`Actual dispatched/reserved attempts: SAM ${u.attempted_requests.sam}, Muse ${u.attempted_requests.muse}; total ${u.total_requests}. Reserved USD ${u.reserved_usd} / ${u.ceiling_usd}. ${u.billing_status}`;
-    $("ai-queues").textContent=`Windows finalized ${live.finalized_windows}, processed ${live.processed_windows}; queues ${live.queued_frames} frames / ${live.queued_windows} windows. Backpressure drops: ${JSON.stringify(live.dropped)}. Unique source observations: ${live.unique_observations}.`;
+    $("ai-queues").textContent=`Windows finalized ${live.finalized_windows}, completed responses ${live.processed_windows}, windows with usable points ${live.usable_windows ?? "unknown"}; queues ${live.queued_frames} frames / ${live.queued_windows} windows. Backpressure drops: ${JSON.stringify(live.dropped)}. Unique source observations: ${live.unique_observations}.`;
+    if(live.throughput) $("ai-queues").textContent+=` Policy: ${live.throughput.policy}; interval ${live.throughput.analysis_interval_s}s; skipped ${JSON.stringify(live.throughput.skipped_windows_by_reason)}; coalesced snapshots ${live.throughput.coalesced_observations}. ${live.throughput.service_slower_than_cadence ? "SAM SLOWER THAN CADENCE: skipped clips remain saved; tracking is intermittent." : "No uninterrupted-tracking claim."}`;
     const latest=live.latest;
     $("ai-detection").textContent=latest ? `${latest.status} · ${latest.window_id} · service ${latest.latency_s.toFixed(2)} s · queue + service ${latest.end_to_end_latency_s.toFixed(2)} s · ${latest.identity_continuity}` : "SAM PENDING · waiting for a finalized window";
+    if(latest?.diagnostic) {
+      const d=latest.diagnostic;
+      $("ai-detection").textContent+=` · ${d.returned_mask_count} masks returned · ${d.valid_frame_count} valid / ${d.invalid_or_missing_frame_count} missing or rejected frames`;
+      $("detection-guidance").textContent=`${d.code}: ${d.guidance}`;
+      $("target-identity").textContent=`Target prompt: ${d.target_prompt}; identity ${d.target_identity_status}; returned SAM IDs ${d.returned_object_ids.join(", ") || "none"}; flags ${JSON.stringify(d.rejection_reasons)}`;
+      $("preprocessing-status").textContent=`Preprocessing: ${JSON.stringify(d.preprocessing)}`;
+    }
+    const readiness=live.scientific.readiness;
+    $("readiness-text").textContent=readiness ? `${readiness.code} · ${readiness.operator_request}` : "Waiting for eligible evidence.";
+    $("ai-reason").textContent=readiness?.can_reason ? "Approve investigation event" : "Check investigation readiness";
+    $("ai-reason").disabled=!active || Boolean(live.throughput?.scientific_worker_busy);
+    const failure=live.scientific.last_error;
+    $("science-error").textContent=failure ? `${failure.category} · ${failure.code} · HTTP ${failure.http_status ?? "not recorded/not applicable"} · ${failure.guidance}` : "";
     if(latest && latest.rows.length && latest.window_id!==processedWindow) {
       processedWindow=latest.window_id; $("processed").hidden=false; $("processed").src="/processed.jpg?window="+encodeURIComponent(latest.window_id)+"&t="+Date.now();
       $("processed-label").textContent=`${latest.window_id} · source frame ${latest.rows.at(-1).capture_sequence} · delayed SAM result; not live preview`;
@@ -97,12 +111,12 @@
   $("start").onclick=()=>action("/api/start",metadata());
   $("stop").onclick=()=>action("/api/stop");
   $("import").onclick=()=>action("/api/import",{...metadata(),path:$("path").value});
-  $("ai-start").onclick=()=>action("/api/ai/start",{authorization:{consent:$("ai-consent").checked,standard_tier_confirmed:$("ai-consent").checked,sam_requests:Number($("sam-cap").value),muse_requests:Number($("muse-cap").value),ceiling_usd:$("spend-cap").value,sam_reserve_usd:$("sam-reserve").value,muse_reserve_usd:$("muse-reserve").value},windowing:{window_s:Number($("window-seconds").value),overlap_s:Number($("overlap-seconds").value)}});
+  $("ai-start").onclick=()=>action("/api/ai/start",{authorization:{consent:$("ai-consent").checked,standard_tier_confirmed:$("ai-consent").checked,sam_requests:Number($("sam-cap").value),muse_requests:Number($("muse-cap").value),ceiling_usd:$("spend-cap").value,sam_reserve_usd:$("sam-reserve").value,muse_reserve_usd:$("muse-reserve").value},windowing:{window_s:Number($("window-seconds").value),overlap_s:Number($("overlap-seconds").value),analysis_interval_s:Number($("analysis-interval").value),processing_width:Number($("processing-width").value),target_prompt:$("target-prompt").value,target_confirmed:$("target-confirmed").checked}});
   // Revocation stays available while another local media action is busy.
   $("ai-stop").onclick=()=>api("/api/ai/stop",{}).then(status).catch(e=>$("error").textContent=e.message);
   $("processed").onerror=()=>{processedWindow=null;};
   $("ai-reason").onclick=()=>action("/api/ai/reason");
-  $("confirm-action").onclick=()=>action("/api/ai/confirm-action",{request_id:pendingRequest});
+  $("confirm-action").onclick=()=>api("/api/ai/confirm-action",{request_id:pendingRequest}).then(status).catch(e=>$("error").textContent=e.message);
   $("admit-evidence").onclick=()=>action("/api/ai/admit",{manifest:$("approved-manifest").value});
   $("refresh").onclick=()=>recordings().catch(e=>$("error").textContent=e.message);
   status();recordings().catch(e=>$("error").textContent=e.message);setInterval(status,1500);

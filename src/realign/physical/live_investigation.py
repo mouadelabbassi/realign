@@ -13,6 +13,7 @@ import json
 import os
 from pathlib import Path
 import queue
+import re
 import threading
 import time
 import uuid
@@ -21,14 +22,14 @@ import numpy as np
 
 from realign.audit.chain import AuditChain, digest
 from realign.perception.sam_client import SamClient, SamError
-from realign.perception.track import extract_track, TrackConfig
+from .live_observation import analyze_masks
 from realign.perception.video import file_sha256, probe_video
 from realign.perception.workflow import save_sam_cache
 from .live_lab import MP4Writer, utc_now, write_json
 
 
 class AuthorizationError(ValueError):
-    pass
+    code = 'AUTHORIZED_LIMIT_REACHED'
 
 
 @dataclass(frozen=True)
@@ -40,9 +41,13 @@ class LiveConfig:
     window_queue: int = 2
     timeout_s: float = 90.
     max_windows: int = 128
+    analysis_interval_s: float = 0.  # 0 retains explicit overlapping-window cadence.
+    processing_width: int = 640
+    target_prompt: str = 'the pendulum bob'
+    target_confirmed: bool = False
 
     def __post_init__(self):
-        values = (self.window_s, self.overlap_s, self.sample_hz, self.timeout_s)
+        values = (self.window_s, self.overlap_s, self.sample_hz, self.timeout_s, self.analysis_interval_s)
         if any(type(v) not in (float, int) or not np.isfinite(v) for v in values):
             raise ValueError('finite window settings required')
         if not 1 <= self.window_s <= 8 or not 0 <= self.overlap_s < self.window_s / 2:
@@ -51,6 +56,17 @@ class LiveConfig:
             raise ValueError('sampling/timeout limit')
         for v, upper in ((self.frame_queue, 16), (self.window_queue, 4), (self.max_windows, 128)):
             if type(v) is not int or not 1 <= v <= upper: raise ValueError('queue/window limit')
+        if self.analysis_interval_s != 0 and not self.window_s-self.overlap_s <= self.analysis_interval_s <= 120:
+            raise ValueError('Analysis interval must be at least window minus overlap, and at most 120 seconds')
+        if type(self.processing_width) is not int or self.processing_width not in (640, 960, 1280):
+            raise ValueError('Processing width must be 640, 960 or 1280 pixels')
+        if not isinstance(self.target_prompt, str) or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9 -]{0,79}', self.target_prompt):
+            raise ValueError('Select a visual target phrase of 1..80 letters, digits, spaces or hyphens')
+        if type(self.target_confirmed) is not bool: raise ValueError('Target confirmation must be boolean')
+
+    @property
+    def cadence_s(self):
+        return self.analysis_interval_s or self.window_s-self.overlap_s
 
 
 class RequestLedger:
@@ -112,24 +128,37 @@ class LiveInvestigation:
     def __init__(self, root, policy, *, config=None, source='REAL_PHONE', sam_factory=None,
                  reasoner_factory=None):
         if source not in ('REAL_PHONE', 'TEST_FIXTURE'): raise ValueError('explicit source required')
-        self.root = Path(root) / ('live-' + uuid.uuid4().hex)
-        self.root.mkdir(parents=True)
         self.source = source
         self.config = config or LiveConfig()
+        if source == 'REAL_PHONE' and not self.config.target_confirmed:
+            raise AuthorizationError('Select and confirm the visible target prompt before authorizing uploads')
+        self.root = Path(root) / ('live-' + uuid.uuid4().hex)
+        self.root.mkdir(parents=True)
         self.lock = threading.RLock()
         self.audit = AuditChain()
         self.cancel = threading.Event()
         self.frames = queue.Queue(self.config.frame_queue)
         self.windows = queue.Queue(self.config.window_queue)
         self.science = queue.Queue(2)
+        self.pending_observation = None
+        self.operator_pending = False
+        self.science_busy = False
         self.latest = None
         self.processed_jpeg = None
         self.processed_frames = {}
         self.trajectory = {}
         self.events = deque(maxlen=80)
         self.dropped = {'frames': 0, 'windows': 0, 'science': 0}
+        self.skipped = {}
+        self.coalesced_observations = 0
+        self.pending_upload_keys = set()
+        self.submitted_upload_keys = set()
+        self.sam_active_window = None
+        self.last_sam_latency_s = None
+        self.cadence_skipped_frames = 0
         self.finalized = 0
         self.processed = 0
+        self.usable_windows = 0
         self.last_sample = None
         self.last_source = None
         self.active_action = None
@@ -138,6 +167,8 @@ class LiveInvestigation:
         self.scientific = {'state': 'PRELIMINARY_OBSERVATION', 'hypotheses': [], 'tool_results': [],
                            'blockers': ['INDEPENDENT_TIMING_CALIBRATION_RELEASE_AND_REVIEWS_REQUIRED'],
                            'physical_evidence_accepted': False}
+        self.scientific['readiness'] = {'source': 'LOCAL_DETERMINISTIC_READINESS', 'can_reason': False,
+            'code': 'NO_USABLE_OBSERVATIONS', 'operator_request': 'Wait for usable SAM masks and review the selected target. No Muse call is needed to explain an empty observation.'}
         self.ledger = RequestLedger(policy, self.record)
         self.record('AUTHORIZED', {'source': source, 'models': ['sam-3.1', 'muse-spark-1.3'],
                                   'policy': policy, 'windowing': asdict(self.config)})
@@ -163,7 +194,7 @@ class LiveInvestigation:
     def _sam(self):
         from realign.local_environment import load_model_key
         load_model_key(Path(__file__).resolve().parents[3] / '.env')
-        client = SamClient.from_environment(standard_tier_confirmed=True)
+        client = SamClient.from_environment(standard_tier_confirmed=True, concept=self.config.target_prompt)
         client.before_request = self.ledger.reserve
         client.max_attempts = 2
         return client
@@ -178,7 +209,7 @@ class LiveInvestigation:
         self.last_sample, self.last_source = stamp, source
         import cv2
         h, w = frame.shape[:2]
-        scale = min(1., 640 / w, 480 / h)
+        scale = min(1., self.config.processing_width / w, min(720, self.config.processing_width*.75) / h)
         size = (max(2, int(w * scale) // 2 * 2), max(2, int(h * scale) // 2 * 2))
         small = cv2.resize(frame, size) if size != (w, h) else frame.copy()
         item = (small, {**mapping, 'source_size': [w, h], 'processed_size': list(size),
@@ -197,6 +228,8 @@ class LiveInvestigation:
 
     def _encode_loop(self):
         buffer = []
+        next_start_ns = None
+        context = None
         try:
             while not self.cancel.is_set():
                 try: frame, mapping = self.frames.get(timeout=.1)
@@ -204,21 +237,28 @@ class LiveInvestigation:
                 if frame is None:
                     if len(buffer) >= 2: self._finalize(buffer, partial=True)
                     buffer = []
+                    next_start_ns = None
                     continue
                 mapping['processed_frame_sha256'] = hashlib.sha256(frame.tobytes()).hexdigest()
-                if buffer and (mapping['recording_id'], mapping['response_to_request_id']) != (
-                        buffer[0][1]['recording_id'], buffer[0][1]['response_to_request_id']):
+                new_context = (mapping['recording_id'], mapping['response_to_request_id'])
+                if context != new_context:
                     if len(buffer) >= 2: self._finalize(buffer, partial=True)
                     buffer = []
+                    next_start_ns = None
+                    context = new_context
+                if not buffer and next_start_ns is not None and mapping['arrival_monotonic_ns'] < next_start_ns:
+                    self.cadence_skipped_frames += 1
+                    continue
                 if buffer and mapping['arrival_monotonic_ns'] <= buffer[-1][1]['arrival_monotonic_ns']:
                     self.record('FRAME_REJECTED', {'code': 'NON_MONOTONIC_ARRIVAL', 'mapping': mapping})
                     continue
                 buffer.append((frame, mapping))
                 elapsed = (mapping['arrival_monotonic_ns'] - buffer[0][1]['arrival_monotonic_ns']) / 1e9
                 if elapsed >= self.config.window_s or len(buffer) >= 256:
+                    next_start_ns = buffer[0][1]['arrival_monotonic_ns'] + self.config.cadence_s*1e9
                     self._finalize(buffer, partial=False)
-                    cutoff = mapping['arrival_monotonic_ns'] - self.config.overlap_s * 1e9
-                    buffer = [item for item in buffer if item[1]['arrival_monotonic_ns'] >= cutoff]
+                    buffer = ([item for item in buffer if item[1]['arrival_monotonic_ns'] >= next_start_ns]
+                              if self.config.overlap_s and self.config.cadence_s < self.config.window_s else [])
         except Exception as exc:
             self.record('ENCODER_WORKER_FAILED', {'error_type': type(exc).__name__})
 
@@ -240,6 +280,8 @@ class LiveInvestigation:
         rows = [{**row, 'window_frame_index': i, 'window_pts': meta.pts[i], 'window_time_base': meta.time_base}
                 for i, (_, row) in enumerate(buffer)]
         manifest = {'window_id': folder.name, 'source': self.source, 'video_sha256': meta.video_sha256,
+            'target_prompt': self.config.target_prompt, 'target_confirmed': self.config.target_confirmed,
+            'analysis_interval_s': self.config.cadence_s,
             'created_utc': utc_now(), 'partial_capture_window': partial, 'frames': rows,
             'timing_basis': 'SOFTWARE_CFR_PLAYBACK; HOST_MONOTONIC_ARRIVAL_AFTER_READ',
             'capture_time_scale_verified': False, 'physical_fitting_allowed': False,
@@ -247,22 +289,40 @@ class LiveInvestigation:
         write_json(folder / 'manifest.json', manifest)
         self.record('WINDOW_FINALIZED', {'window_id': folder.name, 'manifest_sha256': digest(manifest),
                                         'encoding_latency_s': manifest['encoding_latency_s']})
-        try: self.windows.put_nowait((folder, meta, manifest, time.monotonic()))
-        except queue.Full:
-            with self.lock: self.dropped['windows'] += 1
-            write_json(folder / 'result.json', {'status': 'BACKPRESSURE_NOT_UPLOADED', 'actual_requests': 0})
-            self.record('WINDOW_SKIPPED', {'window_id': folder.name, 'code': 'SAM_QUEUE_FULL'})
+        key = (meta.video_sha256, self.config.target_prompt)
+        with self.lock:
+            if key in self.submitted_upload_keys or key in self.pending_upload_keys:
+                self._skip_window(folder, 'DUPLICATE_CONTENT_AND_PROMPT')
+                return
+            # One freshest pending clip; never accumulate stale FIFO uploads.
+            while True:
+                try: old = self.windows.get_nowait()
+                except queue.Empty: break
+                self.pending_upload_keys.discard((old[1].video_sha256, old[2].get('target_prompt', self.config.target_prompt)))
+                self._skip_window(old[0], 'BACKLOG_SUPERSEDED_BY_NEWER_WINDOW')
+            self.pending_upload_keys.add(key)
+            self.windows.put_nowait((folder, meta, manifest, time.monotonic()))
+
+    def _skip_window(self, folder, code):
+        self.dropped['windows'] += 1
+        self.skipped[code] = self.skipped.get(code, 0) + 1
+        write_json(folder / 'result.json', {'status': 'SKIPPED_NOT_UPLOADED', 'code': code, 'actual_requests': 0})
+        self.record('WINDOW_SKIPPED', {'window_id': folder.name, 'code': code})
 
     async def _process(self, client, folder, meta, manifest, queued):
         start = time.monotonic()
         self.record('SAM_PENDING', {'window_id': folder.name, 'queue_latency_s': start - queued})
         try:
+            if getattr(client, 'concept', self.config.target_prompt) != manifest['target_prompt']:
+                raise SamError('SAM prompt does not match authorized window', code='prompt_binding')
             run = await asyncio.wait_for(client.segment_video(folder / 'input.mp4', meta), self.config.timeout_s)
             if self.cancel.is_set():
                 self.record('SAM_RESULT_AFTER_STOP', {'window_id': folder.name})
                 return
             if run.video_sha256 != meta.video_sha256 or run.receipt.get('status') != 'completed':
                 raise SamError('partial stream is not a track', code='incomplete')
+            if run.receipt.get('prompt') != manifest['target_prompt']:
+                raise SamError('SAM receipt prompt differs from window', code='prompt_binding')
             save_sam_cache(folder / 'sam', run)
             if self.source == 'REAL_PHONE' and run.source != 'REAL_API':
                 raise SamError('fixture cannot be phone evidence', code='provenance')
@@ -271,16 +331,16 @@ class LiveInvestigation:
             save_sam_cache(cache / meta.video_sha256, run)
             # CFR playback speed cannot reject a measurement on physical-speed
             # grounds. Contour/identity/area QA still applies to preliminary pixels.
-            track = extract_track(run, meta, config=TrackConfig(max_speed_px_per_s=float('inf')))
-            object_id = track.summary['object_id']
+            track, summary, diagnostic = analyze_masks(run, meta, manifest)
+            object_id = summary['object_id']
             rows = []
-            for i in np.flatnonzero(track.valid):
+            for i in np.flatnonzero(track.valid) if track is not None else []:
                 row = manifest['frames'][int(i)]
                 rows.append({**row, 'xy_px': track.xy_px[i].tolist(), 'object_id': object_id,
                              'window_id': folder.name, 'window_video_sha256': meta.video_sha256})
             result = {'status': 'PRELIMINARY_OBSERVATION' if rows else 'EMPTY_OR_QUARANTINED',
                 'source': self.source, 'window_id': folder.name, 'receipt': run.receipt,
-                'track': track.summary, 'rows': rows, 'latency_s': time.monotonic() - start,
+                'track': summary, 'diagnostic': diagnostic, 'rows': rows, 'latency_s': time.monotonic() - start,
                 'end_to_end_latency_s': time.monotonic() - queued,
                 'latency_scope': 'FINALIZED_WINDOW_QUEUE_TO_RESULT; CAPTURE_AND_ENCODING_EXCLUDED',
                 'physical_fitting_allowed': False, 'complete_validated_track': False}
@@ -290,16 +350,19 @@ class LiveInvestigation:
                 # admitted only through agreeing overlapping source frames.
                 overlap = [(self.trajectory[(r['recording_id'], r['capture_sequence'], r['arrival_monotonic_ns'])], r)
                     for r in rows if (r['recording_id'], r['capture_sequence'], r['arrival_monotonic_ns']) in self.trajectory]
-                continuity = not self.trajectory or bool(overlap) and all(
+                continuity = bool(overlap) and all(
                     old['object_id'] == new['object_id'] and np.linalg.norm(np.array(old['xy_px']) - new['xy_px']) <= 3
                     for old, new in overlap)
-                result['identity_continuity'] = 'OVERLAP_AGREEMENT' if continuity else 'UNVERIFIED_OR_DISCONTINUOUS'
+                result['identity_continuity'] = ('NO_OBSERVATIONS' if not rows else 'OVERLAP_AGREEMENT' if continuity
+                    else 'FIRST_WINDOW_UNVERIFIED' if not self.trajectory else 'UNVERIFIED_OR_DISCONTINUOUS')
                 result['new_observations'] = 0
                 for row in rows:
                     key = (row['recording_id'], row['capture_sequence'], row['arrival_monotonic_ns'])
                     if key not in self.trajectory:
                         self.trajectory[key] = row
                         result['new_observations'] += 1
+                result['cumulative_unique_observations'] = len(self.trajectory)
+                self.last_sam_latency_s = result['latency_s']
                 # Session capture is bounded by max_windows and finite frame budgets.
                 self.latest = result
                 if jpeg:
@@ -308,16 +371,17 @@ class LiveInvestigation:
                     while len(self.processed_frames) > 2:
                         del self.processed_frames[next(iter(self.processed_frames))]
                 self.processed += 1
+                if rows: self.usable_windows += 1
             write_json(folder / 'result.json', result)
             self.record('SAM_COMPLETED', {**{k: result[k] for k in ('window_id', 'latency_s', 'end_to_end_latency_s', 'new_observations', 'identity_continuity')},
                 'result_sha256': digest(result), 'mask_index_sha256': file_sha256(folder / 'sam.json'),
                 'mask_arrays_sha256': file_sha256(folder / 'sam.npz')})
-            if rows: self.enqueue_science('observation', result)
+            self.enqueue_science('observation', result)
         except asyncio.CancelledError:
             self.record('SAM_CANCELLED', {'window_id': folder.name})
             raise
         except Exception as exc:
-            code = exc.code if isinstance(exc, SamError) else type(exc).__name__
+            code = getattr(exc, 'code', type(exc).__name__)
             result = {'status': 'FAILED', 'code': code, 'window_id': folder.name,
                       'latency_s': time.monotonic() - start, 'complete_validated_track': False,
                       'calls': list(exc.calls) if isinstance(exc, SamError) else []}
@@ -341,7 +405,13 @@ class LiveInvestigation:
             client = None
             try:
                 while not self.cancel.is_set():
-                    try: item = self.windows.get_nowait()
+                    try:
+                        with self.lock:
+                            item = self.windows.get_nowait()
+                            key = (item[1].video_sha256, item[2]['target_prompt'])
+                            self.pending_upload_keys.discard(key)
+                            self.submitted_upload_keys.add(key)
+                            self.sam_active_window = item[0].name
                     except queue.Empty:
                         await asyncio.sleep(.05)
                         continue
@@ -352,6 +422,7 @@ class LiveInvestigation:
                         await asyncio.wait({task}, timeout=.05)
                     try: await task
                     except asyncio.CancelledError: pass
+                    finally: self.sam_active_window = None
             except Exception as exc:
                 self.record('SAM_WORKER_UNAVAILABLE', {'error_type': type(exc).__name__})
             finally:
@@ -359,11 +430,29 @@ class LiveInvestigation:
         asyncio.run(run())
 
     def enqueue_science(self, kind, payload):
-        if self.cancel.is_set(): raise ValueError('AI investigation is stopped')
+        if self.cancel.is_set():
+            if kind == 'observation': return False
+            raise ValueError('AI investigation is stopped')
+        with self.lock:
+            if kind == 'observation':
+                if self.pending_observation is not None:
+                    self.coalesced_observations += 1
+                    self.record('SCIENCE_OBSERVATION_COALESCED', {'previous_window': self.pending_observation['window_id'],
+                        'latest_window': payload['window_id']})
+                self.pending_observation = deepcopy(payload)
+                return True
+            if kind == 'operator' and (self.operator_pending or self.science_busy):
+                self.record('SCIENCE_OPERATOR_EVENT_COALESCED', {'code': 'ALREADY_PENDING_OR_RUNNING'})
+                return False
+            if kind == 'operator': self.operator_pending = True
         try: self.science.put_nowait((kind, deepcopy(payload)))
         except queue.Full:
-            with self.lock: self.dropped['science'] += 1
-            if kind != 'observation': raise ValueError('Scientific worker busy; retry after completion')
+            with self.lock:
+                self.dropped['science'] += 1
+                if kind == 'operator': self.operator_pending = False
+            self.record('SCIENCE_CONTROL_REJECTED', {'kind': kind, 'code': 'CONTROL_QUEUE_FULL'})
+            raise ValueError('Scientific control queue full; retry after completion')
+        return True
 
     def _science_loop(self):
         reasoner = None
@@ -371,13 +460,35 @@ class LiveInvestigation:
             from .live_science import LiveScientificSession
             reasoner = self.reasoner_factory(self) if self.reasoner_factory else LiveScientificSession(self)
             while not self.cancel.is_set():
-                try: kind, value = self.science.get(timeout=.1)
-                except queue.Empty: continue
+                # Operator/admission controls cannot starve behind continuous snapshots.
+                try: kind, value = self.science.get_nowait()
+                except queue.Empty:
+                    with self.lock:
+                        observation, self.pending_observation = self.pending_observation, None
+                    if observation is None:
+                        self.cancel.wait(.05)
+                        continue
+                    kind, value = 'observation', observation
+                self.science_busy = True
+                if kind == 'operator': self.operator_pending = False
                 try: reasoner.consume(kind, value)
                 except Exception as exc:
-                    self.record('SCIENCE_EVENT_REJECTED', {'kind': kind, 'error_type': type(exc).__name__})
+                    from realign.agent.adapters import AdapterFailure
+                    diagnostic = (exc.diagnostic() if isinstance(exc, AdapterFailure) else
+                        {'code': getattr(exc, 'code', 'EVIDENCE_ADMISSION_REJECTED' if kind == 'admit' else 'SCIENTIFIC_VALIDATION_REJECTED'),
+                         'category': 'SCIENTIFIC_VALIDATION', 'http_status': None, 'error_type': type(exc).__name__})
+                    adapter = getattr(reasoner, 'adapter', None)
+                    receipts = getattr(adapter, 'receipts', [])[-3:]
+                    # Closed safe receipt fields only. Never serialize messages or exception bodies.
+                    diagnostic['api_receipts'] = [{k: r[k] for k in ('status', 'error_type', 'http_status', 'response_sha256') if k in r} for r in receipts]
+                    diagnostic['guidance'] = ('Review the safe HTTP/transport code and account configuration; no automatic retry on unchanged evidence.'
+                        if diagnostic['category'] in ('META_HTTP', 'META_TRANSPORT', 'SDK_RUNTIME') else
+                        'The response or scientific input was rejected. Inspect the typed code and admission blockers; no physical conclusion was accepted.')
+                    self.scientific['last_error'] = diagnostic
+                    self.record('SCIENCE_EVENT_REJECTED', {'kind': kind, **diagnostic})
                     if not self.pending_action and self.scientific['state'] == 'AGENT_INVESTIGATING':
                         self.scientific['state'] = 'CALIBRATED_OBSERVATION' if self.scientific['physical_evidence_accepted'] else 'PRELIMINARY_OBSERVATION'
+                finally: self.science_busy = False
         finally:
             if reasoner is not None: reasoner.close()
 
@@ -407,7 +518,13 @@ class LiveInvestigation:
                 'state': 'STOPPED' if self.cancel.is_set() else self.scientific['state'],
                 'windowing': asdict(self.config), 'finalized_windows': self.finalized,
                 'processed_windows': self.processed, 'queued_frames': self.frames.qsize(),
+                'usable_windows': self.usable_windows,
                 'queued_windows': self.windows.qsize(), 'dropped': dict(self.dropped),
+                'throughput': {'policy': 'ONE_FRESHEST_PENDING_WINDOW', 'analysis_interval_s': self.config.cadence_s,
+                    'sam_active_window': self.sam_active_window, 'last_service_latency_s': self.last_sam_latency_s,
+                    'service_slower_than_cadence': self.last_sam_latency_s is not None and self.last_sam_latency_s > self.config.cadence_s,
+                    'skipped_windows_by_reason': dict(self.skipped), 'cadence_skipped_sampled_frames': self.cadence_skipped_frames,
+                    'coalesced_observations': self.coalesced_observations, 'scientific_worker_busy': self.science_busy},
                 'unique_observations': len(self.trajectory), 'latest': deepcopy(self.latest),
                 'scientific': deepcopy(self.scientific), 'pending_action': deepcopy(self.pending_action),
                 'experiment_history': deepcopy(self.history), 'events': list(self.events), 'audit_head': self.audit.head}

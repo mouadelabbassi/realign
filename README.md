@@ -74,6 +74,12 @@ Original MP4 import and the existing Task 06 workflow remain available. See the
 [concurrent investigation guide, verification and limitations](docs/TASK09_LIVE_INVESTIGATION.md)
 and the [capture/import guide](docs/TASK08_LIVE_LAB.md).
 
+The first real live test produced no usable SAM observations and no completed
+scientific investigation. The [Task 09.1 forensic repair guide](docs/TASK09_1_LIVE_REPAIR.md)
+documents the saved evidence, selected-target prompt, empty-mask diagnostics,
+local readiness without wasted Muse calls, and bounded backlog policy. A new
+owner-approved phone/Meta test is still required; no real end-to-end success is claimed.
+
 ## What is demonstrated
 
 | Evidence branch | Actual result | Boundary |

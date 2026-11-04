@@ -1,0 +1,79 @@
+{
+  "task": "09.1",
+  "baseline_commit": "c7c4151d9d6e09c93034fc532d69c7587f13960c",
+  "baseline_full_regression": {
+    "tests": "425",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "18",
+    "time": "1072.914"
+  },
+  "baseline_g1": {
+    "passed": true,
+    "randomized_cases": 250,
+    "failures": 0
+  },
+  "repair_and_protocol_tests": {
+    "tests": "109",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "171.060"
+  },
+  "final_core_tests": {
+    "tests": "102",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "113.238"
+  },
+  "browser_regression": {
+    "tests": "17",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "264.796"
+  },
+  "real_failed_session": {
+    "window_0001_sha256": "e97f9c06bdec5570ff7f7835ae6d67cd1a026c2e154daf9199f8cafde15e7949",
+    "returned_masks": 0,
+    "valid_frames": 0,
+    "missing_frames": 42,
+    "shape_rejections": 0,
+    "muse_failure_cause": "UNKNOWN; legacy code/status/receipts not persisted",
+    "queue_drops": "Owner reported two scientific drops; individual legacy drop events not persisted"
+  },
+  "original_evidence": {
+    "files_initially_verified": 33,
+    "later_unchanged_files": 32,
+    "initial_29_event_timeline_prefix": "BYTE_IDENTICAL",
+    "external_append": "One CAMERA_DISCONNECTED stop event from the preexisting running controller",
+    "agent_evidence_writes": 0
+  },
+  "new_paid_meta_requests": 0,
+  "real_hardware_retest": "NOT_RUN; separate owner approval required",
+  "real_end_to_end_success": false,
+  "protected_numerical_and_g5_files": "UNCHANGED; verified git diff from baseline",
+  "status_at_metadata_write": "FULL_262e1e1_AND_TARGETED_PROTOCOL_RECOVERY_PASS; FINAL_FULL_AND_REMOTE_CI_PENDING",
+  "reproduction": [
+    "python scripts/inspect_live_session.py <session> --output data/processed/task091/forensic.json",
+    "python -m pytest -q",
+    "REALIGN_BROWSER_TESTS=1 python -m pytest -q tests/test_live_lab_browser.py"
+  ],
+  "source_tree_sha256": "03560e3dbc47376a237cd3fe88cb772b68785e0f3022a0608b665117caa83a7d",
+  "source_hash_mode": "RELATIVE_PATH_PLUS_LF_NORMALIZED_PYTHON_BYTES",
+  "full_regression_262e1e1": {
+    "tests": "442",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "19",
+    "time": "1155.839"
+  },
+  "protocol_recovery_tests": {
+    "tests": "76",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "22.013"
+  }
+}

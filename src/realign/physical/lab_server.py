@@ -119,6 +119,7 @@ def make_lab_server(controller, *, port=8770):
                 elif path in ('/api/ai/reason', '/api/ai/admit', '/api/ai/confirm-action'):
                     live = controller.live
                     if live is None or live.cancel.is_set(): raise ValueError('Authorize an active AI investigation first')
+                    accepted = True
                     if path == '/api/ai/confirm-action': live.confirm_action(body.get('request_id'))
                     elif path == '/api/ai/admit':
                         from realign.perception.workflow import _path
@@ -126,9 +127,9 @@ def make_lab_server(controller, *, port=8770):
                         if not isinstance(source, str) or not 1 <= len(source) <= 2048: raise ValueError('Local approved manifest required')
                         source = _path(source, Path.cwd())
                         if not source.is_file() or source.suffix != '.json': raise ValueError('Local JSON manifest required')
-                        live.enqueue_science('admit', {'manifest': str(source)})
-                    else: live.enqueue_science('operator', {})
-                    result = {'status': 'QUEUED', 'investigation': live.snapshot()}
+                        accepted = live.enqueue_science('admit', {'manifest': str(source)})
+                    else: accepted = live.enqueue_science('operator', {})
+                    result = {'status': 'CONFIRMED' if path == '/api/ai/confirm-action' else 'QUEUED' if accepted else 'COALESCED', 'investigation': live.snapshot()}
                 else: return self.send({'error': 'NOT_FOUND'}, status=404)
                 self.send(result)
             except ValueError as exc: self.send({'error': str(exc)}, status=409)
