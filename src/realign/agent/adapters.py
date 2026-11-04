@@ -284,5 +284,20 @@ class MuseAdapter:
             self.messages.append({'role':'tool','tool_call_id':self._raw_ids[call.call_id],'content':canonical(validated).decode()})
         self._pending=()
 
+    def reject_pending(self,calls,*,code):
+        """Close a refused tool round without fabricating a numerical result.
+
+        No evidence reference or metric is emitted. This is controller protocol
+        feedback, not a successful invocation of an unavailable scientific tool.
+        """
+        if code not in ('SCIENTIFIC_TOOLS_UNAVAILABLE','TOOL_STAGE_NOT_ALLOWED'):
+            raise AdapterFailure('unapproved controller refusal code')
+        if [(c.call_id,c.name) for c in calls]!=[(c.call_id,c.name) for c in self._pending]:
+            raise AdapterFailure('refusal must match the pending tool round')
+        for call in calls:
+            self.messages.append({'role':'tool','tool_call_id':self._raw_ids[call.call_id],
+                'content':canonical({'error':{'code':code,'source':'LOCAL_CONTROLLER_GATE','executed':False}}).decode()})
+        self._pending=()
+
     def close(self):
         self.client.close()

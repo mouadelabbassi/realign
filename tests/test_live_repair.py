@@ -11,11 +11,13 @@ import pytest
 from realign.agent.adapters import AdapterFailure, MuseAdapter
 from realign.audit.chain import digest
 from realign.contracts.investigation import Budget
+from realign.contracts.investigation import AgentTurn, Hypothesis
 from realign.contracts.video import VideoMetadata
 from realign.perception.sam_client import SamRun, SamMask, parse_sam_events
 from realign.physical.live_investigation import LiveConfig, LiveInvestigation, AuthorizationError
 from realign.physical.live_observation import analyze_masks
 from realign.physical.live_science import LiveScientificSession
+from realign.physical.live_science import ScientificGateRejection
 from realign.physical.live_forensics import inspect_session
 from realign.synth.video_fixture import fixture_events, protocol_line
 from test_live_investigation import POLICY, MockMeta, MockStream, NoReasoning, ScriptedAdapter, eligible_snapshot, frames, until, live_factory
@@ -95,6 +97,46 @@ def test_no_muse_on_unchanged_or_empty_evidence_after_protocol_failure(live_fact
     science.consume('observation',eligible_snapshot('new-window',2))
     with pytest.raises(AdapterFailure): science.consume('operator',{})
     assert live.ledger.snapshot()['attempted_requests']['muse'] == 2
+    science.close()
+
+
+def test_refused_tool_round_does_not_lock_muse_after_new_eligible_evidence(live_factory):
+    from openai.types.chat import ChatCompletion
+    requests=[]
+    def respond(**kwargs):
+        requests.append(kwargs)
+        context=json.loads(kwargs['messages'][-1]['content'])
+        if len(requests)==1:
+            message={'role':'assistant','tool_calls':[{'id':'remote_TEST_FIXTURE','type':'function',
+                'function':{'name':'fit_candidate_model','arguments':json.dumps({'trial_refs':['a'*64],
+                    'candidate':'FREE','nominal_model_ref':'b'*64,'budget_ref':'c'*64})}}]}
+            finish='tool_calls'
+        else:
+            action='HYPOTHESIZE' if context['stage']=='HYPOTHESIZE' else 'REQUEST_EVIDENCE'
+            turn=AgentTurn(action=action,hypotheses=(Hypothesis(family='MEASUREMENT',status='UNRESOLVED',evidence_refs=()),),
+                experiment_ref=context['candidates'][0]['experiment_ref'] if action=='REQUEST_EVIDENCE' else None,
+                outcome=None,model_ref=None,evidence_refs=tuple(context['evidence_refs']),reasons=())
+            message={'role':'assistant','content':turn.model_dump_json()};finish='stop'
+        return ChatCompletion(id='chatcmpl_TEST_FIXTURE',object='chat.completion',created=0,model='muse-spark-1.3',
+            choices=[{'index':0,'message':message,'finish_reason':finish}])
+    class Client:
+        chat=NS(completions=NS(create=respond))
+        def close(self): pass
+    live,_=live_factory()
+    science=LiveScientificSession(live,adapter_factory=lambda budget:MuseAdapter(Client(),budget=budget,source='SIMULATED_API_FIXTURE'))
+    with pytest.raises(ScientificGateRejection) as failure:
+        science.consume('observation',eligible_snapshot())
+    assert failure.value.code=='SCIENTIFIC_TOOLS_UNAVAILABLE'
+    assert science.adapter._pending==() and science.agent is None and live.scientific['tool_results']==[]
+    feedback=json.loads(science.adapter.messages[-1]['content'])
+    assert feedback=={'error':{'code':'SCIENTIFIC_TOOLS_UNAVAILABLE','source':'LOCAL_CONTROLLER_GATE','executed':False}}
+    for _ in range(3): science.consume('operator',{})
+    assert len(requests)==1
+    science.last_reasoning=float('inf')  # Store the new snapshot without an automatic burst in this fixture.
+    science.consume('observation',eligible_snapshot('new-data',2))
+    science.consume('operator',{})
+    assert len(requests)==3 and live.pending_action is not None
+    assert science.adapter._pending==() and live.scientific['tool_results']==[]
     science.close()
 
 

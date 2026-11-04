@@ -21,6 +21,12 @@ from .ingestion import ingest_phone
 from .session import PhysicalEnvironment, PhysicalValidator
 
 
+class ScientificGateRejection(ValueError):
+    def __init__(self,message,*,code):
+        super().__init__(message)
+        self.code=code
+
+
 def verify_window_timing(trial, window, reference):
     """Independent exposure samples must agree with playback, within their error.
 
@@ -181,7 +187,11 @@ class LiveScientificSession:
                 'reply': reply.model_dump(mode='json'), 'step': self.steps})
             if reply.calls:
                 if self.agent is None or self.agent.machine.stage != 'TEST':
-                    raise ValueError('Metric tools blocked until independently calibrated admission')
+                    code='SCIENTIFIC_TOOLS_UNAVAILABLE' if self.agent is None else 'TOOL_STAGE_NOT_ALLOWED'
+                    if hasattr(self.adapter,'reject_pending'): self.adapter.reject_pending(reply.calls,code=code)
+                    live.record('SCIENTIFIC_TOOL_REFUSED', {'code':code,'tools':[c.name for c in reply.calls],
+                        'executed':False,'source':'LOCAL_CONTROLLER_GATE'})
+                    raise ScientificGateRejection('Metric tools blocked until calibrated admission and the allowed tool stage',code=code)
                 results = []
                 for call in reply.calls:
                     arguments = TOOLS[call.name][0].model_validate_json(canonical(strict_json(call.arguments))).model_dump(mode='json')

@@ -86,6 +86,10 @@ or model comparison was produced. This was not real end-to-end scientific succes
   exception type and safe receipt hashes/outcomes. HTTP/transport/SDK failures,
   model-protocol rejection and scientific admission rejection are distinct.
   Raw messages, response bodies, headers and credentials are not logged.
+- A tool round refused by the controller is closed with explicit
+  `LOCAL_CONTROLLER_GATE`, `executed: false` feedback. It emits no numerical
+  result or evidence reference. New eligible evidence can resume the same Muse
+  conversation instead of leaving it permanently waiting for an unavailable tool.
 - The UI initially proposes nonoverlapping four-second windows starting every
   twelve seconds. This is a conservative starting policy informed by the saved
   service time, not a throughput guarantee. The low-level configuration retains
