@@ -369,6 +369,7 @@ class LiveInvestigation:
             if getattr(client, 'concept', self.config.target_prompt) != manifest['target_prompt']:
                 raise SamError('SAM prompt does not match authorized window', code='prompt_binding')
             client.on_partial = lambda run: self._partial(run,folder,meta,manifest,epoch,start)
+            client.request_confidence = True
             method, path = (client.segment_image, folder/'input.png') if image else (client.segment_video,folder/'input.mp4')
             run = await asyncio.wait_for(method(path,meta), self.config.timeout_s)
             if self.cancel.is_set() or self.paused.is_set() or epoch != self.request_epoch:

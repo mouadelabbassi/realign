@@ -36,7 +36,7 @@
     "time": "62.282"
   },
   "full_regression_and_remote_ci": "PENDING_AT_METADATA_WRITE; final result is recorded in PR and delivered receipt",
-  "source_python_sha256": "eb52fc26ddbde7d1596f9f8c44a6dbde336d2af79493649a360f5771c16fea07",
+  "source_python_sha256": "496931198cd5d001d89f14a06d34954ac89cc258d95e373e0baf1edbda7f8854",
   "source_hash_mode": "RELATIVE_PATH_PLUS_LF_NORMALIZED_PYTHON_BYTES",
   "scientific_kernel_and_historical_G5": "UNCHANGED; git diff checked",
   "original_owner_artifact_changes": "PRESERVED_UNCOMMITTED",
@@ -62,6 +62,14 @@
     "markdown_math_libraries_and_licenses": "PRESENT",
     "runtime_CDN_dependencies": 0
   },
-  "python_and_tests_tree_sha256": "3826db19542cb9dfdec4f1f67d4be4a9939d26617836355295d086a4babe592b",
-  "numerical_validation_checkout": "8591d9e; identical Python/test tree; frontend control-availability fix tested by final browser suite"
+  "python_and_tests_tree_sha256": "a0b5c3ebb4bee58fe64f3a82ff8f6cb2f8b51033f8320c5d583dacfe748a95ad",
+  "numerical_validation_checkout": "FRESH_FINAL_FULL_REGRESSION_PENDING",
+  "sam_compatibility_tests": {
+    "tests": "107",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "69.824"
+  },
+  "legacy_sam_contract": "PASS; unchanged default upload/request shape; partial callback and confidence remain opt-in"
 }

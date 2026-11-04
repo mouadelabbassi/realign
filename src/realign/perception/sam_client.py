@@ -142,6 +142,7 @@ class SamClient:
         self.calls=[]
         self.before_request=before_request
         self.on_partial=None
+        self.request_confidence=False  # Existing offline request shape stays stable.
         if type(max_attempts) is not int or not 1<=max_attempts<=3: raise ValueError('retry limit')
         self.max_attempts=max_attempts
 
@@ -191,12 +192,14 @@ class SamClient:
         file_id=uploaded.id
         if not isinstance(file_id,str) or not file_id.startswith('file-'):
             raise SamError('Files API returned an invalid file ID',code='file_id',calls=self.calls[first_call:])
-        request={'model':MODEL,'stream':True,'metadata':{'include_confidence':'true'},'input':[{'type':'message','role':'user','content':[
+        request={'model':MODEL,'stream':True,'input':[{'type':'message','role':'user','content':[
             {'type':'input_text','text':self.concept},{'type':'input_video','file_id':file_id}]}]}
+        if self.request_confidence: request['metadata']={'include_confidence':'true'}
         async def segment():
             stream=await self.api.responses.create(**request)
             async with stream:
-                return await parse_sam_events(stream,metadata,source=self.source,on_partial=self.on_partial)
+                options = {'on_partial':self.on_partial} if self.on_partial is not None else {}
+                return await parse_sam_events(stream,metadata,source=self.source,**options)
         run=await self._request('segmentation',segment,first_call=first_call)
         receipt=dict(run.receipt,upload_file_id=file_id,
             prompt=self.concept,
