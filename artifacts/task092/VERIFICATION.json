@@ -22,18 +22,18 @@
     "time": "44.107"
   },
   "full_browser_regression": {
-    "tests": "20",
+    "tests": "21",
     "failures": "0",
     "errors": "0",
     "skipped": "0",
-    "time": "100.923"
+    "time": "120.194"
   },
   "final_live_browser_tests": {
     "tests": "8",
     "failures": "0",
     "errors": "0",
     "skipped": "0",
-    "time": "56.360"
+    "time": "62.282"
   },
   "full_regression_and_remote_ci": "PENDING_AT_METADATA_WRITE; final result is recorded in PR and delivered receipt",
   "source_python_sha256": "eb52fc26ddbde7d1596f9f8c44a6dbde336d2af79493649a360f5771c16fea07",
@@ -54,5 +54,14 @@
     "time": "45.209"
   },
   "camera_discovery": "PASS; injected indices 2 and 5, safe per-device failures, no-camera guidance, no API requests",
-  "fixture_reliability": "Window-producing fixtures coordinate with the local encoder; they never wait for SAM."
+  "fixture_reliability": "Window-producing fixtures coordinate with the local encoder; they never wait for SAM.",
+  "packaging": {
+    "status": "PASS",
+    "wheel": "realign_poc0-0.1.0-py3-none-any.whl",
+    "bundled_katex_fonts": 20,
+    "markdown_math_libraries_and_licenses": "PRESENT",
+    "runtime_CDN_dependencies": 0
+  },
+  "python_and_tests_tree_sha256": "3826db19542cb9dfdec4f1f67d4be4a9939d26617836355295d086a4babe592b",
+  "numerical_validation_checkout": "8591d9e; identical Python/test tree; frontend control-availability fix tested by final browser suite"
 }

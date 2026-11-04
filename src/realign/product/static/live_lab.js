@@ -24,7 +24,7 @@
       md('camera-state',s.state+(s.error?` · ${s.error}`:'')+(s.camera_stalled?' · CAMERA_STALLED':''));$('camera-state').classList.toggle('live',s.state==='RECORDING');
       const c=s.capture;md('telemetry',`${c.frames.toLocaleString()} recorded frames · arrival FPS ${c.effective_fps?.toFixed(2)??'unknown'} · ${c.gap_indicators} gap indicators · physical timing unverified`);
       md('capture-indicator',s.state==='RECORDING'?'● RECORDING':connected?'● LIVE PREVIEW':'CAMERA OFFLINE');
-      $('start').disabled=!connected||s.state==='RECORDING'||s.camera_stalled;$('stop').disabled=s.state!=='RECORDING';$('connect').disabled=connected||scanning||(hasScanned&&!$('devices').options.length);$('scan').disabled=connected||scanning;$('devices').disabled=connected||scanning||(hasScanned&&!$('devices').options.length);$('disconnect').disabled=!s.camera;$('import').disabled=s.state==='RECORDING';
+      $('start').disabled=busy||!connected||s.state==='RECORDING'||s.camera_stalled;$('stop').disabled=busy||s.state!=='RECORDING';$('connect').disabled=busy||connected||scanning||(hasScanned&&!$('devices').options.length);$('scan').disabled=busy||connected||scanning;$('devices').disabled=busy||connected||scanning||(hasScanned&&!$('devices').options.length);$('disconnect').disabled=busy||!s.camera;$('import').disabled=busy||s.state==='RECORDING';
       $('preview').hidden=!connected;$('preview-empty').hidden=connected;
       if(connected&&!previewTimer)nextPreview();if(!connected&&previewTimer){clearTimeout(previewTimer);previewTimer=null;}
       lastScan=s.device_scan;renderInvestigation(s.investigation,s.state);
