@@ -15,22 +15,22 @@
   "new_paid_meta_requests": 0,
   "real_world_milestone_complete": false,
   "targeted_live_tests": {
-    "tests": "97",
+    "tests": "101",
     "failures": "0",
     "errors": "0",
     "skipped": "0",
-    "time": "79.735",
-    "scope": "Continuous Live, adapters, automatic flow, capture, repair and local server integration"
+    "time": "68.204"
   },
   "full_browser_regression": {
     "tests": "21",
     "failures": "0",
     "errors": "0",
     "skipped": "0",
-    "time": "215.085"
+    "time": "215.085",
+    "commit": "a6a6fb2; UI identical; final CI browser recheck pending"
   },
-  "full_regression_and_remote_ci": "PENDING_FOR_CONTINUOUS_LIVE_AT_COMMIT; final result is recorded in PR and delivered receipt",
-  "source_python_sha256": "9e0ec2a9530c3c738cfed23566f3e5f4e19e29ca04f8f20881b84817a532245c",
+  "full_regression_and_remote_ci": "PENDING_FOR_FINAL_PRECISION_GUARD_AT_COMMIT; final result is recorded in PR and delivered receipt",
+  "source_python_sha256": "368a50d53bf71c3eb8077fbba6e3682084adf94897a3ee6673faa8b91e827a02",
   "source_hash_mode": "SORTED_RELATIVE_PATH_NUL_LF_NORMALIZED_PYTHON_BYTES",
   "scientific_kernel_and_historical_G5": "UNCHANGED; git diff checked",
   "original_owner_artifact_changes": "PRESERVED_UNCOMMITTED",
@@ -49,7 +49,7 @@
     "markdown_math_libraries_and_licenses": "PRESENT",
     "runtime_CDN_dependencies": 0
   },
-  "python_and_tests_tree_sha256": "ebc0510d651c3d4557a602c98ccbbd56bf4ad399b9174eb186e9ef13b7eaee64",
+  "python_and_tests_tree_sha256": "7f4037dfc57ee92806c13c143b9a763226d364bfec6c909c28fe70128e030e8f",
   "numerical_validation_checkout": "Final continuous Live checkout pending; original numerical kernel and validation unchanged",
   "legacy_sam_contract": "PASS; unchanged default upload/request shape; partial callback and confidence remain opt-in",
   "prior_complete_regression": {
@@ -66,5 +66,32 @@
     "jobs_passed": 4
   },
   "continuous_live": "PASS; no session-duration, recording-count, window-count or paid-request-count cutoff; finite spending reserve gate retained",
-  "terminal_logging": "PASS; INFO lifecycle/API/science diagnostics, DEBUG frame traces; credentials and raw request/response bodies excluded"
+  "terminal_logging": "PASS; INFO lifecycle/API/science diagnostics, DEBUG frame traces; credentials and raw request/response bodies excluded",
+  "continuous_precision_tests": {
+    "tests": "12",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "9.182"
+  },
+  "unique_targeted_tests_passed": 102,
+  "prior_full_matrix": {
+    "commit": "a6a6fb2d884e86eaae94aba30153992607b40288",
+    "python_3_11": {
+      "passed": 442,
+      "skipped": 23,
+      "time_s": 558.5
+    },
+    "python_3_12": {
+      "passed": 442,
+      "skipped": 23,
+      "time_s": 699.37
+    },
+    "numerical_reproduction": "PASS_BOTH",
+    "browser": {
+      "passed": 20,
+      "skipped": 1
+    }
+  },
+  "continuous_money_precision": "PASS; minimum .001 USD, microdollar precision; every accepted reservation advances exactly"
 }

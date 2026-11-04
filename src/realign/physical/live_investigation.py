@@ -105,6 +105,13 @@ class RequestLedger:
         self.policy = deepcopy(policy)
         self.ceiling = self._money(policy['ceiling_usd'])
         self.rates = {k: self._money(policy[k + '_reserve_usd']) for k in ('sam', 'muse')}
+        if continuous:
+            # Keep every addition exact at Decimal's default precision. The UI
+            # uses a .001 USD minimum; sub-microdollar fractions cannot silently
+            # round away after an accumulated reserve grows.
+            for amount in (self.ceiling, *self.rates.values()):
+                if amount < Decimal('.001') or amount != amount.quantize(Decimal('.000001')):
+                    raise AuthorizationError('Continuous USD amounts require at least .001 and at most six decimal places')
         self.counts = {'sam': 0, 'muse': 0}
         self.reserved = Decimal('0')
         self.enabled = True

@@ -134,6 +134,8 @@ Logs omit credentials, request/response bodies, prompts and image/video payloads
 Raw SDK logging is not enabled. The local evidence journal retains the scientific
 records for inspection. Logging does not authorize APIs: ordinary preview,
 Find cameras and manual recording remain offline until explicit Go Live consent.
+Continuous USD amounts must be at least .001, with microdollar precision (up to six
+meaningful decimal places), so each accepted reservation advances the ledger exactly.
 Reserved USD amounts are owner estimates, **not a guarantee of actual Meta billing**.
 
 ## Verify without hardware or paid services

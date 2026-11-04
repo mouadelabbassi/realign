@@ -54,6 +54,24 @@ def test_continuous_muse_uses_session_gate_and_retains_bounded_receipts():
     assert len(calls) == 85 and adapter.stats['fixture_requests'] == 85
 
 
+@pytest.mark.parametrize('patch', [{'sam_reserve_usd': '1e-40'},
+    {'sam_reserve_usd': '.0001'}, {'sam_reserve_usd': '.0010000000000000000001'},
+    {'ceiling_usd': '1e-40'}])
+def test_continuous_money_cannot_round_away_reserved_attempts(patch):
+    with pytest.raises(AuthorizationError, match='decimal places'):
+        RequestLedger(policy(**patch), lambda *e: None, continuous=True)
+
+
+def test_continuous_microdollar_reserves_advance_exactly_after_large_attempt():
+    ledger = RequestLedger(policy(ceiling_usd='1.002002', sam_reserve_usd='.001001',
+        muse_reserve_usd='1'), lambda *e: None, continuous=True)
+    ledger.reserve('muse', 'reasoning')
+    ledger.reserve('sam', 'upload')
+    ledger.reserve('sam', 'segment')
+    assert ledger.snapshot()['reserved_usd'] == '1.002002'
+    with pytest.raises(AuthorizationError): ledger.reserve('sam', 'upload')
+
+
 def test_continuous_journal_retains_full_verified_chain_with_bounded_memory(auto_factory, tmp_path):
     factory, _, config = auto_factory()
     live = factory(tmp_path, policy(), config=replace(config, continuous=True))
