@@ -1,7 +1,7 @@
 # Task 09.2 — Automatic Live Lab
 
 The native controller now supports a server-authorized `AUTO_LIVE` session:
-**authorize once → connect → automatic capture → startup SAM image → background
+**review target and spending cap → Go Live → automatic capture → startup SAM image → background
 SAM video windows → automatic eligible Muse reasoning → human experiment →
 independently admitted response → automatic continuation**.
 
@@ -24,20 +24,19 @@ python scripts/run_live_lab.py --port 8772
 Open **http://127.0.0.1:8772**. Stop an older Python controller or choose a free
 port; refreshing static files alone cannot load new backend code.
 
-1. Select **Set up Auto-Live**. Enter one descriptive intended target phrase,
-   confirm it, review the window strategy, and set SAM/Muse attempt caps, an
-   estimated USD ceiling and owner-reviewed per-attempt reserves. Confirm upload
-   consent and Standard tier. Select **Authorize Auto-Live** once.
-2. Select **Find cameras** to scan camera inputs 0–7. The labeled button shows
-   search progress, populates the device selector with detected indices/backends,
-   and reports permission/connection guidance if none are found. Scanning opens
-   and releases local probes; it never uploads video, starts capture or spends
-   API authorization. The backend accepts a bounded `maximum` up to 16 for an
-   extended scan. A driver-open result does not identify the phone: select
-   **Connect** and verify the preview. Capture
-   starts automatically. The first recorded, source-mapped frame is saved as a
-   PNG and sent to SAM immediately, without waiting for an MP4 window. There is
-   no second Start AI or Approve Investigation Event button.
+1. Select **Find cameras** to search camera inputs 0–7. This local scan never
+   uploads, records or authorizes paid calls. Select the detected input; **Connect**
+   is available to identify your phone in an offline preview. The backend supports
+   an extended scan of up to 16 indices. A driver-open result alone cannot identify
+   the phone. No-device guidance covers permissions, USB and webcam apps.
+2. Open **Go Live**, enter and confirm your intended visible target, set a finite
+   USD spending reserve cap and owner-reviewed per-attempt SAM/Muse estimates,
+   and confirm upload consent and Standard tier. Select the setup's **Go Live**.
+   This one action authorizes the session, connects the selected camera if needed
+   and starts recording. An existing manual recording is saved at a source boundary
+   before automatic capture begins. The first recorded, source-mapped frame is
+   saved as a PNG and sent to SAM without waiting for an MP4 window. There is no
+   second Connect, Start AI or Approve Investigation Event step.
 3. Watch the camera stage and its exact-source SAM inset. New completed, usable
    observations trigger Muse automatically within the same authorization.
 4. When an experiment appears, review its parameters. Select **I am ready to
@@ -83,14 +82,27 @@ product remain available (`python scripts/run_realign.py --port 8765`).
 - A completed zero-mask result reports **NO_TARGET_OBSERVED**, keeps recording
   and blocks more automatic SAM requests as well as empty-evidence Muse calls.
   **Authorize revised target** requires a changed phrase and fresh consent for
-  additional requests within the original remaining limits. It does not reset
-  caps or silently retry the same prompt.
-- The initial four-second window/every-twelve-second strategy is configurable.
+  additional requests within the original remaining spending cap. It does not reset
+  the reserve ledger or silently retry the same prompt.
+- The UI starts with four-second windows every twelve seconds; the controller
+  adapts the cadence to observed throughput.
   Auto-Live raises its effective interval to at least 1.25 times the last
   observed whole-response service time (capped at 120 seconds). One freshest
   pending video replaces stale work; identical content plus prompt is not
-  uploaded again. Original capture rotates at most sixteen 55-second clips per
-  controller. Skips, queue lag, errors and coalescing remain inspectable.
+  uploaded again. **Continuous Live has no session duration, recording-count,
+  video-window-count or SAM/Muse request-count cutoff.** Original capture rotates
+  into source-bound clips of at most 55 seconds and continues until stopped,
+  disconnected or a local capture/storage error. Rotation is a storage boundary,
+  not a session deadline. Every upload, retry and reasoning attempt still reserves
+  against the finite spending cap before dispatch; exhausted authorization blocks
+  new paid calls while capture can continue. Pause/revoke, evidence admission,
+  bounded queues, finite retries, per-request payloads and numerical tool budgets
+  remain enforced. The legacy explicit bounded API remains available.
+- Continuous sessions keep bounded audit/trajectory/conversation tails in RAM and
+  a disk-backed submitted-content index. Complete source recordings, measurements,
+  request receipts and the full hash-linked journal remain on disk. Context
+  compaction retains current approved evidence and hypotheses, and never removes
+  unresolved tool calls. Stop the session before local storage is exhausted.
 - Scientific narrative uses one offline Markdown renderer in the live workspace
   and existing five-view product: headings, paragraphs, emphasis, lists/tasks,
   tables, quotes, links, fenced/inline code and inline/display LaTeX math.
@@ -107,13 +119,30 @@ product remain available (`python scripts/run_realign.py --port 8765`).
   only; no physical velocity, model discrepancy statistic or validation result
   is inferred from software timing.
 
+## Terminal debugging
+
+Run the native backend in a terminal to see timestamped, structured lifecycle,
+camera discovery/state, authorization reservation, SAM HTTP/partial/final result,
+Muse HTTP/reasoning, scientific tool/admission, pause/revoke and safe failure codes.
+Use DEBUG for per-frame source sequence and dimensions:
+
+```powershell
+python scripts/run_live_lab.py --port 8772 --log-level DEBUG
+```
+
+Logs omit credentials, request/response bodies, prompts and image/video payloads.
+Raw SDK logging is not enabled. The local evidence journal retains the scientific
+records for inspection. Logging does not authorize APIs: ordinary preview,
+Find cameras and manual recording remain offline until explicit Go Live consent.
+Reserved USD amounts are owner estimates, **not a guarantee of actual Meta billing**.
+
 ## Verify without hardware or paid services
 
 ```powershell
 $env:OPENBLAS_NUM_THREADS='1'
 $env:OMP_NUM_THREADS='1'
 $env:MKL_NUM_THREADS='1'
-python -m pytest -q tests/test_auto_live.py tests/test_live_investigation.py tests/test_live_repair.py tests/test_perception.py tests/test_live_lab.py tests/test_live_lab_integration.py
+python -m pytest -q tests/test_continuous_live.py tests/test_auto_live.py tests/test_live_investigation.py tests/test_live_repair.py tests/test_perception.py tests/test_live_lab.py tests/test_live_lab_integration.py
 ```
 
 Full numerical regression uses Linux/WSL, matching CI's supported worker

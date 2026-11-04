@@ -129,15 +129,11 @@ def test_authorized_concurrent_investigation_and_stop_keeps_recording(lab_ui):
     page.goto(urls[0])
     assert controller.live is None
     page.locator('#authorization').evaluate('(e)=>e.open=true')
-    page.locator('#window-seconds').fill('1'); page.locator('#overlap-seconds').fill('0.2')
-    page.locator('#analysis-interval').fill('1')
     page.locator('#target-prompt').fill('circular test weight'); page.locator('#target-confirmed').check()
     page.locator('#spend-cap').fill('1'); page.locator('#sam-reserve').fill('0.01'); page.locator('#muse-reserve').fill('0.02')
     page.locator('#ai-consent').check()
     page.locator('#ai-start').click()
     expect(page.locator('#ai-state')).to_contain_text('TEST_FIXTURE')
-    assert not transport.requests
-    page.get_by_role('button', name='Connect', exact=True).click()
     expect(page.locator('#camera-state')).to_have_text('RECORDING')
     page.wait_for_function('async()=>{const s=await(await fetch("/api/status")).json();return s.investigation?.processed_windows>=1;}', timeout=30000, polling=250)
     expect(page.locator('#sam-overlay')).to_be_visible(timeout=15000)
@@ -184,7 +180,6 @@ def test_empty_masks_show_local_readiness_and_never_invoke_muse(lab_ui):
     page.goto(urls[0]);page.locator('#connect').click();page.locator('#start').click()
     page.locator('#authorization').evaluate('(e)=>e.open=true')
     page.locator('#target-prompt').fill('grey test weight');page.locator('#target-confirmed').check()
-    page.locator('#window-seconds').fill('1');page.locator('#analysis-interval').fill('12')
     page.locator('#spend-cap').fill('1');page.locator('#sam-reserve').fill('0.01');page.locator('#muse-reserve').fill('0.02');page.locator('#ai-consent').check()
     page.locator('#ai-start').click()
     expect(page.locator('#detection-guidance')).to_contain_text('SAM_NO_MASKS',timeout=30000)
@@ -224,9 +219,7 @@ def test_auto_live_partial_masks_slow_muse_checkpoint_and_independent_controls(l
     expect(page.locator('.spark-symbol')).to_have_text('✳')
     for selector,value in [('target-prompt','circular test weight'),('spend-cap','1'),('sam-reserve','0.01'),('muse-reserve','0.02')]:page.locator('#'+selector).fill(value)
     page.locator('#target-confirmed').check();page.locator('#ai-consent').check();page.locator('#ai-start').click()
-    expect(page.locator('#ai-state')).to_contain_text('AUTHORIZED_WAITING_FOR_CAMERA')
-    assert not transport.requests
-    page.locator('#connect').click()
+    expect(page.locator('#camera-state')).to_have_text('RECORDING')
     expect(page.locator('#sam-overlay')).to_be_visible(timeout=15000)
     expect(page.locator('#tracking-label')).to_contain_text('partial stream')
     assert not controller.live.trajectory

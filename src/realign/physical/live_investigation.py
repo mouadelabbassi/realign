@@ -22,6 +22,7 @@ from types import SimpleNamespace
 import numpy as np
 
 from realign.audit.chain import AuditChain, digest
+from realign.audit.terminal import emit
 from realign.perception.sam_client import SamClient, SamError
 from .live_observation import analyze_masks, summarize_pixel_motion, material_pixel_change
 from realign.perception.video import file_sha256, probe_video
@@ -31,6 +32,17 @@ from .live_lab import MP4Writer, utc_now, write_json
 
 class AuthorizationError(ValueError):
     code = 'AUTHORIZED_LIMIT_REACHED'
+
+
+class LiveJournalTail:
+    """Bounded in-memory tail; the complete hash chain is the on-disk journal."""
+    def __init__(self):self._events=deque(maxlen=80);self.count=0;self.head='0'*64
+    @property
+    def events(self):return deepcopy(list(self._events))
+    def append(self,kind,payload):
+        event={'sequence':self.count,'kind':kind,'payload':deepcopy(payload),'previous':self.head}
+        event['hash']=digest(event);self.head=event['hash'];self.count+=1;self._events.append(event)
+        return self.head
 
 
 @dataclass(frozen=True)
@@ -47,6 +59,7 @@ class LiveConfig:
     target_prompt: str = 'the pendulum bob'
     target_confirmed: bool = False
     mode: str = 'MANUAL'
+    continuous: bool = False
 
     def __post_init__(self):
         values = (self.window_s, self.overlap_s, self.sample_hz, self.timeout_s, self.analysis_interval_s)
@@ -66,6 +79,8 @@ class LiveConfig:
             raise ValueError('Select a visual target phrase of 1..80 letters, digits, spaces or hyphens')
         if type(self.target_confirmed) is not bool: raise ValueError('Target confirmation must be boolean')
         if self.mode not in ('MANUAL','AUTO_LIVE'): raise ValueError('Explicit live mode required')
+        if type(self.continuous) is not bool or self.continuous and self.mode!='AUTO_LIVE':
+            raise ValueError('Continuous mode requires AUTO_LIVE')
 
     @property
     def cadence_s(self):
@@ -78,12 +93,13 @@ class RequestLedger:
     Owner-reviewed per-attempt USD reserves bound authorized estimated spending.
     They are not a provider billing guarantee. In-flight requests may still bill.
     """
-    def __init__(self, policy, record):
+    def __init__(self, policy, record, *, continuous=False):
         required = {'consent', 'standard_tier_confirmed', 'sam_requests', 'muse_requests',
                     'ceiling_usd', 'sam_reserve_usd', 'muse_reserve_usd'}
         if set(policy) != required or policy['consent'] is not True or policy['standard_tier_confirmed'] is not True:
             raise AuthorizationError('Explicit upload/spending consent and Standard tier confirmation required')
         for name in ('sam_requests', 'muse_requests'):
+            if continuous and policy[name] is None: continue
             if type(policy[name]) is not int or not 1 <= policy[name] <= 32:
                 raise AuthorizationError('Request caps must be integers in 1..32 (SAM uploads count too)')
         self.policy = deepcopy(policy)
@@ -107,8 +123,10 @@ class RequestLedger:
 
     def reserve(self, model, operation):
         with self.lock:
-            if (not self.enabled or self.paused or self.counts[model] >= self.policy[model + '_requests'] or
+            cap = self.policy[model + '_requests']
+            if (not self.enabled or self.paused or cap is not None and self.counts[model] >= cap or
                     self.reserved + self.rates[model] > self.ceiling):
+                emit('API_REQUEST_BLOCKED',model=model,operation=operation,code='AI_STOPPED_PAUSED_OR_SPENDING_CAP_REACHED')
                 raise AuthorizationError('AI_STOPPED_OR_AUTHORIZED_LIMIT_REACHED')
             self.counts[model] += 1
             self.reserved += self.rates[model]
@@ -130,6 +148,8 @@ class RequestLedger:
             return {'enabled': self.enabled, 'paused': self.paused, 'attempted_requests': dict(self.counts),
                 'total_requests': sum(self.counts.values()), 'reserved_usd': str(self.reserved),
                 'ceiling_usd': str(self.ceiling), 'policy': deepcopy(self.policy),
+                'remaining_reserve_usd':str(self.ceiling-self.reserved),
+                'spending_cap_reached':self.reserved+min(self.rates.values())>self.ceiling,
                 'billing_status': 'UNVERIFIED; owner-supplied reserves; billed costs may differ; in-flight calls may bill'}
 
 
@@ -144,7 +164,7 @@ class LiveInvestigation:
         self.root = Path(root) / ('live-' + uuid.uuid4().hex)
         self.root.mkdir(parents=True)
         self.lock = threading.RLock()
-        self.audit = AuditChain()
+        self.audit = LiveJournalTail() if self.config.continuous else AuditChain()
         self.cancel = threading.Event()
         self.paused = threading.Event()
         self.request_epoch = 0
@@ -168,12 +188,18 @@ class LiveInvestigation:
         self.processed_jpeg = None
         self.processed_frames = {}
         self.trajectory = {}
+        self.observation_count = 0
         self.events = deque(maxlen=80)
         self.dropped = {'frames': 0, 'windows': 0, 'science': 0}
         self.skipped = {}
         self.coalesced_observations = 0
         self.pending_upload_keys = set()
         self.submitted_upload_keys = set()
+        self.upload_index = None
+        if self.config.continuous:
+            import sqlite3
+            self.upload_index=sqlite3.connect(self.root/'submitted.sqlite3',check_same_thread=False)
+            self.upload_index.execute('CREATE TABLE submitted (hash TEXT, prompt TEXT, PRIMARY KEY(hash,prompt))')
         self.sam_active_window = None
         self.last_sam_latency_s = None
         self.effective_interval_s = self.config.cadence_s
@@ -191,7 +217,7 @@ class LiveInvestigation:
                            'physical_evidence_accepted': False}
         self.scientific['readiness'] = {'source': 'LOCAL_DETERMINISTIC_READINESS', 'can_reason': False,
             'code': 'NO_USABLE_OBSERVATIONS', 'operator_request': 'Wait for usable SAM masks and review the selected target. No Muse call is needed to explain an empty observation.'}
-        self.ledger = RequestLedger(policy, self.record)
+        self.ledger = RequestLedger(policy, self.record,continuous=self.config.continuous)
         self.record('AUTHORIZED', {'source': source, 'models': ['sam-3.1', 'muse-spark-1.3'],
                                   'policy': policy, 'windowing': asdict(self.config)})
         self.sam_factory = sam_factory or self._sam
@@ -212,6 +238,17 @@ class LiveInvestigation:
                 f.flush()
                 if kind == 'API_ATTEMPT_RESERVED': os.fsync(f.fileno())
             self.events.append(event)
+            fields = dict(payload,session=self.root.name)
+            if kind == 'AUTHORIZED':
+                fields.update(ceiling_usd=payload['policy']['ceiling_usd'],continuous=self.config.continuous)
+            if kind == 'AI_STOPPED':
+                fields.update({k:payload['usage'][k] for k in ('total_requests','reserved_usd','ceiling_usd')})
+            turn = payload.get('reply',{}).get('turn') or {}
+            if turn: fields.update(action=turn.get('action'),outcome=turn.get('outcome'),step=payload.get('step'))
+            calls = payload.get('calls') or []
+            if calls: fields.update({k:calls[-1].get(k) for k in ('http_status','code','category','error_type')})
+            if kind=='SCIENTIFIC_TOOL':fields.update(tool=payload.get('name'),evidence_ref=payload.get('result',{}).get('evidence_ref'))
+            emit(kind,**fields)
 
     def _sam(self):
         from realign.local_environment import load_model_key
@@ -309,7 +346,7 @@ class LiveInvestigation:
             'recording_id':mapping['recording_id'],'capture_sequence':mapping['capture_sequence']})
 
     def _finalize(self, buffer, *, partial):
-        if self.finalized >= self.config.max_windows or self.cancel.is_set():
+        if (not self.config.continuous and self.finalized >= self.config.max_windows) or self.cancel.is_set():
             with self.lock: self.dropped['windows'] += 1
             return
         self.finalized += 1
@@ -341,7 +378,9 @@ class LiveInvestigation:
             return
         key = (meta.video_sha256, self.config.target_prompt)
         with self.lock:
-            if key in self.submitted_upload_keys or key in self.pending_upload_keys:
+            submitted = (self.upload_index.execute('SELECT 1 FROM submitted WHERE hash=? AND prompt=?',key).fetchone()
+                if self.upload_index else key in self.submitted_upload_keys)
+            if submitted or key in self.pending_upload_keys:
                 self._skip_window(folder, 'DUPLICATE_CONTENT_AND_PROMPT')
                 return
             # One freshest pending clip; never accumulate stale FIFO uploads.
@@ -426,11 +465,14 @@ class LiveInvestigation:
                     if key not in self.trajectory:
                         self.trajectory[key] = row
                         result['new_observations'] += 1
-                result['cumulative_unique_observations'] = len(self.trajectory)
+                self.observation_count += result['new_observations']
+                result['cumulative_unique_observations'] = self.observation_count
+                if self.config.continuous:
+                    while len(self.trajectory)>2000: del self.trajectory[next(iter(self.trajectory))]
                 self.last_sam_latency_s = result['latency_s']
                 if self.config.mode == 'AUTO_LIVE':
                     self.effective_interval_s = min(120.,max(self.config.cadence_s,result['latency_s']*1.25))
-                # Session capture is bounded by max_windows and finite frame budgets.
+                # Continuous sessions retain a bounded RAM tail; original evidence stays on disk.
                 self.latest = result
                 if jpeg:
                     self.processed_jpeg = jpeg
@@ -547,7 +589,9 @@ class LiveInvestigation:
                             if self.target_blocked or item[2]['target_prompt'] != self.config.target_prompt:
                                 self._skip_window(item[0],'TARGET_REVISION_AUTHORIZATION_REQUIRED')
                                 continue
-                            self.submitted_upload_keys.add(key)
+                            if self.upload_index:
+                                self.upload_index.execute('INSERT OR IGNORE INTO submitted VALUES (?,?)',key);self.upload_index.commit()
+                            else:self.submitted_upload_keys.add(key)
                             self.sam_active_window = item[0].name
                     except queue.Empty:
                         await asyncio.sleep(.05)
@@ -685,6 +729,11 @@ class LiveInvestigation:
     def close(self):
         self.stop('CONTROLLER_SHUTDOWN')
         for thread in self.threads: thread.join(timeout=2)
+        if all(not thread.is_alive() for thread in self.threads):
+            with self.lock:
+                if self.upload_index is not None:
+                    self.upload_index.close()
+                    self.upload_index = None
 
     def snapshot(self):
         usage = self.ledger.snapshot()
@@ -695,6 +744,7 @@ class LiveInvestigation:
             return {'id': self.root.name, 'source': self.source, 'usage': usage,
                 'mode':self.config.mode,'target_revision':self.target_revision,'target_blocked':self.target_blocked,
                 'lifecycle':('REVOKED' if self.cancel.is_set() else 'PAUSED' if self.paused.is_set() else
+                    'SPENDING_CAP_REACHED' if usage['spending_cap_reached'] else
                     'NO_TARGET_OBSERVED' if self.target_blocked else 'OBSERVING' if self.source_seen else 'AUTHORIZED_WAITING_FOR_CAMERA'),
                 'state': 'STOPPED' if self.cancel.is_set() else 'PAUSED' if self.paused.is_set() else self.scientific['state'],
                 'windowing': asdict(self.config), 'finalized_windows': self.finalized,
@@ -707,7 +757,7 @@ class LiveInvestigation:
                     'service_slower_than_cadence': self.last_sam_latency_s is not None and self.last_sam_latency_s > self.config.cadence_s,
                     'skipped_windows_by_reason': dict(self.skipped), 'cadence_skipped_sampled_frames': self.cadence_skipped_frames,
                     'coalesced_observations': self.coalesced_observations, 'scientific_worker_busy': self.science_busy},
-                'unique_observations': len(self.trajectory), 'latest': deepcopy(self.latest),
+                'unique_observations': self.observation_count, 'latest': deepcopy(self.latest),
                 'historical_trajectory':deepcopy(list(self.trajectory.values())[-500:]),
                 'startup_result':deepcopy(self.startup_result),'overlay':overlay,
                 'perception_error':deepcopy(self.perception_error),

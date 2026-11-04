@@ -4,6 +4,7 @@ Pixel snapshots never become numerical trials. Only ingest_phone's independent
 admission can grant references to the bounded numerical tools.
 """
 from copy import deepcopy
+from collections import deque
 import asyncio
 import time
 import uuid
@@ -61,13 +62,14 @@ def verify_window_timing(trial, window, reference):
 class LiveScientificSession:
     def __init__(self, live, *, adapter_factory=None, worker_factory=None):
         self.live = live
-        self.budget = Budget(max_api_requests=live.ledger.policy['muse_requests'])
+        self.budget = Budget(max_api_requests=live.ledger.policy['muse_requests'] or 32)
         self.adapter_factory = adapter_factory
         self.worker_factory = worker_factory or WorkerClient
         self.adapter = None
         self.worker = None
         self.agent = None
         self.seen = set()
+        self.seen_order=deque()
         self.new_points = 0
         self.last_reasoning = -float('inf')
         self.stage = 'HYPOTHESIZE'
@@ -90,6 +92,8 @@ class LiveScientificSession:
             ref = digest(value)
             if ref in self.seen: return
             self.seen.add(ref)
+            self.seen_order.append(ref)
+            if self.live.config.continuous and len(self.seen_order)>2048:self.seen.discard(self.seen_order.popleft())
             self.latest_diagnostic = value.get('diagnostic')
             total = value.get('cumulative_unique_observations', self.consumed_unique+value['new_observations'])
             self.new_points += max(0, total-self.consumed_unique)
@@ -152,6 +156,7 @@ class LiveScientificSession:
             self.adapter = (self.adapter_factory(self.budget) if self.adapter_factory else
                 MuseAdapter.from_environment(budget=self.budget, standard_tier_confirmed=True))
             self.adapter.before_request = self.live.ledger.reserve
+            self.adapter.external_request_gate = self.live.config.continuous
         return self.adapter
 
     def _context(self):
@@ -165,6 +170,7 @@ class LiveScientificSession:
                 'identifiability': None, 'discrepancy': None, 'scores': {}, 'coverage_max_rad': None,
                 'last_receipt': None, 'evidence_refs': [self.snapshot['snapshot_sha256']] if self.snapshot else []}
         context['live_observation'] = self.snapshot
+        context['prior_live_hypotheses']=deepcopy(self.live.scientific['hypotheses'])
         context['live_policy'] = ('Use only approved trial_refs in scientific tools. Preliminary pixels cannot support a physical '
             'fit or a repair. With no trial_refs, suggest one supplied reference action, or ABSTAIN. '
             'A human confirms and performs actions; no actuator exists. Prior hypotheses and budgets persist. '
@@ -179,7 +185,7 @@ class LiveScientificSession:
             return
         live.scientific['state'] = 'AGENT_INVESTIGATING'
         for _ in range(4):  # Bounded burst, never one request per frame.
-            if live.cancel.is_set() or self.steps >= self.budget.max_steps: break
+            if live.cancel.is_set() or (not live.config.continuous and self.steps >= self.budget.max_steps): break
             context = self._context()
             epoch = live.request_epoch
             reply = self._adapter().next(deepcopy(context))

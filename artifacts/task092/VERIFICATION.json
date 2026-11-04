@@ -15,44 +15,31 @@
   "new_paid_meta_requests": 0,
   "real_world_milestone_complete": false,
   "targeted_live_tests": {
-    "tests": "65",
+    "tests": "97",
     "failures": "0",
     "errors": "0",
     "skipped": "0",
-    "time": "44.107"
+    "time": "79.735",
+    "scope": "Continuous Live, adapters, automatic flow, capture, repair and local server integration"
   },
   "full_browser_regression": {
     "tests": "21",
     "failures": "0",
     "errors": "0",
     "skipped": "0",
-    "time": "120.194"
+    "time": "215.085"
   },
-  "final_live_browser_tests": {
-    "tests": "8",
-    "failures": "0",
-    "errors": "0",
-    "skipped": "0",
-    "time": "62.282"
-  },
-  "full_regression_and_remote_ci": "PENDING_AT_METADATA_WRITE; final result is recorded in PR and delivered receipt",
-  "source_python_sha256": "496931198cd5d001d89f14a06d34954ac89cc258d95e373e0baf1edbda7f8854",
-  "source_hash_mode": "RELATIVE_PATH_PLUS_LF_NORMALIZED_PYTHON_BYTES",
+  "full_regression_and_remote_ci": "PENDING_FOR_CONTINUOUS_LIVE_AT_COMMIT; final result is recorded in PR and delivered receipt",
+  "source_python_sha256": "9e0ec2a9530c3c738cfed23566f3e5f4e19e29ca04f8f20881b84817a532245c",
+  "source_hash_mode": "SORTED_RELATIVE_PATH_NUL_LF_NORMALIZED_PYTHON_BYTES",
   "scientific_kernel_and_historical_G5": "UNCHANGED; git diff checked",
   "original_owner_artifact_changes": "PRESERVED_UNCOMMITTED",
   "protocol_references": [
     "https://dev.meta.ai/docs/sam/segmenting",
     "https://dev.meta.ai/docs/sam/client-libraries"
   ],
-  "run_command": "python scripts/run_live_lab.py --port 8772",
+  "run_command": "python scripts/run_live_lab.py --port 8772 --log-level DEBUG",
   "guide": "docs/TASK09_2_AUTO_LIVE.md",
-  "linux_targeted_live_tests": {
-    "tests": "65",
-    "failures": "0",
-    "errors": "0",
-    "skipped": "0",
-    "time": "45.209"
-  },
   "camera_discovery": "PASS; injected indices 2 and 5, safe per-device failures, no-camera guidance, no API requests",
   "fixture_reliability": "Window-producing fixtures coordinate with the local encoder; they never wait for SAM.",
   "packaging": {
@@ -62,14 +49,22 @@
     "markdown_math_libraries_and_licenses": "PRESENT",
     "runtime_CDN_dependencies": 0
   },
-  "python_and_tests_tree_sha256": "a0b5c3ebb4bee58fe64f3a82ff8f6cb2f8b51033f8320c5d583dacfe748a95ad",
-  "numerical_validation_checkout": "FRESH_FINAL_FULL_REGRESSION_PENDING",
-  "sam_compatibility_tests": {
-    "tests": "107",
+  "python_and_tests_tree_sha256": "ebc0510d651c3d4557a602c98ccbbd56bf4ad399b9174eb186e9ef13b7eaee64",
+  "numerical_validation_checkout": "Final continuous Live checkout pending; original numerical kernel and validation unchanged",
+  "legacy_sam_contract": "PASS; unchanged default upload/request shape; partial callback and confidence remain opt-in",
+  "prior_complete_regression": {
+    "commit": "e92ed8f05a79bd074b89b5f76164a4f842412e52",
+    "tests": "458",
     "failures": "0",
     "errors": "0",
-    "skipped": "0",
-    "time": "69.824"
+    "skipped": "23",
+    "time": "1321.769"
   },
-  "legacy_sam_contract": "PASS; unchanged default upload/request shape; partial callback and confidence remain opt-in"
+  "prior_complete_ci": {
+    "commit": "e92ed8f05a79bd074b89b5f76164a4f842412e52",
+    "run_id": 41867577715,
+    "jobs_passed": 4
+  },
+  "continuous_live": "PASS; no session-duration, recording-count, window-count or paid-request-count cutoff; finite spending reserve gate retained",
+  "terminal_logging": "PASS; INFO lifecycle/API/science diagnostics, DEBUG frame traces; credentials and raw request/response bodies excluded"
 }

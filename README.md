@@ -59,13 +59,16 @@ python scripts/run_realign.py --port 8766 --phone-output data/processed/phone_in
 ```
 
 The evidence product stays read-only. In the redesigned Live Lab, select
-**Set up Auto-Live**, review the target, request caps, owner-reviewed USD reserves
-and spending ceiling, then **Authorize Auto-Live** once before **Connect**.
-Capture, a startup SAM image request, background video tracking and eligible
-Muse reasoning start automatically. No separate AI-start or reasoning approval
-is needed. **Pause AI**, **Stop and analyze** and **Revoke API calls** are
-independent. Ordinary capture never authorizes Meta calls; billing remains
-unverified. Scientific prose now renders safe Markdown, tables, code and math
+**Find cameras** to select your input, then open **Go Live** and review the target,
+owner-reviewed USD reserves and finite spending cap. The setup's **Go Live**
+authorizes and connects in one action. Capture, a startup SAM image request,
+background video tracking and eligible Muse reasoning start automatically.
+Continuous Live has no session-duration or API request-count cutoff; each paid
+attempt still reserves against the spending cap. **Pause AI**, **Stop and analyze**
+and **Revoke API calls** are independent. Ordinary preview, camera discovery and
+manual capture remain offline. Run `python scripts/run_live_lab.py --port 8772 --log-level DEBUG`
+for timestamped terminal diagnostics including frame traces. Credentials and raw
+payloads are excluded; billing remains unverified. Scientific prose now renders safe Markdown, tables, code and math
 in both workspaces, with raw JSON retained in an expandable audit view.
 
 SAM results remain preliminary pixels until independent timing, measured

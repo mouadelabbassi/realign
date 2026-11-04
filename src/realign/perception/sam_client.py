@@ -14,6 +14,8 @@ import os
 import re
 from pathlib import Path
 import numpy as np
+import time
+from realign.audit.terminal import emit
 
 MODEL='sam-3.1'
 PROMPT='the pendulum bob'
@@ -159,12 +161,17 @@ class SamClient:
     async def _request(self,operation,call,*,first_call=0):
         for attempt in range(self.max_attempts):
             if self.before_request is not None: self.before_request('sam',operation)
+            started=time.monotonic()
+            emit('SAM_HTTP_STARTED',model=MODEL,operation=operation,attempt=attempt+1)
             try:
                 result=await call()
+                emit('SAM_HTTP_COMPLETED',model=MODEL,operation=operation,attempt=attempt+1,latency_s=time.monotonic()-started)
                 self.calls.append({'operation':operation,'attempt':attempt+1,'status':'completed'})
                 return result
             except Exception as exc:
                 status=getattr(exc,'status_code',None)
+                emit('SAM_HTTP_FAILED',model=MODEL,operation=operation,attempt=attempt+1,
+                    error_type=type(exc).__name__,http_status=status if type(status) is int else None)
                 category=('SAM_PROTOCOL' if isinstance(exc,SamError) else 'META_HTTP' if type(status) is int else
                           'META_TRANSPORT' if type(exc).__name__ in ('APIConnectionError','APITimeoutError') else 'SDK_RUNTIME')
                 self.calls.append({'operation':operation,'attempt':attempt+1,'status':'failed',

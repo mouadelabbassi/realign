@@ -145,6 +145,7 @@ class MuseAdapter:
             raise ValueError('explicit adapter provenance required')
         self.source=source; self.client=client; self.budget=budget; self.retry_delay=retry_delay
         self.before_request=before_request
+        self.external_request_gate=False
         self.messages=[{'role':'developer','content':
             'You are REALIGN, one bounded scientific investigator. Use only the five supplied scientific tools and opaque approved references. '
             'Do not invent numerical results, fault labels, posterior probabilities or tool replies. Hypothesize, test, request one approved '
@@ -177,18 +178,23 @@ class MuseAdapter:
         return cls(OpenAI(base_url='https://api.meta.ai/v1',api_key=key,timeout=45,max_retries=0),budget=budget)
 
     def _request(self):
+        from realign.audit.terminal import emit
         count=self.stats['actual_api_requests']+self.stats['fixture_requests']
-        if count>=self.budget.max_api_requests:
+        if self.external_request_gate and not callable(self.before_request):
+            raise NotAuthorized('Continuous requests require the session spending gate',code='LOCAL_AUTHORIZATION_REQUIRED',category='AUTHORIZATION')
+        if not self.external_request_gate and count>=self.budget.max_api_requests:
             raise AdapterFailure('API request budget exhausted',code='API_BUDGET',category='BUDGET')
         if self.before_request is not None: self.before_request('muse','reasoning')
         self.stats['actual_api_requests' if self.source=='LIVE_MUSE' else 'fixture_requests']+=1
         start=time.monotonic()
+        emit('MUSE_HTTP_STARTED',model='muse-spark-1.3',attempt=count+1,source=self.source)
         try:
             r=self.client.chat.completions.create(model='muse-spark-1.3',messages=self.messages,
                 tools=tool_definitions(),tool_choice='auto',reasoning_effort='low',
                 response_format={'type':'json_schema','json_schema':{'name':'realign_turn','schema':AgentTurn.model_json_schema()}},
                 max_completion_tokens=3072)
             self.stats['successful_requests']+=1
+            emit('MUSE_HTTP_COMPLETED',model='muse-spark-1.3',attempt=count+1,latency_s=time.monotonic()-start)
             usage=getattr(r,'usage',None)
             if usage is not None:
                 for attr,key in (('prompt_tokens','input_tokens'),('completion_tokens','output_tokens')):
@@ -200,10 +206,12 @@ class MuseAdapter:
         except Exception as exc:
             self.stats['failed_requests']+=1
             status=getattr(exc,'status_code',None)
+            emit('MUSE_HTTP_FAILED',model='muse-spark-1.3',attempt=count+1,error_type=type(exc).__name__,http_status=status if type(status) is int else None)
             self.receipts.append({'status':'failed','error_type':type(exc).__name__,
                                   'http_status':status if type(status) is int and 100<=status<=599 else None})
             raise
         finally:
+            if self.external_request_gate: self.receipts[:]=self.receipts[-80:]
             if self.source=='LIVE_MUSE':
                 self.stats['api_latency_s']+=time.monotonic()-start
 
@@ -211,6 +219,12 @@ class MuseAdapter:
         if self._pending:
             raise AdapterFailure('tool results must be delivered before the next request')
         self.messages.append({'role':'user','content':canonical(context).decode()})
+        if self.external_request_gate and len(canonical(self.messages))>200000:
+            # The supplied context retains approved evidence, current stage,
+            # hypotheses, fits and receipts. Never compact an unresolved tool round.
+            self.messages=[self.messages[0],self.messages[-1]]
+            from realign.audit.terminal import emit
+            emit('MUSE_CONTEXT_COMPACTED',code='CURRENT_APPROVED_CONTEXT_RETAINED')
         if len(canonical(self.messages))>250000:
             raise AdapterFailure('context size budget exhausted',code='CONTEXT_BUDGET',category='BUDGET')
         response=None

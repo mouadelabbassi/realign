@@ -14,6 +14,8 @@ import subprocess
 import threading
 import time
 import uuid
+import logging
+from realign.audit.terminal import emit
 
 import numpy as np
 
@@ -248,6 +250,8 @@ class CaptureController:
     def move(self, state):
         self.state = state
         self.history.append(state)
+        emit('CAPTURE_STATE',state=state)
+        if self.auto_live and len(self.history)>80:self.history=self.history[-80:]
 
     def snapshot(self):
         with self.lock:
@@ -273,8 +277,9 @@ class CaptureController:
             self.live = (self.live_factory or LiveInvestigation)(self.library.root,policy,config=settings)
             self.auto_live = True
             self.auto_metadata = options
-            if self.camera is not None and self.frame is not None and self.writer is None:
+            if self.camera is not None and self.frame is not None:
                 self.auto_capture = True
+                if self.writer is not None: self.stop(reason='AUTO_LIVE_SOURCE_BOUNDARY')
                 self.start(**self.auto_metadata)
             return self.live.snapshot()
 
@@ -288,6 +293,15 @@ class CaptureController:
             settings = LiveConfig(**(config or {}))
             self.live = (self.live_factory or LiveInvestigation)(self.library.root, policy, config=settings)
             return self.live.snapshot()
+
+    def go_live(self, policy, config=None, metadata=None, *, index=0):
+        if type(index) is not int or not 0<=index<=15:raise ValueError('camera index must be 0..15')
+        # Count and duration limits are absent; the finite spending reserve gate
+        # and numerical tool budgets remain authoritative.
+        policy={**policy,'sam_requests':None,'muse_requests':None}
+        self.authorize_auto_live(policy,{**(config or {}),'continuous':True},metadata)
+        if self.camera is None:self.connect(index)
+        return self.snapshot()
 
     def enumerate_devices(self, maximum=8):
         if type(maximum) is not int or not 1 <= maximum <= 16: raise ValueError('device scan limit must be 1..16')
@@ -310,6 +324,7 @@ class CaptureController:
             self.device_scan = {'status':'COMPLETED','checked_indices':list(range(maximum)),
                 'detected_count':len(devices),'devices':deepcopy(devices),'probe_errors':errors,
                 'identity':'OPERATOR_MUST_IDENTIFY_PHONE_IN_PREVIEW','new_meta_requests':0}
+            emit('CAMERA_SCAN_COMPLETED',detected_count=len(devices))
             return devices
 
     def connect(self, index, *, threaded=True):
@@ -361,9 +376,11 @@ class CaptureController:
                     self.arrival_file.flush()
                     if self.live is not None: self.live.offer(frame, mapping)
                     self.arrivals.append(arrival)
+                    emit('FRAME_CAPTURED',level=logging.DEBUG,recording_id=self.recording.name,
+                        capture_sequence=mapping['capture_sequence'],frames=len(self.arrivals),width=frame.shape[1],height=frame.shape[0])
                     if (arrival - self.arrivals[0]) / 1e9 >= 55 or len(self.arrivals) >= int(self.fps * 55):
                         self.stop(reason='RECORDING_LIMIT_REACHED')
-                        if self.auto_capture and self.auto_clips < 16:
+                        if self.auto_capture and (self.live.config.continuous or self.auto_clips < 16):
                             self.start(**self.auto_metadata)
                         elif self.auto_capture:
                             self.auto_capture = False
@@ -375,6 +392,7 @@ class CaptureController:
                 ok, encoded = self.cv.imencode('.jpg', preview, [self.cv.IMWRITE_JPEG_QUALITY, 75])
                 if ok: self.jpeg = encoded.tobytes()
         except Exception as exc:
+            emit('CAPTURE_FAILED',error_type=type(exc).__name__,code='CAMERA_OR_WRITE_FAILED')
             with self.lock:
                 self.error = str(exc) if isinstance(exc, ValueError) else 'CAMERA_OR_WRITE_FAILED'
                 try:

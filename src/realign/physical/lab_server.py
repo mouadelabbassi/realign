@@ -9,6 +9,7 @@ from urllib.parse import urlsplit, parse_qs
 
 from realign.product.server import LoopbackServer
 from realign.product.static_assets import shared_assets
+from realign.audit.terminal import emit
 
 STATIC = Path(__file__).resolve().parents[1] / 'product' / 'static'
 CSP = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self'; media-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'"
@@ -127,6 +128,8 @@ def make_lab_server(controller, *, port=8770):
                     result = controller.authorize_live(body.get('authorization', {}), body.get('windowing'))
                 elif path == '/api/auto-live/authorize':
                     result = controller.authorize_auto_live(body.get('authorization',{}),body.get('windowing'),body.get('metadata'))
+                elif path == '/api/auto-live/go':
+                    result = controller.go_live(body.get('authorization',{}),body.get('windowing'),body.get('metadata'),index=body.get('index',0))
                 elif path == '/api/ai/resume':
                     if controller.live is None: raise ValueError('No AI investigation')
                     controller.live.resume(); result = controller.live.snapshot()
@@ -152,9 +155,14 @@ def make_lab_server(controller, *, port=8770):
                     else: accepted = live.enqueue_science('operator', {})
                     result = {'status': 'CONFIRMED' if path == '/api/ai/confirm-action' else 'QUEUED' if accepted else 'COALESCED', 'investigation': live.snapshot()}
                 else: return self.send({'error': 'NOT_FOUND'}, status=404)
+                emit('CONTROL_COMPLETED',operation=path)
                 self.send(result)
-            except ValueError as exc: self.send({'error': str(exc)}, status=409)
-            except Exception: self.send({'error': 'LOCAL_IO_FAILED; inspect disk, encoder and camera permissions'}, status=422)
+            except ValueError as exc:
+                emit('CONTROL_REJECTED',operation=path,code='INVALID_CONTROL_INPUT',error_type=type(exc).__name__)
+                self.send({'error': str(exc)}, status=409)
+            except Exception as exc:
+                emit('CONTROL_FAILED',operation=path,code='LOCAL_IO_FAILED',error_type=type(exc).__name__)
+                self.send({'error': 'LOCAL_IO_FAILED; inspect disk, encoder and camera permissions'}, status=422)
             finally: actions.release()
 
         def do_PUT(self): self.send({'error': 'METHOD_NOT_ALLOWED'}, status=405)
