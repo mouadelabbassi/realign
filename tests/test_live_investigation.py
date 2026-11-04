@@ -394,7 +394,11 @@ def test_actual_capture_controller_keeps_recording_under_slow_sam_and_disconnect
     controller.live = live
     folder = controller.start(operator='TEST_FIXTURE')
     try:
-        for i in range(43): controller.read_once(arrival_ns=1_000_000_000 + i * 100_000_000)
+        for i in range(43):
+            controller.read_once(arrival_ns=1_000_000_000 + i * 100_000_000)
+            # The injected clock advances instantly; pace the initial window
+            # against local encoding, never against the held SAM transport.
+            until(live.frames.empty)
         until(transport.entered.is_set)
         for i in range(43, 65): controller.read_once(arrival_ns=1_000_000_000 + i * 100_000_000)
         assert len(controller.arrivals) == 65 and live.processed == 0
