@@ -8,11 +8,13 @@ from urllib.parse import urlsplit,unquote
 from realign.audit.chain import canonical
 from .evidence import EvidenceError,sha256_file
 from .store import ProductStore
+from .static_assets import shared_assets
 
 STATIC=Path(__file__).with_name('static')
 ASSETS={'/':('index.html','text/html; charset=utf-8'),
         '/app.css':('app.css','text/css; charset=utf-8'),'/app.js':('app.js','text/javascript; charset=utf-8')}
 ASSETS.update({'/static/app.css':ASSETS['/app.css'],'/static/app.js':ASSETS['/app.js']})
+ASSETS.update(shared_assets(STATIC))
 CSP="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"
 
 class LoopbackServer(ThreadingHTTPServer):

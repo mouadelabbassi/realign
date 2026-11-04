@@ -350,12 +350,19 @@ def test_known_admitted_observations_enter_existing_tools_in_same_live_session(l
     config['response_to_request_id'] = live.pending_action['request_id']
     science.agent.machine.move('TEST'); science.agent.machine.move('REQUEST_EVIDENCE')
     science.experiments = science.agent.experiments = 1
-    science._admit({'manifest': 'TEST_FIXTURE_RESPONSE.json'})
+    # Leave one bounded reasoning step: admission must automatically invoke the
+    # same adapter with the new approved references, without an operator event.
+    science.steps = science.budget.max_steps - 1
+    science.consume('admit', {'manifest': 'TEST_FIXTURE_RESPONSE.json'})
     assert science.agent is original_agent and science.agent.round == 2
     assert science.agent.experiments == 1
     assert env.admission_history == ['REQUESTED', 'AWAITING_RECORDING', 'VALIDATING', 'ADMITTED']
     assert live.pending_action is None and live.history[-1]['state'] == 'ADMITTED'
     assert live.scientific['physical_evidence_accepted'] is True
+    assert science.adapter.contexts[-1]['stage'] == 'HYPOTHESIZE'
+    assert science.adapter.contexts[-1]['trial_refs'] == science.agent.session.trial_refs
+    assert science.agent.machine.stage == 'TEST'
+    assert live.ledger.snapshot()['attempted_requests']['muse'] == 1
     science.close()
 
 

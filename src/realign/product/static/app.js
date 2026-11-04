@@ -36,7 +36,11 @@
     }
     function append(child) {
       if (Array.isArray(child)) child.forEach(append);
-      else if (child !== null && child !== undefined && child !== false) element.append(child instanceof Node ? child : document.createTextNode(String(child)));
+      else if (child !== null && child !== undefined && child !== false) {
+        if(child instanceof Node)element.append(child);
+        else if(['pre','code','option','button','select','input','textarea'].includes(tag))element.append(document.createTextNode(String(child)));
+        else {element.classList.add('markdown');element.append(RealignMarkdown.fragment(String(child)));}
+      }
     }
     children.forEach(append);
     return element;

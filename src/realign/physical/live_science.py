@@ -19,6 +19,7 @@ from realign.tools.client import ScientificSession, candidate
 from realign.tools.sandbox import WorkerClient
 from .ingestion import ingest_phone
 from .session import PhysicalEnvironment, PhysicalValidator
+from .live_observation import summarize_pixel_motion
 
 
 class ScientificGateRejection(ValueError):
@@ -82,7 +83,7 @@ class LiveScientificSession:
             candidate(CameraCheck(reference_ref=digest({'live_session': live.root.name}))).model_dump(mode='json')]
 
     def consume(self, kind, value):
-        if self.terminal or self.live.cancel.is_set(): return
+        if self.terminal or self.live.cancel.is_set() or self.live.paused.is_set(): return
         if kind == 'admit':
             self._admit(value)
         elif kind == 'observation':
@@ -106,9 +107,10 @@ class LiveScientificSession:
                 'identity_continuity': value['identity_continuity'], 'physical_fitting_allowed': False,
                 'target_prompt': (self.latest_diagnostic or {}).get('target_prompt'),
                 'target_identity_status': (self.latest_diagnostic or {}).get('target_identity_status', 'UNVERIFIED'),
+                'pixel_motion':value.get('pixel_motion') or summarize_pixel_motion(value['rows']),
                 'timing': 'SOFTWARE_CFR_PLAYBACK_IS_NOT_PHYSICAL_TIME'}
             # Source identity changes are informative but never silently merge tracks.
-            informative = first_detection or value['identity_continuity'] == 'UNVERIFIED_OR_DISCONTINUOUS'
+            informative = first_detection or value['identity_continuity'] == 'UNVERIFIED_OR_DISCONTINUOUS' or value.get('behavior_changed',False)
             if not informative and self.new_points < 20: return
             if time.monotonic() - self.last_reasoning < 2: return
         elif kind != 'operator':
@@ -128,6 +130,7 @@ class LiveScientificSession:
         self.live.scientific['readiness'] = {'source': 'LOCAL_DETERMINISTIC_READINESS',
             'can_reason': True, 'code': 'NEW_ELIGIBLE_EVIDENCE', 'evidence_basis_sha256': basis,
             'operator_request': 'New visual or admitted scientific evidence is available. Any Muse call remains subject to authorized limits.'}
+        self.live.scientific['visual_observation'] = deepcopy(self.snapshot)
         self._advance()
 
     def _readiness(self, code):
@@ -178,8 +181,11 @@ class LiveScientificSession:
         for _ in range(4):  # Bounded burst, never one request per frame.
             if live.cancel.is_set() or self.steps >= self.budget.max_steps: break
             context = self._context()
+            epoch = live.request_epoch
             reply = self._adapter().next(deepcopy(context))
-            if live.cancel.is_set():
+            if live.cancel.is_set() or live.paused.is_set() or epoch != live.request_epoch:
+                if reply.calls and hasattr(self.adapter,'reject_pending'):
+                    self.adapter.reject_pending(reply.calls,code='LIVE_PAUSED_OR_STOPPED')
                 live.record('MUSE_RESULT_AFTER_STOP', {'context_sha256': digest(context), 'applied': False})
                 return
             self.steps += 1

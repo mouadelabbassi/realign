@@ -19,7 +19,7 @@ perception = ["opencv-python-headless>=4.10,<5", "meta-sam-parser==0.1.0", "open
 where = ["src"]
 
 [tool.setuptools.package-data]
-realign = ["product/static/*.html", "product/static/*.css", "product/static/*.js"]
+realign = ["product/static/*.html", "product/static/*.css", "product/static/*.js", "product/static/vendor/*", "product/static/vendor/fonts/*.woff2"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

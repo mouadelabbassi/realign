@@ -6,6 +6,29 @@ from realign.perception.sam_client import SamError
 from realign.perception.track import extract_track, TrackConfig, TrackFlag
 
 
+def summarize_pixel_motion(rows):
+    """Bounded observed pixel geometry; no physical velocity, fit or clock claim."""
+    if not rows: return None
+    xy = np.asarray([r['xy_px'] for r in rows],dtype=float)
+    selected = np.unique(np.linspace(0,len(rows)-1,min(32,len(rows)),dtype=int))
+    return {'scope':'PRELIMINARY_SAM_PIXELS; UNVERIFIED_TIMING; NOT_METRIC_DYNAMICS',
+        'samples':len(rows),'bounds_px':[xy.min(axis=0).tolist(),xy.max(axis=0).tolist()],
+        'displacement_px':(xy[-1]-xy[0]).tolist(),
+        'recording_id':rows[0].get('recording_id'),'processed_size':rows[0].get('processed_size'),
+        'source_samples':[{'capture_sequence':rows[i].get('capture_sequence'),
+            'arrival_monotonic_ns':rows[i].get('arrival_monotonic_ns'),'xy_px':xy[i].tolist()} for i in selected]}
+
+
+def material_pixel_change(previous, current):
+    """Scheduling cue only, for already agreeing identities in one pixel space."""
+    if not previous or not current or min(previous['samples'],current['samples'])<3: return False
+    if (previous['recording_id'],previous['processed_size']) != (current['recording_id'],current['processed_size']): return False
+    a,b = [np.asarray(s['displacement_px']) for s in (previous,current)]
+    na,nb = np.linalg.norm(a),np.linalg.norm(b)
+    return bool((min(na,nb)>3 and np.dot(a,b)/(na*nb)<np.cos(np.pi/4)) or
+                (min(na,nb)<2 and max(na,nb)>6))
+
+
 def analyze_masks(run, metadata, manifest):
     """Retain the scientific QA thresholds, including circular contour fitting."""
     ids = sorted({m.object_id for m in run.masks})

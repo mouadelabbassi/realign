@@ -239,6 +239,10 @@ class CaptureController:
         self.device = None
         self.live = None
         self.live_factory = live_factory
+        self.auto_live = False
+        self.auto_capture = False
+        self.auto_clips = 0
+        self.auto_metadata = {}
 
     def move(self, state):
         self.state = state
@@ -254,6 +258,23 @@ class CaptureController:
                     'capture_time_scale_verified': False,
                     'new_meta_calls': self.live.ledger.snapshot()['total_requests'] if self.live else 0,
                     'investigation': self.live.snapshot() if self.live else None}
+
+    def authorize_auto_live(self, policy, config=None, metadata=None):
+        """Arm once before camera connection. No frame means no network request."""
+        from .live_investigation import LiveInvestigation, LiveConfig
+        settings = LiveConfig(**{**(config or {}),'mode':'AUTO_LIVE'})
+        options = dict(metadata or {})
+        if set(options)-{'operator','rig_id'} or any(not isinstance(v,str) or len(v)>200 for v in options.values()):
+            raise ValueError('Operator and rig metadata must be text of at most 200 characters')
+        with self.lock:
+            if self.live is not None: raise ValueError('One authorization per controller; restart for a new session')
+            self.live = (self.live_factory or LiveInvestigation)(self.library.root,policy,config=settings)
+            self.auto_live = True
+            self.auto_metadata = options
+            if self.camera is not None and self.frame is not None and self.writer is None:
+                self.auto_capture = True
+                self.start(**self.auto_metadata)
+            return self.live.snapshot()
 
     def authorize_live(self, policy, config=None):
         from .live_investigation import LiveInvestigation, LiveConfig
@@ -296,6 +317,10 @@ class CaptureController:
             camera.set(self.cv.CAP_PROP_BUFFERSIZE, 1)  # Driver may ignore this request.
             self.move('CAMERA_CONNECTED')
         self.read_once()
+        if self.auto_live and self.camera is not None and not self.live.cancel.is_set():
+            self.auto_capture = True
+            self.start(**self.auto_metadata)
+            self.live.record('AUTO_LIVE_CAMERA_CONNECTED',{'camera':self.device,'recording_id':self.recording.name})
         if threaded and self.camera is not None:
             self.thread = threading.Thread(target=self._loop, daemon=True)
             self.thread.start()
@@ -327,6 +352,11 @@ class CaptureController:
                     self.arrivals.append(arrival)
                     if (arrival - self.arrivals[0]) / 1e9 >= 55 or len(self.arrivals) >= int(self.fps * 55):
                         self.stop(reason='RECORDING_LIMIT_REACHED')
+                        if self.auto_capture and self.auto_clips < 16:
+                            self.start(**self.auto_metadata)
+                        elif self.auto_capture:
+                            self.auto_capture = False
+                            self.error = 'AUTO_CAPTURE_LIMIT_REACHED; 16 source clips saved'
                 self.sequence = getattr(self, 'sequence', 0) + 1
                 # Preview is downscaled for latency; saved recording remains full resolution.
                 height, width = frame.shape[:2]
@@ -367,6 +397,13 @@ class CaptureController:
             self.provenance = {'kind': 'LOCAL_CAMERA_CAPTURE', 'camera': self.device, 'started_utc': utc_now(),
                 'operator': operator, 'rig_id': rig_id, 'role': role, 'response_to_request_id': response_to_request_id,
                 'capture_time_scale_verified': False}
+            if self.auto_live:
+                self.auto_clips += 1
+                self.provenance['auto_live_session'] = self.live.root.name
+                self.provenance['source'] = self.live.source
+                if self.live.active_action:
+                    self.provenance['response_to_request_id'] = self.live.active_action
+                    self.provenance['role'] = 'requested_experiment'
             write_json(self.recording / 'capture_in_progress.json', self.provenance)
             self.writer = writer
             self.move('RECORDING')
@@ -374,6 +411,7 @@ class CaptureController:
 
     def stop(self, *, reason='MANUAL_STOP'):
         with self.lock:
+            if reason == 'MANUAL_STOP': self.auto_capture = False
             if self.writer is None: raise ValueError('No recording is active')
             try:
                 return self._finalize(reason=reason)
@@ -381,6 +419,16 @@ class CaptureController:
                 self.error = 'RECORDING_FINALIZATION_FAILED'
                 self.move('FAILED')
                 raise ValueError('Recording finalization failed; preserve the local folder and inspect disk/encoder availability') from exc
+
+    def confirm_action(self, request_id):
+        with self.lock:
+            if self.live is None: raise ValueError('No investigation')
+            # Keep the same camera and scientific checkpoint. Start a fresh,
+            # hash-bound response clip instead of relabelling preceding frames.
+            self.live.confirm_action(request_id)
+            if self.auto_live and self.writer is not None:
+                self.stop(reason='EXPERIMENT_RESPONSE_BOUNDARY')
+                self.start(**self.auto_metadata)
 
     def _finalize(self, *, reason):
         with self.lock:
@@ -398,7 +446,7 @@ class CaptureController:
             if self.live is not None:
                 self.live.record('SOURCE_RECORDING_FINALIZED', {'recording_id': self.recording.name,
                     'video_sha256': self.provenance['video_sha256'], 'capture': summary,
-                    'response_to_request_id': self.live.active_action})
+                    'response_to_request_id': self.provenance.get('response_to_request_id')})
             write_json(self.recording / 'provenance.json', self.provenance)
             self.move('SAVED'); self.move('ADMISSION')
             self.latest = self.library.analyze(self.recording)

@@ -3,6 +3,8 @@ from collections import Counter
 from pathlib import Path
 import json
 import re
+from types import SimpleNamespace
+import numpy as np
 
 from realign.audit.chain import AuditChain, digest
 from realign.perception.video import probe_video, file_sha256
@@ -16,7 +18,7 @@ def inspect_session(path):
     files = {p: file_sha256(p) for p in folder.rglob('*') if p.is_file()}
     events = [json.loads(line) for line in timeline.read_text(encoding='utf-8').splitlines()]
     if not events or not AuditChain.verify(events): raise ValueError('LIVE_AUDIT_INTEGRITY_FAILED')
-    finalized = {e['payload']['window_id']: e['payload'] for e in events if e['kind'] == 'WINDOW_FINALIZED'}
+    finalized = {e['payload']['window_id']: e['payload'] for e in events if e['kind'] in ('WINDOW_FINALIZED','STARTUP_IMAGE_READY')}
     completed = {e['payload']['window_id']: e['payload'] for e in events if e['kind'] == 'SAM_COMPLETED'}
     cancelled = {e['payload']['window_id'] for e in events if e['kind'] == 'SAM_CANCELLED'}
     submitted = {e['payload']['window_id'] for e in events if e['kind'] == 'SAM_PENDING'}
@@ -37,7 +39,7 @@ def inspect_session(path):
             'source_size': [meta.width, meta.height], 'time_base': meta.time_base,
             'scope': 'ORIGINAL_BYTES_AND_CONTAINER_PTS_ONLY; NOT_VERIFIED_PHYSICAL_TIME'})
     windows = []
-    for manifest_path in sorted(folder.glob('window-*/manifest.json')):
+    for manifest_path in sorted([*folder.glob('window-*/manifest.json'),*folder.glob('startup-*/manifest.json')]):
         manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
         window = manifest_path.parent
         if finalized.get(window.name, {}).get('manifest_sha256') != digest(manifest):
@@ -46,10 +48,18 @@ def inspect_session(path):
         saved = json.loads(result_path.read_text(encoding='utf-8')) if result_path.exists() else None
         if window.name in completed and digest(saved) != completed[window.name]['result_sha256']:
             raise ValueError('LIVE_WINDOW_CONSUMED_RESULT_CHANGED')
-        meta = probe_video(window / 'input.mp4', source_kind='REAL_PHONE')
-        if manifest['video_sha256'] != meta.video_sha256 or len(meta.pts) != len(manifest['frames']):
+        image = manifest.get('media_kind') == 'image'
+        if image:
+            import cv2
+            pixels = cv2.imread(str(window/'input.png'))
+            if pixels is None: raise ValueError('LIVE_STARTUP_IMAGE_INVALID')
+            meta = SimpleNamespace(width=pixels.shape[1],height=pixels.shape[0],pts=(0,),t_s=np.array([0.]),
+                video_sha256=file_sha256(window/'input.png'))
+        else: meta = probe_video(window / 'input.mp4', source_kind='REAL_PHONE')
+        if manifest['image_sha256' if image else 'video_sha256'] != meta.video_sha256 or len(meta.pts) != len(manifest['frames']):
             raise ValueError('LIVE_WINDOW_SOURCE_INTEGRITY_FAILED')
-        result = {'window_id': window.name, 'video_sha256': meta.video_sha256,
+        result = {'window_id': window.name, 'media_kind':'image' if image else 'video',
+            'image_sha256' if image else 'video_sha256': meta.video_sha256,
             'manifest_sha256': digest(manifest), 'frames': len(meta.pts),
             'saved_status': saved.get('status') if saved else 'CANCELLED_NO_RESULT_SAVED' if window.name in cancelled
                 else 'NOT_SUBMITTED' if window.name not in submitted else 'NO_RESULT_SAVED', 'offline_replay': 'NOT_AVAILABLE'}

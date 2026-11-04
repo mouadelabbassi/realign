@@ -1,0 +1,49 @@
+{
+  "task": "09.2",
+  "baseline_commit": "f3413d86b7b3856f23b2da3252b93ed58f760942",
+  "baseline_tree_equivalent_to": "c46e18089a23433cd6d7c5e5f2fcd7c6a8a0d581",
+  "baseline_full_regression": {
+    "passed": 424,
+    "skipped": 19,
+    "failures": 0
+  },
+  "mocked_end_to_end": "PASS; TEST_FIXTURE camera and mocked Meta transport only",
+  "real_hardware": "NOT_TESTED",
+  "real_meta_sam": "NOT_TESTED",
+  "real_muse": "NOT_TESTED",
+  "independent_physical_G2_G5": "BLOCKED_INPUTS",
+  "new_paid_meta_requests": 0,
+  "real_world_milestone_complete": false,
+  "targeted_live_tests": {
+    "tests": "63",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "42.253"
+  },
+  "full_browser_regression": {
+    "tests": "20",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "100.923"
+  },
+  "final_live_browser_tests": {
+    "tests": "7",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "48.342"
+  },
+  "full_regression_and_remote_ci": "PENDING_AT_METADATA_WRITE; final result is recorded in PR and delivered receipt",
+  "source_python_sha256": "f7ad6f93786f1f4db4bb8697cb29a7e1d05cc99170404c155c84dcb8a1312f79",
+  "source_hash_mode": "RELATIVE_PATH_PLUS_LF_NORMALIZED_PYTHON_BYTES",
+  "scientific_kernel_and_historical_G5": "UNCHANGED; git diff checked",
+  "original_owner_artifact_changes": "PRESERVED_UNCOMMITTED",
+  "protocol_references": [
+    "https://dev.meta.ai/docs/sam/segmenting",
+    "https://dev.meta.ai/docs/sam/client-libraries"
+  ],
+  "run_command": "python scripts/run_live_lab.py --port 8772",
+  "guide": "docs/TASK09_2_AUTO_LIVE.md"
+}
