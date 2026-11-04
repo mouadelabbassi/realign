@@ -19,6 +19,13 @@ from realign.synth.video_fixture import fixture_events, protocol_line
 from test_live_investigation import POLICY, MockMeta, MockStream, ScriptedAdapter, frames, until
 
 
+def feed_fixture_windows(live,count,*,start=0):
+    """Wait for the local encoder, never for SAM. Avoid timing-based test drops."""
+    for i in range(start,start+count):
+        frames(live,1,start=i,pause=0)
+        until(live.frames.empty)
+
+
 class AutoMeta(MockMeta):
     def __init__(self, *, empty=False, partial_hold=False, fail_terminal=False):
         super().__init__()
@@ -127,7 +134,7 @@ def test_partial_stream_is_visible_but_never_scientific_evidence(auto_factory,tm
     assert live.overlay_jpeg and not live.trajectory and live.latest is None
     assert live.ledger.snapshot()['attempted_requests']['muse']==0
     # Capture and window encoding continue while the SAM terminal event is held.
-    frames(live,30,start=2,pause=.03)
+    feed_fixture_windows(live,30,start=2)
     until(lambda:live.finalized>=2)
     assert live.frames.qsize()<=settings.frame_queue
     transport.partial_hold.clear()
@@ -153,7 +160,7 @@ def test_zero_target_blocks_more_paid_requests_until_explicit_revised_target_con
     live=factory(tmp_path,POLICY,config=settings)
     frames(live,2)
     until(lambda:live.target_blocked)
-    frames(live,45,start=2,pause=.03)
+    feed_fixture_windows(live,45,start=2)
     until(lambda:live.finalized>=3)
     assert live.latest['identity_continuity']=='NO_OBSERVATIONS'
     assert live.latest['diagnostic']['code']=='SAM_NO_MASKS'

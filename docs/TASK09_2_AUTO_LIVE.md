@@ -28,7 +28,13 @@ port; refreshing static files alone cannot load new backend code.
    confirm it, review the window strategy, and set SAM/Muse attempt caps, an
    estimated USD ceiling and owner-reviewed per-attempt reserves. Confirm upload
    consent and Standard tier. Select **Authorize Auto-Live** once.
-2. Identify the phone's Windows camera device and select **Connect**. Capture
+2. Select **Find cameras** to scan camera inputs 0–7. The labeled button shows
+   search progress, populates the device selector with detected indices/backends,
+   and reports permission/connection guidance if none are found. Scanning opens
+   and releases local probes; it never uploads video, starts capture or spends
+   API authorization. The backend accepts a bounded `maximum` up to 16 for an
+   extended scan. A driver-open result does not identify the phone: select
+   **Connect** and verify the preview. Capture
    starts automatically. The first recorded, source-mapped frame is saved as a
    PNG and sent to SAM immediately, without waiting for an MP4 window. There is
    no second Start AI or Approve Investigation Event button.

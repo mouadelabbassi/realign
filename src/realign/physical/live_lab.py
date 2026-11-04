@@ -243,6 +243,7 @@ class CaptureController:
         self.auto_capture = False
         self.auto_clips = 0
         self.auto_metadata = {}
+        self.device_scan = None
 
     def move(self, state):
         self.state = state
@@ -255,6 +256,7 @@ class CaptureController:
                     'error': self.error, 'latest': deepcopy(self.latest),
                     'capture': interval_summary(self.arrivals), 'preview_age_s': age,
                     'camera_stalled': self.camera is not None and age is not None and age > 3,
+                    'device_scan':deepcopy(self.device_scan),
                     'capture_time_scale_verified': False,
                     'new_meta_calls': self.live.ledger.snapshot()['total_requests'] if self.live else 0,
                     'investigation': self.live.snapshot() if self.live else None}
@@ -287,18 +289,27 @@ class CaptureController:
             self.live = (self.live_factory or LiveInvestigation)(self.library.root, policy, config=settings)
             return self.live.snapshot()
 
-    def enumerate_devices(self, maximum=6):
-        if not 1 <= maximum <= 16: raise ValueError('device scan limit must be 1..16')
+    def enumerate_devices(self, maximum=8):
+        if type(maximum) is not int or not 1 <= maximum <= 16: raise ValueError('device scan limit must be 1..16')
         with self.lock:
             if self.camera is not None: raise ValueError('Disconnect before scanning camera devices')
-            devices = []
+            devices,errors = [],[]
             for index in range(maximum):
-                camera = self.camera_factory(index, self.cv.CAP_DSHOW if os.name == 'nt' else self.cv.CAP_ANY)
+                camera = None
                 try:
+                    camera = self.camera_factory(index, self.cv.CAP_DSHOW if os.name == 'nt' else self.cv.CAP_ANY)
                     if camera.isOpened():
                         devices.append({'index': index, 'backend': camera.getBackendName(),
                                         'label': f'Camera {index} (operator must identify phone)'})
-                finally: camera.release()
+                except Exception as exc:
+                    errors.append({'index':index,'code':'DEVICE_PROBE_FAILED','error_type':type(exc).__name__})
+                finally:
+                    if camera is not None:
+                        try: camera.release()
+                        except Exception: errors.append({'index':index,'code':'DEVICE_RELEASE_FAILED'})
+            self.device_scan = {'status':'COMPLETED','checked_indices':list(range(maximum)),
+                'detected_count':len(devices),'devices':deepcopy(devices),'probe_errors':errors,
+                'identity':'OPERATOR_MUST_IDENTIFY_PHONE_IN_PREVIEW','new_meta_requests':0}
             return devices
 
     def connect(self, index, *, threaded=True):

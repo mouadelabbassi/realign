@@ -325,3 +325,33 @@ $$\theta(t) = \sin(t)$$
         assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
         assert not errors
         page.close()
+
+
+def test_find_cameras_shows_search_results_and_no_device_guidance(lab_ui):
+    from playwright.sync_api import expect
+    browser,controller,urls,tmp=lab_ui
+    available={2,5}
+    class Probe(InjectedCamera):
+        def __init__(self,index):self.index=index
+        def isOpened(self):return self.index in available
+    controller.camera_factory=lambda index,*args:Probe(index)
+    original=controller.enumerate_devices
+    def slower(maximum=8):time.sleep(.3);return original(maximum)
+    controller.enumerate_devices=slower
+    page=browser.new_page(viewport={'width':390,'height':844});page.goto(urls[0])
+    button=page.get_by_role('button',name='Find cameras',exact=True)
+    expect(button).to_be_visible();button.click()
+    expect(page.locator('#camera-discovery')).to_contain_text('Searching camera inputs')
+    expect(page.locator('#camera-discovery')).to_contain_text('2 cameras found')
+    assert page.locator('#devices option').all_text_contents()==['Camera 2 · INJECTED_BROWSER_FIXTURE','Camera 5 · INJECTED_BROWSER_FIXTURE']
+    page.locator('#connect').click()
+    expect(page.locator('#camera-state')).to_have_text('CAMERA_CONNECTED')
+    assert controller.device['index']==2
+    expect(button).to_be_disabled()
+    page.locator('#disconnect').click();available.clear()
+    button.click();expect(page.locator('#camera-discovery')).to_contain_text('No cameras found')
+    expect(page.locator('#camera-discovery')).to_contain_text('Windows camera permissions')
+    expect(page.locator('#connect')).to_be_disabled()
+    assert controller.live is None and controller.snapshot()['new_meta_calls']==0
+    assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
+    page.close()

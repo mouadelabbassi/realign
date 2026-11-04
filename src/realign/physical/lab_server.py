@@ -103,7 +103,9 @@ def make_lab_server(controller, *, port=8770):
             if not actions.acquire(blocking=False): return self.send({'error': 'CONTROLLER_BUSY'}, status=409)
             try:
                 path = urlsplit(self.path).path
-                if path == '/api/scan': result = {'devices': controller.enumerate_devices()}
+                if path == '/api/scan':
+                    devices = controller.enumerate_devices(body.get('maximum',8))
+                    result = {'devices':devices,'scan':controller.device_scan}
                 elif path == '/api/connect': controller.connect(body.get('index')); result = controller.snapshot()
                 elif path == '/api/disconnect': controller.close(); result = controller.snapshot()
                 elif path in ('/api/start', '/api/import'):

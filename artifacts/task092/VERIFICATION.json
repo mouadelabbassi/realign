@@ -15,11 +15,11 @@
   "new_paid_meta_requests": 0,
   "real_world_milestone_complete": false,
   "targeted_live_tests": {
-    "tests": "63",
+    "tests": "65",
     "failures": "0",
     "errors": "0",
     "skipped": "0",
-    "time": "42.253"
+    "time": "44.107"
   },
   "full_browser_regression": {
     "tests": "20",
@@ -29,14 +29,14 @@
     "time": "100.923"
   },
   "final_live_browser_tests": {
-    "tests": "7",
+    "tests": "8",
     "failures": "0",
     "errors": "0",
     "skipped": "0",
-    "time": "48.342"
+    "time": "56.360"
   },
   "full_regression_and_remote_ci": "PENDING_AT_METADATA_WRITE; final result is recorded in PR and delivered receipt",
-  "source_python_sha256": "f7ad6f93786f1f4db4bb8697cb29a7e1d05cc99170404c155c84dcb8a1312f79",
+  "source_python_sha256": "eb52fc26ddbde7d1596f9f8c44a6dbde336d2af79493649a360f5771c16fea07",
   "source_hash_mode": "RELATIVE_PATH_PLUS_LF_NORMALIZED_PYTHON_BYTES",
   "scientific_kernel_and_historical_G5": "UNCHANGED; git diff checked",
   "original_owner_artifact_changes": "PRESERVED_UNCOMMITTED",
@@ -45,5 +45,14 @@
     "https://dev.meta.ai/docs/sam/client-libraries"
   ],
   "run_command": "python scripts/run_live_lab.py --port 8772",
-  "guide": "docs/TASK09_2_AUTO_LIVE.md"
+  "guide": "docs/TASK09_2_AUTO_LIVE.md",
+  "linux_targeted_live_tests": {
+    "tests": "65",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "45.209"
+  },
+  "camera_discovery": "PASS; injected indices 2 and 5, safe per-device failures, no-camera guidance, no API requests",
+  "fixture_reliability": "Window-producing fixtures coordinate with the local encoder; they never wait for SAM."
 }

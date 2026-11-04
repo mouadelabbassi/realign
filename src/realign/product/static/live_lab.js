@@ -5,7 +5,7 @@
   const human=value=>String(value??'Unknown').replaceAll('_',' ').toLowerCase().replace(/^\w/,c=>c.toUpperCase());
   const short=value=>value?String(value).slice(0,12)+'…':'Unavailable';
   const sec=value=>Number.isFinite(value)?value.toFixed(1)+' s':'Unknown';
-  let token=null,busy=false,polling=false,connected=false,previewTimer=null,lastLive=null,lastOverlay=null,lastScience=null,lastHistory=null,lastEvents=null,pendingRequest=null;
+  let token=null,busy=false,polling=false,connected=false,scanning=false,hasScanned=false,previewTimer=null,lastLive=null,lastScan=null,lastOverlay=null,lastScience=null,lastHistory=null,lastEvents=null,pendingRequest=null;
   function error(message){$('error').hidden=!message;md('error',message||'');}
   async function api(path,body){
     const response=await fetch(path,{cache:'no-store',...(body!==undefined?{method:'POST',headers:{'Content-Type':'application/json','X-Live-Lab-Token':token},body:JSON.stringify(body)}:{})});
@@ -24,10 +24,11 @@
       md('camera-state',s.state+(s.error?` · ${s.error}`:'')+(s.camera_stalled?' · CAMERA_STALLED':''));$('camera-state').classList.toggle('live',s.state==='RECORDING');
       const c=s.capture;md('telemetry',`${c.frames.toLocaleString()} recorded frames · arrival FPS ${c.effective_fps?.toFixed(2)??'unknown'} · ${c.gap_indicators} gap indicators · physical timing unverified`);
       md('capture-indicator',s.state==='RECORDING'?'● RECORDING':connected?'● LIVE PREVIEW':'CAMERA OFFLINE');
-      $('start').disabled=!connected||s.state==='RECORDING'||s.camera_stalled;$('stop').disabled=s.state!=='RECORDING';$('connect').disabled=connected;$('scan').disabled=connected;$('disconnect').disabled=!s.camera;$('import').disabled=s.state==='RECORDING';
+      $('start').disabled=!connected||s.state==='RECORDING'||s.camera_stalled;$('stop').disabled=s.state!=='RECORDING';$('connect').disabled=connected||scanning||(hasScanned&&!$('devices').options.length);$('scan').disabled=connected||scanning;$('devices').disabled=connected||scanning||(hasScanned&&!$('devices').options.length);$('disconnect').disabled=!s.camera;$('import').disabled=s.state==='RECORDING';
       $('preview').hidden=!connected;$('preview-empty').hidden=connected;
       if(connected&&!previewTimer)nextPreview();if(!connected&&previewTimer){clearTimeout(previewTimer);previewTimer=null;}
-      renderInvestigation(s.investigation,s.state);
+      lastScan=s.device_scan;renderInvestigation(s.investigation,s.state);
+      if($('raw-audit').parentElement.open)$('raw-audit').textContent=JSON.stringify({investigation:lastLive,camera_discovery:lastScan},null,2);
     }catch(e){error(`Controller unavailable: ${e.message}`);}finally{polling=false;}
   }
   function nextPreview(){if(!connected){previewTimer=null;return;}$('preview').src='/preview.jpg?t='+Date.now();previewTimer=setTimeout(nextPreview,100);}
@@ -71,7 +72,6 @@
     renderScience(sc);renderAction(live.pending_action,active&&!paused);renderHistory(live);
     drawTrajectory(live.historical_trajectory,sc.trajectory_comparison);
     md('audit-label',`Hash-linked · ${short(live.audit_head)}`);
-    if($('raw-audit').parentElement.open)$('raw-audit').textContent=JSON.stringify(live,null,2);
   }
   function renderScience(sc){
     const sig=JSON.stringify([sc.hypotheses,sc.tool_results,sc.decision,sc.state,sc.visual_observation]);if(sig===lastScience)return;lastScience=sig;
@@ -112,7 +112,17 @@
     for(const r of data.recordings){const card=el('article',undefined,'clip');card.append(el('h3',r.id),el('p',`**${r.status}** · ${r.state||'Unavailable'}`));if(!r.media){root.append(card);continue;}const m=r.media;card.append(el('p',`${m.status} · ${m.decoded_frames??'?'} decoded frames · ${m.width??'?'} × ${m.height??'?'} · variable frame rate ${m.variable_frame_rate??'unknown'}`),el('p','SHA-256: '+r.video_sha256,'hash'),el('p',`Source ${r.provenance.kind} · SAM ${r.sam.status} · calibration ${r.calibration_grade} · physical timing unverified`));const frames=el('div',undefined,'frames');for(const file of m.review_frames||[]){const img=el('img');img.src=`/files/${r.id}/${file}`;img.alt='Clean source review: '+file;frames.append(img);}card.append(frames);if(m.status==='ADMITTED'){const video=el('video');video.controls=true;video.preload='none';video.src=`/files/${r.id}/recording.mp4`;video.setAttribute('aria-label','Saved recording '+r.id);card.append(video);}const list=el('ul');for(const b of r.blockers)list.append(el('li',b));card.append(list);for(const [file,label] of [['recording.mp4','Download recording'],['report.json','Source and PTS report'],['phone_manifest.draft.json','Phone manifest draft']]){const a=el('a',label);a.href=`/files/${r.id}/${file}`;a.download=file;card.append(a);}root.append(card);}
   }
   $('open-authorization').onclick=()=>{$('authorization').open=!$('authorization').open;if($('authorization').open)$('authorization').scrollIntoView({behavior:'smooth',block:'start'});};
-  $('scan').onclick=async()=>{const r=await action('/api/scan');if(!r)return;$('devices').replaceChildren();for(const d of r.devices){const o=el('option',`${d.label} · ${d.backend}`);o.value=d.index;$('devices').append(o);}if(!r.devices.length)error('No camera found. Check its connection and Windows permissions, or import the original MP4.');};
+  $('scan').onclick=async()=>{
+    if(busy)return error('A local control is still finishing. Retry Find cameras when it completes.');
+    scanning=true;$('scan').disabled=true;$('connect').disabled=true;$('devices').disabled=true;$('scan').setAttribute('aria-busy','true');md('scan-label','Searching…');
+    md('camera-discovery','Searching camera inputs 0–7. This may take a few seconds; no video is uploaded.');
+    try{
+      const r=await action('/api/scan',{maximum:8});if(!r){md('camera-discovery','Camera search could not complete. Review the local error above, then try Find cameras again.');return;}
+      hasScanned=true;$('devices').replaceChildren();
+      for(const d of r.devices){const o=el('option',`Camera ${d.index} · ${d.backend}`);o.value=d.index;$('devices').append(o);}
+      md('camera-discovery',r.devices.length?`**${r.devices.length} camera${r.devices.length===1?'':'s'} found.** Select a device, then Connect to identify your phone in the preview. ${r.scan?.probe_errors?.length?'Some inputs could not be probed; their safe codes are in the audit.':''}`:'**No cameras found on inputs 0–7.** Check Windows camera permissions, connect your phone through its webcam app/USB, close other apps using it, then try Find cameras again. You can also import the original MP4.');
+    }finally{scanning=false;$('scan').removeAttribute('aria-busy');md('scan-label','Find cameras');await status();}
+  };
   $('connect').onclick=()=>action('/api/connect',{index:Number($('devices').value)});$('disconnect').onclick=()=>action('/api/disconnect');$('start').onclick=()=>action('/api/start',metadata());$('stop').onclick=()=>action('/api/stop');$('import').onclick=()=>action('/api/import',{...metadata(),path:$('path').value});
   $('ai-start').onclick=async()=>{
     const r=await action('/api/auto-live/authorize',{authorization:{consent:$('ai-consent').checked,standard_tier_confirmed:$('ai-consent').checked,sam_requests:Number($('sam-cap').value),muse_requests:Number($('muse-cap').value),ceiling_usd:$('spend-cap').value,sam_reserve_usd:$('sam-reserve').value,muse_reserve_usd:$('muse-reserve').value},windowing:{window_s:Number($('window-seconds').value),overlap_s:Number($('overlap-seconds').value),analysis_interval_s:Number($('analysis-interval').value),processing_width:Number($('processing-width').value),target_prompt:$('target-prompt').value,target_confirmed:$('target-confirmed').checked},metadata:{operator:$('operator').value,rig_id:$('rig').value}});
@@ -121,7 +131,7 @@
   $('ai-stop').onclick=()=>priority('/api/ai/stop');$('ai-pause').onclick=()=>priority('/api/ai/pause');$('ai-resume').onclick=()=>priority('/api/ai/resume');
   $('reselect-target').onclick=async()=>{const consent=$('revision-consent').checked;const r=await action('/api/ai/reselect',{target_prompt:$('revised-prompt').value,target_confirmed:consent,consent});if(r)$('revision-consent').checked=false;};
   $('confirm-action').onclick=()=>action('/api/ai/confirm-action',{request_id:pendingRequest});$('admit-evidence').onclick=()=>action('/api/ai/admit',{manifest:$('approved-manifest').value});$('refresh').onclick=()=>recordings().catch(e=>error(e.message));
-  $('raw-audit').parentElement.addEventListener('toggle',()=>{if($('raw-audit').parentElement.open&&lastLive)$('raw-audit').textContent=JSON.stringify(lastLive,null,2);});
+  $('raw-audit').parentElement.addEventListener('toggle',()=>{if($('raw-audit').parentElement.open)$('raw-audit').textContent=JSON.stringify({investigation:lastLive,camera_discovery:lastScan},null,2);});
   $('sam-overlay').onerror=()=>{lastOverlay=null;};
   status();recordings().catch(e=>error(e.message));setInterval(status,600);
 })();
