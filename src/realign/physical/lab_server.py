@@ -93,7 +93,6 @@ def make_lab_server(controller, *, port=8770):
                 body = json.loads(self.rfile.read(length))
                 if type(body) is not dict: raise ValueError('JSON object required')
             except (ValueError, TypeError): return self.send({'error': 'INVALID_REQUEST'}, status=400)
-            # Revocation cannot wait behind media finalization or another control.
             if urlsplit(self.path).path in ('/api/ai/stop','/api/ai/pause'):
                 if controller.live is None: return self.send({'error': 'No AI investigation'}, status=409)
                 if urlsplit(self.path).path == '/api/ai/stop': controller.live.stop()

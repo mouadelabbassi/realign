@@ -99,7 +99,6 @@ def main():
 Reproduce with `python scripts/verify_g1.py` from the repository root after installing the package.
 '''
     (OUT/'G1_REPORT.md').write_text(report,encoding='utf-8')
-    # Self-contained CSV comparisons: conceptual discrepancy, not a fitted repair.
     t2=np.linspace(0,6,601)
     truth=simulate(PendulumParams(.72,peg=PegParams(.14,0)),.44,0,t2)
     initial=simulate(PendulumParams(.72),.44,0,t2)

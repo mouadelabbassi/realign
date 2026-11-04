@@ -107,7 +107,6 @@ def fit_free(trials, nominal: PendulumParams, options: FitOptions = FitOptions()
     def residual(x):
         return residuals_free(decode(x), trials)
 
-    # The scale is derived ONLY from the nominal training residuals, never test data.
     null_residual = residuals_free(nominal, trials)
     f_scale = max(1., float(1.4826*np.median(np.abs(null_residual-np.median(null_residual)))))
     base = np.array([math.log(nominal.length_m), nominal.gamma_per_s] +
@@ -117,7 +116,6 @@ def fit_free(trials, nominal: PendulumParams, options: FitOptions = FitOptions()
         if i == 0:
             x0 = base.copy()
         else:
-            # Deterministic coverage of bounds plus a nominal start. No hidden labels.
             fractions = np.mod(np.array([.61803398875, .41421356237, .73205080757])[:len(lo)]*i, 1.)
             x0 = lo + (hi-lo)*fractions
         x0 = np.clip(x0, lo+1e-9, hi-1e-9)

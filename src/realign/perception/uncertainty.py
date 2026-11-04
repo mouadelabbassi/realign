@@ -9,7 +9,6 @@ def stationary_noise(xy_px,valid,*,source_ids,provenance,t_s=None):
     if len(points)<5 or not np.isfinite(points).all():
         raise ValueError('at least five valid stationary reference centers required')
     cov=np.cov(points.T)
-    # Explicit conservative digitization floor, not claimed measured SAM jitter.
     eig,vec=np.linalg.eigh(cov)
     cov=vec@np.diag(np.maximum(eig,1/12))@vec.T
     residual=xy-np.median(points,axis=0)

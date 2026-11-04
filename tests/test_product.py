@@ -34,7 +34,6 @@ def unavailable_external():
 
 @pytest.fixture(scope="module")
 def demo_bundles():
-    # These are portable recorded artifacts, not recomputed generator output.
     return {ident: read_json(DEMO / (ident + ".json")) for ident in IDS}
 
 
@@ -193,7 +192,6 @@ def test_self_consistent_model_rebinding_still_must_match_audited_fit(demo_bundl
     model["params"]["length_m"] += .01
     model["resource_content"]["params"] = deepcopy(model["params"])
     model["model_ref"] = digest({"kind": "MODEL", "value": model["resource_content"]})
-    # The replacement has a valid self-hash, but no audited fitting output named it.
     with pytest.raises(EvidenceError):
         validate_bundle(value)
 

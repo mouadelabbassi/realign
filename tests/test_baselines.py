@@ -62,7 +62,6 @@ def test_missing_and_finite_rules():
         PlaneProjection(scale_px_per_m=-1.)
     with pytest.raises(ValueError):
         NoiseConfig(ar1_phi=1.)
-    # Zero covariance is meaningful for a clean geometry experiment, not whitening.
     with pytest.raises(ValueError, match='positive definite'):
         whiten(np.ones((3, 2)), np.arange(3), np.zeros((2, 2)), 0.)
 
@@ -96,7 +95,6 @@ def test_no_fault_recovers_parameters_and_predicts_whole_trial(no_fault_fit):
     keep = data[2].observation.valid
     rmse = np.sqrt(np.mean(np.sum((predicted[keep] - data[2].observation.xy_px[keep])**2, axis=1)))
     assert rmse < 1.0
-    # Changing held-out observed positions must not change a rollout prediction.
     shifted = replace(data[2], observation=replace(data[2].observation, xy_px=data[2].observation.xy_px + 10.))
     np.testing.assert_array_equal(predicted, predict_free(fit.params, shifted))
 
@@ -216,7 +214,6 @@ def test_fitters_have_no_truth_imports_or_file_reads(tmp_path):
                 if isinstance(node, ast.Call):
                     assert getattr(node.func, 'id', '') not in ('open', '__import__', 'eval', 'exec'), path
                     assert getattr(node.func, 'attr', '') not in ('read_text', 'read_bytes', 'load', 'import_module'), path
-    # Inference still runs in a fresh process where importing synthetic truth is denied.
     data = trials(PendulumParams(.72), duration=1.)[0]
     file = tmp_path/'observation.npz'
     np.savez(file, t=data.observation.t_s, xy=data.observation.xy_px, valid=data.observation.valid)

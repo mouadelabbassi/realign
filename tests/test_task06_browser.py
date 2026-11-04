@@ -45,8 +45,6 @@ def test_annotation_page_is_clean_interactive_and_exports_only_supplied_centers(
     expect(review.locator('#coordinate')).to_have_text('No center placed.')
     shots=SHOTS;shots.mkdir(parents=True,exist_ok=True)
     review.screenshot(path=str(shots/'clean_annotation_interface.png'),full_page=True)
-    # UI protocol exercise only: the arbitrary click is explicitly cleared and
-    # no fabricated reference center is saved or passed to an accuracy scorer.
     review.locator('#image').click(position={'x':40,'y':40})
     review.locator('#sigma').fill('1.25')
     expect(review.locator('#progress')).to_have_text('1 / 20 centers placed')
@@ -73,8 +71,6 @@ def test_phone_blockers_and_synthetic_independent_evidence_are_explicit(browser_
     expect(page.locator('#content')).to_contain_text('BLOCKED INPUTS')
     expect(page.locator('#content')).to_contain_text('MEASURED_CALIBRATION_NOT_SUPPLIED')
     expect(page.locator('#content')).to_contain_text('No physical experiment has been requested')
-    # Task 08 keeps the phone source across its five views. Select the separate
-    # synthetic replay explicitly before asserting its historical G5 evidence.
     page.locator('[data-source="synthetic"]').click()
     page.locator('[data-view="evidence"]').click()
     expect(page.locator('#content')).to_contain_text('Separate precommitted dataset and model')

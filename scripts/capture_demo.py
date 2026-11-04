@@ -26,8 +26,6 @@ def capture(output):
                 if view=='evidence':page.get_by_text('Independent validation exercise',exact=True).scroll_into_view_if_needed()
                 page.wait_for_timeout(2000)
                 page.screenshot(path=str(output/(view+'.png')),full_page=True)
-            # Cut A stays entirely on synthetic/aggregate numerical views. No
-            # external video, frame or review page is opened or embedded.
             context.close();browser.close()
     finally:server.shutdown();server.server_close();thread.join(timeout=5)
     (output/'CAPTURE_NOTICE.json').write_text(json.dumps({'status':'SCRIPTED_OFFLINE_REPLAY_FALLBACK',

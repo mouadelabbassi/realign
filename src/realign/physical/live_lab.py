@@ -90,7 +90,6 @@ class LabLibrary:
     def draft(self, folder, provenance):
         """Existing phone manifest grammar, deliberately incomplete and offline."""
         rid = folder.name
-        # Resolve relative to this draft on both native Windows and WSL.
         record = {'id': rid, 'video': 'recording.mp4',
                   'comparison_group': provenance.get('rig_id') or 'UNASSIGNED_RIG',
                   'release_bracket_pts_s': None, 'analysis_window_pts_s': None}
@@ -207,7 +206,6 @@ def read_catalog(root):
                 changed |= file_sha256(path.parent / 'arrivals.jsonl') != report['capture']['arrivals_sha256']
             if changed:
                 records.append({'id': path.parent.name, 'status': 'EVIDENCE_CHANGED'}); continue
-            # Local source paths/operator identity never enter the read-only product.
             report['provenance'].pop('source_path', None)
             report['provenance'].pop('operator', None)
             records.append(report)
@@ -296,8 +294,6 @@ class CaptureController:
 
     def go_live(self, policy, config=None, metadata=None, *, index=0):
         if type(index) is not int or not 0<=index<=15:raise ValueError('camera index must be 0..15')
-        # Count and duration limits are absent; the finite spending reserve gate
-        # and numerical tool budgets remain authoritative.
         policy={**policy,'sam_requests':None,'muse_requests':None}
         self.authorize_auto_live(policy,{**(config or {}),'continuous':True},metadata)
         if self.camera is None:self.connect(index)
@@ -340,7 +336,7 @@ class CaptureController:
             self.device = {'index': index, 'backend': camera.getBackendName()}
             self.error = None
             self.stop_event.clear()
-            camera.set(self.cv.CAP_PROP_BUFFERSIZE, 1)  # Driver may ignore this request.
+            camera.set(self.cv.CAP_PROP_BUFFERSIZE, 1)
             self.move('CAMERA_CONNECTED')
         self.read_once()
         if self.auto_live and self.camera is not None and not self.live.cancel.is_set():
@@ -386,7 +382,6 @@ class CaptureController:
                             self.auto_capture = False
                             self.error = 'AUTO_CAPTURE_LIMIT_REACHED; 16 source clips saved'
                 self.sequence = getattr(self, 'sequence', 0) + 1
-                # Preview is downscaled for latency; saved recording remains full resolution.
                 height, width = frame.shape[:2]
                 preview = self.cv.resize(frame, (min(width, 800), max(1, round(height * min(1, 800 / width)))))
                 ok, encoded = self.cv.imencode('.jpg', preview, [self.cv.IMWRITE_JPEG_QUALITY, 75])
@@ -452,8 +447,6 @@ class CaptureController:
     def confirm_action(self, request_id):
         with self.lock:
             if self.live is None: raise ValueError('No investigation')
-            # Keep the same camera and scientific checkpoint. Start a fresh,
-            # hash-bound response clip instead of relabelling preceding frames.
             self.live.confirm_action(request_id)
             if self.auto_live and self.writer is not None:
                 self.stop(reason='EXPERIMENT_RESPONSE_BOUNDARY')
@@ -491,7 +484,6 @@ class CaptureController:
     def close(self):
         if self.live is not None: self.live.close()
         self.stop_event.set()
-        # release() can unblock read() on supported camera backends.
         camera = self.camera
         if camera is not None: camera.release()
         if self.thread and self.thread is not threading.current_thread(): self.thread.join(timeout=3)

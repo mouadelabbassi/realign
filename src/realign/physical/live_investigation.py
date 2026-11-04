@@ -54,7 +54,7 @@ class LiveConfig:
     window_queue: int = 2
     timeout_s: float = 90.
     max_windows: int = 128
-    analysis_interval_s: float = 0.  # 0 retains explicit overlapping-window cadence.
+    analysis_interval_s: float = 0.
     processing_width: int = 640
     target_prompt: str = 'the pendulum bob'
     target_confirmed: bool = False
@@ -106,9 +106,6 @@ class RequestLedger:
         self.ceiling = self._money(policy['ceiling_usd'])
         self.rates = {k: self._money(policy[k + '_reserve_usd']) for k in ('sam', 'muse')}
         if continuous:
-            # Keep every addition exact at Decimal's default precision. The UI
-            # uses a .001 USD minimum; sub-microdollar fractions cannot silently
-            # round away after an accumulated reserve grows.
             for amount in (self.ceiling, *self.rates.values()):
                 if amount < Decimal('.001') or amount != amount.quantize(Decimal('.000001')):
                     raise AuthorizationError('Continuous USD amounts require at least .001 and at most six decimal places')
@@ -137,8 +134,6 @@ class RequestLedger:
                 raise AuthorizationError('AI_STOPPED_OR_AUTHORIZED_LIMIT_REACHED')
             self.counts[model] += 1
             self.reserved += self.rates[model]
-            # Persist synchronously before making a network call. A crash can
-            # conservatively overcount a reservation, never refund an unknown call.
             self.record('API_ATTEMPT_RESERVED', {'model': model, 'operation': operation,
                 'attempt': self.counts[model], 'reserved_usd': str(self.reserved)})
 
@@ -239,7 +234,6 @@ class LiveInvestigation:
             body = {'utc': utc_now(), 'monotonic_ns': time.monotonic_ns(), **deepcopy(payload)}
             self.audit.append(kind, body)
             event = self.audit.events[-1]
-            # Append-only journal is authoritative, independent of UI history.
             with (self.root / 'timeline.jsonl').open('a', encoding='utf-8') as f:
                 f.write(json.dumps(event, allow_nan=False) + '\n')
                 f.flush()
@@ -286,8 +280,6 @@ class LiveInvestigation:
             with self.lock: self.dropped['frames'] += 1
 
     def boundary(self, reason):
-        # Source changes and action IDs also split windows, so a dropped marker
-        # cannot combine independent experiments into one observation.
         try: self.frames.put_nowait((None, {'reason': reason}))
         except queue.Full:
             with self.lock: self.dropped['frames'] += 1
@@ -390,7 +382,6 @@ class LiveInvestigation:
             if submitted or key in self.pending_upload_keys:
                 self._skip_window(folder, 'DUPLICATE_CONTENT_AND_PROMPT')
                 return
-            # One freshest pending clip; never accumulate stale FIFO uploads.
             while True:
                 try: old = self.windows.get_nowait()
                 except queue.Empty: break
@@ -432,8 +423,6 @@ class LiveInvestigation:
                 cache = self.root / 'sam_cache'
                 cache.mkdir(exist_ok=True)
                 save_sam_cache(cache / meta.video_sha256, run)
-            # CFR playback speed cannot reject a measurement on physical-speed
-            # grounds. Contour/identity/area QA still applies to preliminary pixels.
             track, summary, diagnostic = analyze_masks(run, meta, manifest)
             object_id = summary['object_id']
             rows = []
@@ -452,8 +441,6 @@ class LiveInvestigation:
             result['pixel_motion'] = summarize_pixel_motion(rows)
             jpeg = self._publish_overlay(run,folder,meta,manifest,completed=True,latency=time.monotonic()-start)
             with self.lock:
-                # IDs are scoped to each SAM response. Cross-window identity is
-                # admitted only through agreeing overlapping source frames.
                 overlap = [(self.trajectory[(r['recording_id'], r['capture_sequence'], r['arrival_monotonic_ns'])], r)
                     for r in rows if (r['recording_id'], r['capture_sequence'], r['arrival_monotonic_ns']) in self.trajectory]
                 continuity = bool(overlap) and all(
@@ -479,7 +466,6 @@ class LiveInvestigation:
                 self.last_sam_latency_s = result['latency_s']
                 if self.config.mode == 'AUTO_LIVE':
                     self.effective_interval_s = min(120.,max(self.config.cadence_s,result['latency_s']*1.25))
-                # Continuous sessions retain a bounded RAM tail; original evidence stays on disk.
                 self.latest = result
                 if jpeg:
                     self.processed_jpeg = jpeg
@@ -526,7 +512,6 @@ class LiveInvestigation:
         if self.source == 'REAL_PHONE' and run.source != 'REAL_API': return
         jpeg = self._publish_overlay(run,folder,meta,manifest,completed=False,latency=time.monotonic()-started)
         if jpeg:
-            # Partial masks are presentation-only. Never enqueue science or add trajectory rows.
             self.record('SAM_PARTIAL_RECEIVED',{'window_id':folder.name,'received_masks':len(run.masks),
                 'parser_revision':run.receipt['parser_revision'],'completed_scientific_evidence':False,
                 'source_frame_index':max(m.frame_index for m in run.masks)})
@@ -654,7 +639,6 @@ class LiveInvestigation:
                 if self.paused.is_set():
                     self.cancel.wait(.05)
                     continue
-                # Operator/admission controls cannot starve behind continuous snapshots.
                 try: kind, value = self.science.get_nowait()
                 except queue.Empty:
                     with self.lock:
@@ -673,7 +657,6 @@ class LiveInvestigation:
                          'category': 'SCIENTIFIC_VALIDATION', 'http_status': None, 'error_type': type(exc).__name__})
                     adapter = getattr(reasoner, 'adapter', None)
                     receipts = getattr(adapter, 'receipts', [])[-3:]
-                    # Closed safe receipt fields only. Never serialize messages or exception bodies.
                     diagnostic['api_receipts'] = [{k: r[k] for k in ('status', 'error_type', 'http_status', 'response_sha256') if k in r} for r in receipts]
                     diagnostic['guidance'] = ('Review the safe HTTP/transport code and account configuration; no automatic retry on unchanged evidence.'
                         if diagnostic['category'] in ('META_HTTP', 'META_TRANSPORT', 'SDK_RUNTIME') else
@@ -697,7 +680,7 @@ class LiveInvestigation:
             self.record('OPERATOR_ACTION_CONFIRMED', {'request_id': request_id, 'action': pending['candidate']['action']})
 
     def pause(self):
-        self.ledger.pause(True)  # Request gate closes before cancellation/IO.
+        self.ledger.pause(True)
         with self.lock:
             self.paused.set()
             self.request_epoch += 1
@@ -729,7 +712,7 @@ class LiveInvestigation:
                 'authorization_sha256':digest(self.ledger.policy)})
 
     def stop(self, reason='OPERATOR_STOP'):
-        self.ledger.stop()  # Reject new requests before cancellation or IO.
+        self.ledger.stop()
         self.cancel.set()
         self.record('AI_STOPPED', {'reason': reason, 'usage': self.ledger.snapshot()})
 

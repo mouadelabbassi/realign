@@ -24,7 +24,7 @@ def read_json(path,limit=12_000_000):
         raise EvidenceError('artifact exceeds presentation size limit')
     try:
         result=strict_json(p.read_text(encoding='utf-8-sig'))
-        canonical(result)  # Reject overflow-to-infinity as well as NaN literals.
+        canonical(result)
         return result
     except (TypeError,ValueError,UnicodeError,RecursionError):
         raise EvidenceError('invalid finite JSON artifact') from None
@@ -114,7 +114,6 @@ def _validate_record(t,expected_policy):
     elif frozen['model_ref'] is None:
         if exported is not None:
             raise EvidenceError('abstention cannot export an accepted model')
-    # NOMINAL is checked against its public simulator capability by materializer.
     return {'policy':policy,'results':results,'models':models,'stats':stats,
             'receipts':identity['receipts']}
 

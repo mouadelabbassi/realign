@@ -50,7 +50,6 @@ def verify_window_timing(trial, window, reference):
     measured = np.asarray([r.get('exposure_time_s') for r in rows], dtype=float)
     if not np.isfinite(measured).all() or np.any(np.diff(measured) <= 0) or sigma > np.min(np.diff(measured)) / 10:
         raise ValueError('EXPOSURE_TIMING_UNCERTAINTY_OR_ORDER_INVALID')
-    # analysis_window preserves absolute integer PTS, including a nonzero origin.
     from fractions import Fraction
     encoded = np.array([r['window_pts'] for r in window['frames']]) * float(Fraction(window['frames'][0]['window_time_base']))
     if np.max(np.abs((measured - measured[0]) - (encoded - encoded[0]))) > 2 * sigma:
@@ -113,7 +112,6 @@ class LiveScientificSession:
                 'target_identity_status': (self.latest_diagnostic or {}).get('target_identity_status', 'UNVERIFIED'),
                 'pixel_motion':value.get('pixel_motion') or summarize_pixel_motion(value['rows']),
                 'timing': 'SOFTWARE_CFR_PLAYBACK_IS_NOT_PHYSICAL_TIME'}
-            # Source identity changes are informative but never silently merge tracks.
             informative = first_detection or value['identity_continuity'] == 'UNVERIFIED_OR_DISCONTINUOUS' or value.get('behavior_changed',False)
             if not informative and self.new_points < 20: return
             if time.monotonic() - self.last_reasoning < 2: return
@@ -128,7 +126,7 @@ class LiveScientificSession:
         if basis == self.last_reasoning_basis:
             self._readiness('NO_NEW_ELIGIBLE_EVIDENCE')
             return
-        self.last_reasoning_basis = basis  # Failed protocol attempts also consume this evidence basis.
+        self.last_reasoning_basis = basis
         self.new_points = 0
         self.last_reasoning = time.monotonic()
         self.live.scientific['readiness'] = {'source': 'LOCAL_DETERMINISTIC_READINESS',
@@ -184,7 +182,7 @@ class LiveScientificSession:
             self._readiness('NO_USABLE_OBSERVATIONS')
             return
         live.scientific['state'] = 'AGENT_INVESTIGATING'
-        for _ in range(4):  # Bounded burst, never one request per frame.
+        for _ in range(4):
             if live.cancel.is_set() or (not live.config.continuous and self.steps >= self.budget.max_steps): break
             context = self._context()
             epoch = live.request_epoch
@@ -277,7 +275,6 @@ class LiveScientificSession:
             live.scientific['blockers'] = data['blockers']
             live.record('ADMISSION_BLOCKED', {'blockers': data['blockers']})
             return
-        # Overlapping windows from a single recording are never independent trials.
         source_groups = {}
         live_windows = {}
         for path in live.root.glob('window-*/manifest.json'):
@@ -325,8 +322,6 @@ class LiveScientificSession:
             self.agent.machine.move('OBSERVE')
             self.agent._observe()
         else:
-            # Native Windows numerical isolation intentionally fails closed. Use
-            # the supported WSL bridge; the camera remains owned by Windows.
             from .live_worker import scientific_worker
             self.worker = scientific_worker(self.worker_factory, timeout_s=self.budget.worker_timeout_s)
             env = PhysicalEnvironment(data['trials'], data['checks'], deadline_utc=data['config'].get('experiment_deadline_utc'))
@@ -350,8 +345,6 @@ class LiveScientificSession:
             live.active_action = None
         live.scientific.update(state='CALIBRATED_OBSERVATION', blockers=[], physical_evidence_accepted=True,
                                calibration_grade=data['calibration_grade'])
-        # Reuse the validated free-model predictor solely for an admitted nominal
-        # overlay. No optimization, model selection, or holdout access occurs here.
         from realign.fit.robust_fit import predict_free
         nominal = PendulumParams(**data['config']['nominal_params'])
         trial = data['trials'][0]

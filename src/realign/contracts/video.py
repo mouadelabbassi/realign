@@ -119,7 +119,6 @@ class PlanarCalibration:
 
     @property
     def scale_px_per_m(self):
-        # Area-equivalent local scale at the pivot. Actual transforms remain projective.
         h=np.asarray(self.H_plane_to_undistorted_px)
         j=(h[:2,:2]*h[2,2]-h[:2,2,None]*h[2,:2])/h[2,2]**2
         return float(np.sqrt(abs(np.linalg.det(j))))

@@ -133,8 +133,6 @@ def prepare_review_package(external_dir, output_dir, *, video_path=None, expande
     if expanded:
         from realign.perception.video import iter_video_frames
         if video_path is None:raise ManualReviewError('original hash-matching video required for early clean frames')
-        # Acceptance flags stratify selection only. No tracker coordinates,
-        # masks or AI labels enter the clean-frame package or browser payload.
         flags=np.asarray(report['track']['valid'],bool);chosen=[]
         for lo,hi in ((0.,2.),(2.,4.)):
             for accepted in (False,True):
@@ -147,8 +145,6 @@ def prepare_review_package(external_dir, output_dir, *, video_path=None, expande
                 if not ok:raise ManualReviewError('clean PNG encoding failed')
                 additional[i]=png.tobytes()
         rows=rows+[{'frame_index':i,'video_sha256':metadata.video_sha256} for i in sorted(additional)]
-        # Deterministic random order independent of tracker coordinates and
-        # human references; never advertise which displayed frames were rejected.
         np.random.default_rng(20261103).shuffle(rows)
     for row in rows:
         index = row.get('frame_index')
@@ -184,7 +180,6 @@ def prepare_review_package(external_dir, output_dir, *, video_path=None, expande
         'independent_of_sam':False, 'independence_attestation':ATTESTATION,
         'rows':[dict(frame, center_px=None, annotation_sigma_px=None, contexts=[])
                 for frame in frames]}
-    # Package input contains no SAM center, mask, acceptance or error information.
     page_data = {'manifest':manifest, 'annotations':annotations, 'images':image_data}
     template = Path(__file__).resolve().parents[1]/'product/static/review.html'
     page = template.read_text(encoding='utf-8').replace('__REVIEW_DATA__',

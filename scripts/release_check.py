@@ -47,7 +47,6 @@ def main():
     run('g5_control_reproduction',[py,'scripts/verify_g5.py','reproduce','artifacts/task06/g5_positive_control'])
     browser=['tests/test_product_browser.py','tests/test_task06_browser.py']
     if not args.baseline:browser+=['tests/vfinal/test_browser.py','tests/test_live_lab_browser.py']
-    # Reuse a local installed browser executable when Playwright's cache is absent.
     browser_env={'REALIGN_BROWSER_TESTS':'1','REALIGN_SCREENSHOT_DIR':str(out/'screenshots')}
     if os.environ.get('REALIGN_BROWSER_EXECUTABLE'):browser_env['REALIGN_BROWSER_EXECUTABLE']=os.environ['REALIGN_BROWSER_EXECUTABLE']
     run('browser',[py,'-m','pytest','-q',*browser,'--junitxml='+str(out/'browser_tests.xml')],browser_env)
@@ -55,8 +54,6 @@ def main():
     node=shutil.which('node') or str(Path(playwright.__file__).parent/'driver/node')
     run('javascript',[node,'--check','src/realign/product/static/app.js'])
     if not args.baseline:run('lab_javascript',[node,'--check','src/realign/product/static/live_lab.js'])
-    # Tests/verifiers may write derivative evidence in this disposable checkout;
-    # scientific source must remain the pinned committed content.
     changed=subprocess.check_output(['git','diff','--name-only','--','src','scripts'],cwd=wt,text=True).strip()
     rows.append({'name':'source_unchanged','exit_code':int(bool(changed))});save()
     return 0 if all(r['exit_code']==0 for r in rows) else 1

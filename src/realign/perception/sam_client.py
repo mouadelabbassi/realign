@@ -127,7 +127,6 @@ async def parse_sam_events(events, metadata, *, source, media_kind='video', on_p
     except SamError:
         raise
     except Exception as exc:
-        # Raw SDK exceptions can contain request details. Persist type/code only.
         code='stream_source_failed' if isinstance(exc,ResponsesStreamSourceError) else 'parser_failed'
         raise SamError(f'official SAM parsing failed ({type(exc).__name__})',code=code) from None
 
@@ -144,7 +143,7 @@ class SamClient:
         self.calls=[]
         self.before_request=before_request
         self.on_partial=None
-        self.request_confidence=False  # Existing offline request shape stays stable.
+        self.request_confidence=False
         if type(max_attempts) is not int or not 1<=max_attempts<=3: raise ValueError('retry limit')
         self.max_attempts=max_attempts
 

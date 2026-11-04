@@ -58,7 +58,6 @@ def test_preview_record_stop_and_pilot_admission(lab_ui):
     page.get_by_role('button', name='Start recording', exact=True).click()
     expect(page.locator('#camera-state')).to_have_text('RECORDING')
     expect(page.locator('#telemetry')).to_contain_text('recorded frames')
-    # Wait for actual encoded frames rather than a fixed browser delay.
     page.wait_for_function('async()=>{const s=await(await fetch("/api/status")).json();return s.capture.frames>=5;}')
     page.get_by_role('button', name='Stop and analyze', exact=True).click()
     expect(page.locator('#recordings')).to_contain_text('BLOCKED_INPUTS')

@@ -15,14 +15,12 @@ def phone_trial(trial):
     if (o.metadata.source_kind!='REAL_PHONE' or o.provenance!='REAL_SAM' or o.sam_source!='REAL_API' or
         o.noise.provenance!='REAL_SAM' or trial.projection.source!='REAL_MEASURED'):
         raise ValueError('actual SAM, measured calibration and controlled phone provenance required')
-    encode_trial(trial)  # Enforce the existing bounded numerical contract.
+    encode_trial(trial)
     return trial
 
 
 class PhysicalValidator(ScientificValidator):
     def assess(self,turn,session,**kwargs):
-        # No real-data structural null calibration has been registered. Neither
-        # a strong synthetic statistic nor geometric circles can authorize it.
         if turn.outcome=='REPAIR_STRUCTURE':return False,('UNCALIBRATED',)
         return super().assess(turn,session,**kwargs)
 

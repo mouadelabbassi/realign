@@ -38,7 +38,6 @@ class ScientificSession:
         if name=='fit_candidate_model':
             if list(arguments['trial_refs'])==self.trial_refs:
                 self.fits[arguments['candidate']]=result
-                # A later model fit cannot inherit an earlier comparison/rank.
                 self.comparison=None; self.identifiability=None
         elif name=='compare_candidate_models':
             self.comparison=result

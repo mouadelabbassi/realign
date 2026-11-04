@@ -133,7 +133,6 @@ def test_partial_stream_is_visible_but_never_scientific_evidence(auto_factory,tm
     assert not live.overlay['stream_completed'] and live.overlay['presentation_only']
     assert live.overlay_jpeg and not live.trajectory and live.latest is None
     assert live.ledger.snapshot()['attempted_requests']['muse']==0
-    # Capture and window encoding continue while the SAM terminal event is held.
     feed_fixture_windows(live,30,start=2)
     until(lambda:live.finalized>=2)
     assert live.frames.qsize()<=settings.frame_queue
@@ -207,8 +206,6 @@ def test_startup_source_and_consumed_result_are_verified_read_only(auto_factory,
     live=factory(tmp_path,POLICY,config=settings)
     frames(live,2);until(lambda:live.target_blocked);live.close()
     def fixture_cache(path,meta):
-        # Only this explicit test boundary accepts a fixture; the real forensic
-        # loader and physical admission still reject non-REAL_API receipts.
         index=json.loads(path.with_suffix('.json').read_text())
         assert index['source']=='SIMULATED_API_FIXTURE'
         return SamRun((),'SIMULATED_API_FIXTURE',meta.video_sha256,index['receipt'])

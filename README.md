@@ -10,6 +10,9 @@ The five-view product replays authentic Meta investigations on **synthetic
 observations** beside actual SAM tracking on **licensed external footage**.
 Controlled phone physics and independent localization accuracy remain unvalidated.
 
+See the [documentation index](docs/README.md) for run guides and evidence, and the
+[developer guide](docs/DEVELOPER_GUIDE.md) for the code layout and control flow.
+
 ## Two-minute replay
 
 Use Python 3.11+ from this repository. After dependencies are installed:
@@ -17,10 +20,11 @@ Use Python 3.11+ from this repository. After dependencies are installed:
 ```powershell
 python -m venv .venv
 .venv\Scripts\Activate.ps1
-# Linux/macOS: source .venv/bin/activate
 python -m pip install -e ".[perception]"
 python scripts/run_realign.py --port 8766 --no-browser
 ```
+
+On Linux/macOS, activate the environment with `source .venv/bin/activate`.
 
 Open **http://127.0.0.1:8766**. Playback needs **no API key, paid calls, WSL or
 refitting**. Select "Live Muse investigation - attempt 02" and inspect:

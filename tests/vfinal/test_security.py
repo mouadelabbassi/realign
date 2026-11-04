@@ -18,7 +18,6 @@ def test_private_fields_and_paths_never_enter_model_context(payload):
     with pytest.raises(ValueError):assert_public_context(payload)
 
 def test_product_and_agent_have_no_import_of_custodian():
-    # Audit public verifier is a shared data-only module, not a vault wrapper.
     for directory in ['agent','product','audit']:
         for p in (ROOT/'src/realign'/directory).rglob('*.py'):
             for n in ast.walk(ast.parse(p.read_text(encoding='utf-8'))):

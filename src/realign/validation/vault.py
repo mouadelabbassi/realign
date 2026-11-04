@@ -103,9 +103,6 @@ class ValidationVault:
         descriptor=os.open(self.ledger_path,os.O_WRONLY|os.O_APPEND|os.O_CREAT,0o600)
         with os.fdopen(descriptor,"ab") as file:
             file.write(canonical(event)+b"\n"); file.flush(); os.fsync(file.fileno())
-        # New sidecar detects prefix truncation, which a valid hash chain alone
-        # cannot detect. Legacy v1 ledgers without it remain readable. A crash
-        # between writes fails closed; the trusted custodian must investigate.
         head=self.directory/'ledger.head.json';temporary=head.with_suffix('.tmp')
         descriptor=os.open(temporary,os.O_WRONLY|os.O_CREAT|os.O_TRUNC,0o600)
         with os.fdopen(descriptor,'wb') as file:
@@ -207,8 +204,6 @@ class ValidationVault:
         return value
 
     def freeze_model(self, challenge_id, investigation_freeze, model_resource, *, start_receipt=None):
-        # The full original MODEL capability is mandatory. A parameter dictionary
-        # alone cannot prove which model the investigation actually froze.
         try:
             frozen=json.loads(canonical(investigation_freeze)); resource=json.loads(canonical(model_resource))
             expected=frozen.pop("freeze_sha256")
@@ -255,8 +250,6 @@ class ValidationVault:
             used={fp for e in self._events() if e["kind"]=="EVALUATION_SPENT" for fp in e["payload"]["heldout_fingerprints"]}
             tokens=private.get('consumption_tokens',private['fingerprints'])
             if used.intersection(tokens): raise ValidationError("overlapping holdout already evaluated; no retuning or re-evaluation")
-            # Persist consumption BEFORE predictions. Failures/crashes also spend
-            # the set and cannot become an adaptive second look.
             spent=self._append("EVALUATION_SPENT",challenge_id,{"heldout_fingerprints":tokens,
                                 "model_content_sha256":frozen_model.content_sha256})
         protocol=_typed(EvaluationProtocol,private["public"]["protocol"])

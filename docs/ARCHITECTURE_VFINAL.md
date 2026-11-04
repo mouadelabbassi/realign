@@ -9,7 +9,7 @@
 
 - **I could not read the repository at `88b1e13`.** The GitHub page reachable from my environment returned an older cached snapshot (3 commits, a README that only describes G1 and B0-B2), and GitHub blocks automated access to file-tree and commit pages.
 - Everything below about the code comes from `REALIGN_Architecture_vFinal_Execution_Contract.md` (which cites `AGENTS.md`, `docs/REALIGN_Build_Spec_v1.md`, `docs/IMPLEMENTATION_CORRECTIONS.md`, `docs/TASK06_IMPLEMENTATION.md`, `artifacts/task06/TASK06_READINESS.md`, `docs/META_COMPLIANCE.md` and the G5 artifacts) and from the earlier project documents and screenshots of the hackathon rubric.
-- **No source-code defect is asserted.** Items marked **VERIFY** are hypotheses Codex must confirm against the code before acting. Where a new file is named, it is **NEW (proposed)** and Codex must reuse an equivalent module if one already exists.
+- **No source-code defect is asserted.** Items marked **VERIFY** are hypotheses Developers must confirm against the code before acting. Where a new file is named, it is **NEW (proposed)** and Developers must reuse an equivalent module if one already exists.
 - Existing identifiers are kept: source domains `SYNTHETIC | REAL_EXTERNAL | REAL_PHONE`, policies `LIVE_MUSE | DETERMINISTIC | MOCK_POLICY`, the five views and `/review`.
 
 ## 1. Decision summary
@@ -23,7 +23,7 @@ The five logical layers stay in one modular application. vFinal adds no layer, a
 | D3 | **Blinded annotation workflow** in `/review`, extended into the 0-4 s failure interval | Closes the human reference deficit without letting the tracker bias the labels | Test that tracker output is absent from the annotation payload until the label file is locked |
 | D4 | **Physical pending-action state machine** with a media admission validator | A software agent cannot produce observations, and malformed media must be rejected with reasons | Fixture suite of malformed media with typed error codes |
 | D5 | **Calibration and timing grades** (`NONE`, `PARTIAL`, `SUFFICIENT`) gating units and claims | The external clip has unknown capture time base and scale, and must never be shown in millimetres | Test that mm output and physical fits are refused below `SUFFICIENT` |
-| D6 | **Sealed-evaluation hardening and adversarial tests** (registration hash, consumption ledger, domain-separated commitment) | One-shot evaluation must survive tampering | Adversarial test list in `CODEX_TASK_VFINAL.md`, Stage 3 |
+| D6 | **Sealed-evaluation hardening and adversarial tests** (registration hash, consumption ledger, domain-separated commitment) | One-shot evaluation must survive tampering | Adversarial test list in `plans/RELEASE_PLAN.md`, Stage 3 |
 | D7 | **G5 failure analysis**, descriptive only, plus an optional pre-registered ensemble that never replaces the failure | The randomized failure (14.477706 mm vs 10 mm) is the most informative result in the project | Ledger test proving the consumed heldout cannot affect an acceptance result |
 | D8 | **Agent-value report** in the Model Decision view, with a computed "no advantage demonstrated" label | Muse and the deterministic comparator matched in the recorded example | Rule test on the recorded case |
 | D9 | **Safe `Run locally` panel** and CLI commands | The browser cannot start an investigation, by design | Test that no endpoint can trigger a credentialed API call |
@@ -104,7 +104,7 @@ The header shows the highest level whose prerequisites are all met, and lists th
 
 ## 4. Integration contracts
 
-Codex must extend existing dataclasses or schemas in `src/realign/` where an equivalent exists (**VERIFY**), not duplicate them.
+Developers must extend existing dataclasses or schemas in `src/realign/` where an equivalent exists (**VERIFY**), not duplicate them.
 
 | Link | Contract | Required fields | Rejection or abstention condition |
 |---|---|---|---|
@@ -190,7 +190,7 @@ Keep the existing visual identity. No dashboard redesign: the anti-project list 
 
 ### Why a lab would use it
 
-A small robotics or mechatronics lab modifies a mechanism (adds a stop, changes a pivot, wears a part) and must decide whether its simulator can still be trusted for controller tests. REALIGN gives a replayable audit: whether the model disagrees with measurement beyond noise, what kind of fault is plausible, which experiment would discriminate, which typed model candidate fits, whether the evidence is enough, or an honest "inconclusive". The cost per audit comes from billed usage recorded in the bundle; do not state a figure until Codex records it.
+A small robotics or mechatronics lab modifies a mechanism (adds a stop, changes a pivot, wears a part) and must decide whether its simulator can still be trusted for controller tests. REALIGN gives a replayable audit: whether the model disagrees with measurement beyond noise, what kind of fault is plausible, which experiment would discriminate, which typed model candidate fits, whether the evidence is enough, or an honest "inconclusive". The cost per audit comes from billed usage recorded in the bundle; do not state a figure until billing receipts establish it.
 
 ### Reproducible demonstration
 

@@ -85,7 +85,6 @@ def probe_muse(client, *, source='SIMULATED_API_FIXTURE'):
             if tool_calls:
                 if len(tool_calls) > 2 or executed+len(tool_calls) > 3:
                     raise ValueError('tool budget exceeded')
-                # Preserve the assistant message INCLUDING call IDs before tool replies.
                 messages.append(message.model_dump(exclude_none=True))
                 for call in tool_calls:
                     if call.type != 'function' or call.function.name != 'sum_finite':

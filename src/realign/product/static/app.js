@@ -1,7 +1,7 @@
 "use strict";
 
-// Read-only presentation of approved backend evidence. Playback never fits a
-// model, invokes a scientific tool, or substitutes one observation source.
+
+
 (() => {
   const $ = (id) => document.getElementById(id);
   const finite = (value) => typeof value === "number" && Number.isFinite(value);
@@ -86,7 +86,7 @@
     try {
       const parsed = new URL(url);
       if (parsed.protocol === "https:" && !parsed.username && !parsed.password) return node("a", { href: parsed.href, target: "_blank", rel: "noopener noreferrer" }, label);
-    } catch (_) { /* Plain text is appropriate when attribution is incomplete. */ }
+    } catch (_) {   }
     return node("span", {}, label);
   }
 
@@ -235,8 +235,8 @@
     if (trial.zone === "development") return object(trial.predictions) ? trial.predictions : {};
     const byRound = trial.round_predictions;
     if (object(byRound) && object(byRound[String(state.round)])) return byRound[String(state.round)];
-    // Explicit fitted-round checks prevent a later fit from appearing in an
-    // earlier round when an older artifact has no per-round prediction map.
+
+
     return Object.fromEntries(Object.entries(object(trial.predictions) ? trial.predictions : {}).filter(([key, value]) => key === "B0" || object(value) && finite(value.fitted_round) && value.fitted_round <= state.round));
   }
   function predictionRows(trial) {
@@ -359,7 +359,7 @@
     const points = trial.xy_px.filter((point, i) => trial.valid[i]).concat(...predictions.map(([, value]) => value.xy_px));
     const xr = range(points.map((point) => point[0]), 30), yr = range(points.map((point) => point[1]), 30);
     const bounds = { left: 60, top: 26, width: 565, height: 287 };
-    // Equal pixel scales preserve the shape of the physical image-plane path.
+
     const scale = Math.min(bounds.width / (xr[1] - xr[0]), bounds.height / (yr[1] - yr[0]));
     const xmid = (xr[0] + xr[1]) / 2, ymid = (yr[0] + yr[1]) / 2;
     const xRange = [xmid - bounds.width / scale / 2, xmid + bounds.width / scale / 2], yRange = [ymid - bounds.height / scale / 2, ymid + bounds.height / scale / 2];
@@ -396,7 +396,7 @@
     const x = (value) => bounds.left + (value - xr[0]) / Math.max(1e-9, xr[1] - xr[0]) * bounds.width;
     const y = (value) => bounds.top + (yr[1] - value) / (yr[1] - yr[0]) * bounds.height;
     axes(chart, bounds, xr, [yr[1], yr[0]], "t (s)", residual ? "residual x (px)" : "x (px)");
-    // Break uncertainty ribbons at missing observations, rather than bridging gaps.
+
     if (halfBand !== null) {
       let segment = [];
       function flush() {

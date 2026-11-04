@@ -1,6 +1,6 @@
 "use strict";
-// One offline renderer for scientific prose in both workspaces. Raw audit JSON
-// and code stay literal. Model text cannot add executable HTML or remote images.
+
+
 (() => {
   const escape = value => String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const math = (text,display) => katex.renderToString(text,{displayMode:display,throwOnError:false,trust:false,maxExpand:1000,maxSize:20,strict:'ignore'});
@@ -28,7 +28,7 @@
         a.rel='noopener noreferrer';if(u.origin!==location.origin)a.target='_blank';
       } catch(_) {a.removeAttribute('href');}
     }
-    // A single paragraph fits existing labels/cells without introducing margins.
+
     if(result.childElementCount===1&&result.firstElementChild.tagName==='P') {
       const p=result.firstElementChild;
       const flat=document.createDocumentFragment();flat.append(...p.childNodes);return flat;

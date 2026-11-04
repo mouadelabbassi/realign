@@ -132,7 +132,7 @@ def test_refused_tool_round_does_not_lock_muse_after_new_eligible_evidence(live_
     assert feedback=={'error':{'code':'SCIENTIFIC_TOOLS_UNAVAILABLE','source':'LOCAL_CONTROLLER_GATE','executed':False}}
     for _ in range(3): science.consume('operator',{})
     assert len(requests)==1
-    science.last_reasoning=float('inf')  # Store the new snapshot without an automatic burst in this fixture.
+    science.last_reasoning=float('inf')
     science.consume('observation',eligible_snapshot('new-data',2))
     science.consume('operator',{})
     assert len(requests)==3 and live.pending_action is not None
@@ -263,8 +263,6 @@ def test_forensic_reader_is_offline_and_never_rewrites_saved_files(live_factory,
     def forbidden(*args,**kwargs): raise AssertionError('Forensics must never construct a Meta client')
     monkeypatch.setattr(SamClient,'from_environment',forbidden)
     monkeypatch.setattr(MuseAdapter,'from_environment',forbidden)
-    # Explicit TEST_FIXTURE cache boundary. The production loader still requires
-    # an actual REAL_API receipt and is not relaxed to admit simulated sources.
     def cached(path,meta):
         index=json.loads(path.with_suffix('.json').read_text())
         assert index['source']=='SIMULATED_API_FIXTURE'

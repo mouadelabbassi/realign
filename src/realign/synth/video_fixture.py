@@ -94,7 +94,6 @@ def render_fixture(path,*,duration_s=3.,angle_rad=.45,release_s=.4,stationary=Fa
     metadata=probe_video(path,source_kind='SYNTHETIC_RENDER')
     if len(metadata.pts)!=len(times) or not np.allclose(metadata.t_s,times,atol=1e-8):
         raise RuntimeError('rendered fixture PTS do not match intended presentation times')
-    # Two intentional SAM dropouts exercise missing-mask handling (not decoded-frame loss).
     missing=set() if stationary else {13,37}
     text=''.join(protocol_line(i,int(c[0]-8),int(c[1]-8)) for i,c in enumerate(centers) if i not in missing)
     return {'path':path,'metadata':metadata,'events':fixture_events(text=text),

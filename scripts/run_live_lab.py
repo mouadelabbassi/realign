@@ -35,7 +35,7 @@ def main():
             print('Import refused:', exc); return 1
         print(json.dumps({'id': report['id'], 'status': report['status'], 'media': report['media'],
                           'blockers': report['blockers']}, indent=2))
-        return 2  # Valid media alone is never accepted physical evidence.
+        return 2
     controller = CaptureController(library)
     if args.list_devices:
         print(json.dumps({'devices': controller.enumerate_devices(),

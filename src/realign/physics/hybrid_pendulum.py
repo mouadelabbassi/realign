@@ -114,7 +114,6 @@ def _rhs(p: PendulumParams, mode: str, x: NDArray[np.float64]) -> NDArray[np.flo
 def _tension_over_mass(p: PendulumParams, mode: str, x: NDArray[np.float64]) -> float:
     ell = _geometry(p, mode)[1]
     q, qd = x
-    # Tangential drag has zero radial component in this approximation.
     return float(ell*qd*qd + p.g*math.cos(q))
 
 
@@ -135,7 +134,6 @@ def simulate(p: PendulumParams, theta0: float, omega0: float,
     if max_events < 1:
         raise ValueError("max_events must be >= 1")
     if p.peg:
-        # We support a known free-side release, not an ambiguous state already wrapped.
         if p.peg.contact_side * (theta0 - p.peg.angle_rad) >= -1e-9:
             raise ValueError("initial release must be strictly on the free side of the peg")
     mode = "free"
@@ -173,8 +171,6 @@ def simulate(p: PendulumParams, theta0: float, omega0: float,
         if sol.status == 0:
             cursor = last
             break
-        # Since a guard can be at the initial time after reset, its derivative
-        # direction prevents immediate re-firing in the next mode.
         if peg is not None and len(sol.t_events[0]) > 0:
             event_time = float(sol.t_events[0][0])
             state_before = np.asarray(sol.y_events[0][0], dtype=float)
@@ -185,8 +181,6 @@ def simulate(p: PendulumParams, theta0: float, omega0: float,
             ell_from = _geometry(p, mode)[1]
             ell_to = _geometry(p, target)[1]
             kappa = peg.kappa_in if mode == "free" else peg.kappa_out
-            # At contact, both angular positions are phi. Tangent directions
-            # coincide and Cartesian speed is preserved for kappa == 1.
             x = np.array([peg.angle_rad, kappa*ell_from/ell_to*state_before[1]], dtype=float)
             post_pos = _xy(p, target, float(x[0]))
             if np.linalg.norm(post_pos - pre_pos) > 1e-8:
@@ -206,8 +200,6 @@ def simulate(p: PendulumParams, theta0: float, omega0: float,
     qd = np.full_like(t, np.nan)
     xy = np.full((t.size, 2), np.nan)
     for i, (start, end, mode, interpolant) in enumerate(segments):
-        # Assign the exact event time to the post-reset mode, except for final
-        # endpoint. Floating samples away from guard use the segment as normal.
         final = i == len(segments) - 1
         indices = np.where((t >= start - 1e-14) & ((t < end - 1e-14) if not final else (t <= end + 1e-14)))[0]
         if not len(indices):

@@ -35,8 +35,6 @@ class Exhausted(RuntimeError):
 
 
 def empirical_tail(scores, statistic):
-    # An unavailable null fit is a worst-case exceedance, never evidence that
-    # the observed mechanism is unusual. Missing replicates cannot lower p.
     return (1+sum(x is None or x>=statistic for x in scores))/(len(scores)+1)
 
 

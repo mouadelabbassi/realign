@@ -110,7 +110,6 @@ async def ingest_phone(manifest,output,*,run_api=False,cache_dir=None):
     stationary=capture['tracks'][capture['stationary_id']]
     xy=stationary.xy_px[stationary.valid]
     if not 16<=len(xy):raise ValueError('stationary measurement count insufficient')
-    # The tool's reference arrays are measured checkpoint pairs, not invented RMS surrogates.
     checks={'source':'REAL_MEASURED','reference_px':reference.tolist(),'observed_px':cfg['check_image_xy_px'],
             'stationary_xy_px':xy[np.linspace(0,len(xy)-1,min(256,len(xy)),dtype=int)].tolist()}
     trials=[];windows={};receipts={}

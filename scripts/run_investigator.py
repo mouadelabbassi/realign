@@ -17,7 +17,6 @@ if __name__=='__main__':
     p.add_argument('--standard-tier-confirmed',action='store_true')
     p.add_argument('--output',type=Path,default=Path('artifacts/task04/investigation.json'))
     args=p.parse_args()
-    # An absent key is not a reason to fit synthetic data in headline live mode.
     import os
     if args.mode=='live' and (not os.environ.get('MODEL_API_KEY') or not args.standard_tier_confirmed):
         result=execute(args.case,arm='live',standard_tier_confirmed=args.standard_tier_confirmed)

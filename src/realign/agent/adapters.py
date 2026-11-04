@@ -98,7 +98,6 @@ class DeterministicAdapter:
                         [fits[f]['fitted_model_ref'] for f in ('FREE','PEG_ONE_SIDE')] if valid else [],
                         'candidate':x,'feasibility_protocol_ref':c['protocol_ref']})
             feasible=[x for x in c['candidates'] if c['scores'][x['experiment_ref']]['feasible']]
-            # Same finite candidate set and numerical score as the mock/live arm.
             if feasible:
                 def key(x):
                     s=c['scores'][x['experiment_ref']]
@@ -220,8 +219,6 @@ class MuseAdapter:
             raise AdapterFailure('tool results must be delivered before the next request')
         self.messages.append({'role':'user','content':canonical(context).decode()})
         if self.external_request_gate and len(canonical(self.messages))>200000:
-            # The supplied context retains approved evidence, current stage,
-            # hypotheses, fits and receipts. Never compact an unresolved tool round.
             self.messages=[self.messages[0],self.messages[-1]]
             from realign.audit.terminal import emit
             emit('MUSE_CONTEXT_COMPACTED',code='CURRENT_APPROVED_CONTEXT_RETAINED')
@@ -261,7 +258,6 @@ class MuseAdapter:
                     from realign.contracts.investigation import TOOLS
                     if tc.function.name not in TOOLS:
                         raise AdapterFailure('unapproved tool name',code='UNAPPROVED_TOOL')
-                    # Validate the entire batch BEFORE any numerical execution.
                     try:
                         TOOLS[tc.function.name][0].model_validate_json(canonical(parsed))
                     except ValueError:

@@ -202,7 +202,6 @@ def build_report(output_dir, *, seed=20261031, progress=None):
             public_metadata.append({'trial_id': prefix, 'zone': trial.zone, 'experiment': asdict(trial.experiment),
                 'projection': asdict(trial.projection), 'noise': asdict(noise),
                 'observation_sha256': observation_fingerprint(trial)})
-        # Freeze observation-only results BEFORE consulting any evaluation-only values.
         comparison = compare_baselines(public[:2], public[2:], nominal, FitOptions())
         peg = private[0].params.peg
         inferred = comparison['B2']['second_circle']
@@ -246,7 +245,6 @@ def build_report(output_dir, *, seed=20261031, progress=None):
             'fit_options': asdict(FitOptions()), 'heldout_role': 'non-sealed synthetic development only'},
         'observations': public_metadata, 'cases': cases, 'checks': checks,
         'acceptance_passed': all(c['passed'] for c in checks)}
-    # JSON normalization makes the returned record identical to its persisted form.
     result = json.loads(json.dumps(result, allow_nan=False))
     (output/'poc0_baselines.json').write_text(json.dumps(result, indent=2, allow_nan=False)+'\n', encoding='utf-8')
     (output/'POC0_BASELINES.md').write_text(_markdown(result), encoding='utf-8')

@@ -62,7 +62,6 @@ def score_free(params, trials, nominal_length_m):
         if np.all(pair_array.std(axis=0) > 0):
             lag = float(np.corrcoef(pair_array.T)[0, 1])
     mse, floor = float(np.mean(errors)), float(np.mean(floors))
-    # Every trial has its own known pixel scale; excess is normalized per sample.
     return {'rmse_xy_px': float(np.sqrt(mse)), 'mse_xy_px2': mse,
             'assumed_noise_floor_mse_px2': floor, 'nrmse': float(np.sqrt(np.mean(normalized))),
             'excess_nrmse': float(np.sqrt(max(np.mean(excess), 0.))),

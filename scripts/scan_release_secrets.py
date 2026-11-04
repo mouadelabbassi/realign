@@ -24,8 +24,6 @@ def scan(root):
         if header[1]!=b'blob':continue
         count+=1
         if any(p.search(data) for p in PATTERNS):
-            # Test fixtures and implementation references are checked as data,
-            # rather than excluding every tests/scripts path from the scanner.
             matches=PATTERNS[0].findall(data)
             placeholders=all(m.lower().startswith((b'test_',b'fake_',b'example_',b'placeholder')) for m in matches)
             if not (matches and placeholders and not any(p.search(data) for p in PATTERNS[1:])):
