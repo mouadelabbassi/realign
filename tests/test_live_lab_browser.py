@@ -114,7 +114,7 @@ def test_authorized_concurrent_investigation_and_stop_keeps_recording(lab_ui):
             return await super().segment_video(path, metadata)
     def factory(root, policy, **kwargs):
         def client():
-            return Client(transport, source='SIMULATED_API_FIXTURE', before_request=holder['live'].ledger.reserve)
+            return Client(transport, source='SIMULATED_API_FIXTURE', before_request=holder['live'].ledger.reserve, concept=holder['live'].config.target_prompt)
         live = LiveInvestigation(root, policy, source='TEST_FIXTURE', sam_factory=client,
             reasoner_factory=lambda owner: LiveScientificSession(owner, adapter_factory=ScriptedAdapter), **kwargs)
         holder['live'] = live
@@ -129,6 +129,8 @@ def test_authorized_concurrent_investigation_and_stop_keeps_recording(lab_ui):
     assert controller.live is None
     page.locator('#authorization').evaluate('(e)=>e.open=true')
     page.locator('#window-seconds').fill('1'); page.locator('#overlap-seconds').fill('0.2')
+    page.locator('#analysis-interval').fill('1')
+    page.locator('#target-prompt').fill('circular test weight'); page.locator('#target-confirmed').check()
     page.locator('#spend-cap').fill('1'); page.locator('#sam-reserve').fill('0.01'); page.locator('#muse-reserve').fill('0.02')
     page.locator('#ai-consent').check()
     page.locator('#ai-start').click()
@@ -151,3 +153,45 @@ def test_authorized_concurrent_investigation_and_stop_keeps_recording(lab_ui):
     assert not errors
     page.get_by_role('button', name='Stop and analyze', exact=True).click()
     context.close()
+
+
+def test_empty_masks_show_local_readiness_and_never_invoke_muse(lab_ui):
+    """TEST_FIXTURE empty SAM stream, no Meta transport or physical camera."""
+    from playwright.sync_api import expect
+    from test_live_investigation import MockMeta, MockStream, ScriptedAdapter
+    from realign.synth.video_fixture import fixture_events
+    from realign.physical.live_investigation import LiveInvestigation
+    from realign.physical.live_science import LiveScientificSession
+    from realign.perception.sam_client import SamClient
+    browser, controller, urls, tmp = lab_ui
+    transport=MockMeta();holder={}
+    async def empty(**kwargs): return MockStream(fixture_events(frames=[]),transport)
+    transport.responses.create=empty
+    def factory(root,policy,**kwargs):
+        def client(): return SamClient(transport,source='SIMULATED_API_FIXTURE',
+            concept=holder['live'].config.target_prompt,before_request=holder['live'].ledger.reserve)
+        live=LiveInvestigation(root,policy,source='TEST_FIXTURE',sam_factory=client,
+            reasoner_factory=lambda owner:LiveScientificSession(owner,adapter_factory=ScriptedAdapter),**kwargs)
+        holder['live']=live;return live
+    controller.live_factory=factory
+    page=browser.new_page();errors=[];page.on('pageerror',lambda error:errors.append(str(error)))
+    page.route('**/*',lambda route:route.continue_() if route.request.url.startswith(urls[0]+'/') else route.abort())
+    page.goto(urls[0]);page.locator('#connect').click();page.locator('#start').click()
+    page.locator('#authorization').evaluate('(e)=>e.open=true')
+    page.locator('#target-prompt').fill('grey test weight');page.locator('#target-confirmed').check()
+    page.locator('#window-seconds').fill('1');page.locator('#analysis-interval').fill('12')
+    page.locator('#spend-cap').fill('1');page.locator('#sam-reserve').fill('0.01');page.locator('#muse-reserve').fill('0.02');page.locator('#ai-consent').check()
+    page.locator('#ai-start').click()
+    expect(page.locator('#detection-guidance')).to_contain_text('SAM_NO_MASKS',timeout=30000)
+    expect(page.locator('#ai-detection')).to_contain_text('0 masks returned')
+    expect(page.locator('#target-identity')).to_contain_text('NO_TARGET_OBSERVED')
+    for _ in range(2): page.locator('#ai-reason').click()
+    expect(page.locator('#readiness-text')).to_contain_text('NO_USABLE_OBSERVATIONS')
+    assert controller.live.ledger.snapshot()['attempted_requests']['muse']==0
+    assert controller.live.pending_action is None
+    expect(page.locator('#camera-state')).to_have_text('RECORDING')
+    shots=Path(os.environ.get('REALIGN_SCREENSHOT_DIR',str(tmp/'screenshots')));shots.mkdir(parents=True,exist_ok=True)
+    page.screenshot(path=str(shots/'live_empty_TEST_FIXTURE.png'),full_page=True)
+    page.locator('#ai-stop').click();page.locator('#stop').click()
+    assert not errors
+    page.close()

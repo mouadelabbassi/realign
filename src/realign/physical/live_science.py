@@ -68,6 +68,10 @@ class LiveScientificSession:
         self.experiments = 0
         self.terminal = False
         self.snapshot = None
+        self.latest_diagnostic = None
+        self.consumed_unique = 0
+        self.last_reasoning_basis = None
+        self.admission_ref = None
         self.pixel_candidates = [candidate(Stationary()).model_dump(mode='json'),
             candidate(CameraCheck(reference_ref=digest({'live_session': live.root.name}))).model_dump(mode='json')]
 
@@ -79,22 +83,56 @@ class LiveScientificSession:
             ref = digest(value)
             if ref in self.seen: return
             self.seen.add(ref)
-            self.new_points += value['new_observations']
+            self.latest_diagnostic = value.get('diagnostic')
+            total = value.get('cumulative_unique_observations', self.consumed_unique+value['new_observations'])
+            self.new_points += max(0, total-self.consumed_unique)
+            self.consumed_unique = max(self.consumed_unique, total)
+            if not value['track']['valid_frames'] or not value['rows']:
+                self._readiness('NO_USABLE_OBSERVATIONS')
+                return
+            if not value['new_observations']:
+                self._readiness('NO_NEW_ELIGIBLE_EVIDENCE')
+                return
+            first_detection = self.snapshot is None
             self.snapshot = {'snapshot_sha256': ref, 'source': self.live.source,
                 'observation_grade': 'PRELIMINARY_PIXELS', 'units': 'px',
                 'window_id': value['window_id'], 'valid_samples': value['track']['valid_frames'],
                 'identity_continuity': value['identity_continuity'], 'physical_fitting_allowed': False,
+                'target_prompt': (self.latest_diagnostic or {}).get('target_prompt'),
+                'target_identity_status': (self.latest_diagnostic or {}).get('target_identity_status', 'UNVERIFIED'),
                 'timing': 'SOFTWARE_CFR_PLAYBACK_IS_NOT_PHYSICAL_TIME'}
             # Source identity changes are informative but never silently merge tracks.
-            informative = value['identity_continuity'] == 'UNVERIFIED_OR_DISCONTINUOUS'
+            informative = first_detection or value['identity_continuity'] == 'UNVERIFIED_OR_DISCONTINUOUS'
             if not informative and self.new_points < 20: return
             if time.monotonic() - self.last_reasoning < 2: return
         elif kind != 'operator':
             raise ValueError('unknown scientific event')
         if self.live.pending_action: return
+        if self.agent is None and self.snapshot is None:
+            self._readiness('NO_USABLE_OBSERVATIONS')
+            return
+        basis = digest({'observation': self.snapshot, 'admission': self.admission_ref,
+            'tool_evidence': [r['result']['evidence_ref'] for r in self.agent.session.results] if self.agent else []})
+        if basis == self.last_reasoning_basis:
+            self._readiness('NO_NEW_ELIGIBLE_EVIDENCE')
+            return
+        self.last_reasoning_basis = basis  # Failed protocol attempts also consume this evidence basis.
         self.new_points = 0
         self.last_reasoning = time.monotonic()
+        self.live.scientific['readiness'] = {'source': 'LOCAL_DETERMINISTIC_READINESS',
+            'can_reason': True, 'code': 'NEW_ELIGIBLE_EVIDENCE', 'evidence_basis_sha256': basis,
+            'operator_request': 'New visual or admitted scientific evidence is available. Any Muse call remains subject to authorized limits.'}
         self._advance()
+
+    def _readiness(self, code):
+        guidance = ((self.latest_diagnostic or {}).get('guidance') or
+            'Review target visibility and the selected visual prompt; wait for usable SAM observations. Do not spend Muse requests to explain unchanged empty evidence.')
+        value = {'source': 'LOCAL_DETERMINISTIC_READINESS', 'code': code, 'can_reason': False,
+            'operator_request': guidance, 'diagnostic_code': (self.latest_diagnostic or {}).get('code'),
+            'muse_response': False, 'physical_repair_certified': False}
+        if value != self.live.scientific.get('readiness'):
+            self.live.scientific['readiness'] = value
+            self.live.record('LOCAL_READINESS', value)
 
     def _adapter(self):
         if self.adapter is None:
@@ -116,8 +154,7 @@ class LiveScientificSession:
                 'trial_refs': [], 'nominal_model_ref': None, 'budget_ref': digest(self.budget.model_dump(mode='json')),
                 'protocol_ref': None, 'candidates': self.pixel_candidates, 'fits': {}, 'comparison': None,
                 'identifiability': None, 'discrepancy': None, 'scores': {}, 'coverage_max_rad': None,
-                'last_receipt': None, 'evidence_refs': [self.snapshot['snapshot_sha256'] if self.snapshot else
-                    digest({'live_session': self.live.root.name, 'calibration': 'UNAVAILABLE'})]}
+                'last_receipt': None, 'evidence_refs': [self.snapshot['snapshot_sha256']] if self.snapshot else []}
         context['live_observation'] = self.snapshot
         context['live_policy'] = ('Use only approved trial_refs in scientific tools. Preliminary pixels cannot support a physical '
             'fit or a repair. With no trial_refs, suggest one supplied reference action, or ABSTAIN. '
@@ -128,6 +165,9 @@ class LiveScientificSession:
 
     def _advance(self):
         live = self.live
+        if self.agent is None and self.snapshot is None:
+            self._readiness('NO_USABLE_OBSERVATIONS')
+            return
         live.scientific['state'] = 'AGENT_INVESTIGATING'
         for _ in range(4):  # Bounded burst, never one request per frame.
             if live.cancel.is_set() or self.steps >= self.budget.max_steps: break
@@ -281,6 +321,7 @@ class LiveScientificSession:
             self.agent._observe()
         live.record('CALIBRATED_OBSERVATION_ADMITTED', {'manifest_sha256': data['input_manifest_sha256'],
             'trial_refs': list(self.agent.session.trial_refs), 'windows': data['windows'], 'sam_receipts': data['sam_receipts']})
+        self.admission_ref = data['input_manifest_sha256']
         if pending:
             live.history.append({**deepcopy(pending), 'response_manifest_sha256': data['input_manifest_sha256'], 'state': 'ADMITTED'})
             live.pending_action = None

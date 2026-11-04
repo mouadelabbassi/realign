@@ -85,7 +85,7 @@ def live_factory(tmp_path):
                 return await super().segment_video(path, metadata)
         def client():
             return Client(transport, source='SIMULATED_API_FIXTURE', retry_delay=0,
-                          before_request=holder['live'].ledger.reserve, max_attempts=2)
+                          before_request=holder['live'].ledger.reserve, max_attempts=2, concept=holder['live'].config.target_prompt)
         live = LiveInvestigation(tmp_path, deepcopy(POLICY), config=config, source='TEST_FIXTURE',
                                 sam_factory=client, reasoner_factory=reasoner_factory)
         holder['live'] = live
@@ -97,7 +97,7 @@ def live_factory(tmp_path):
 
 def frames(live, count, *, start=0, recording='clip-TEST_FIXTURE', pause=.002):
     for i in range(start, start + count):
-        frame = np.full((64, 96, 3), 80, dtype=np.uint8)
+        frame = np.full((64, 96, 3), 80 + i % 64, dtype=np.uint8)
         live.offer(frame, {'recording_id': recording, 'encoded_frame_index': i,
             'capture_sequence': i, 'arrival_monotonic_ns': 1_000_000_000 + i * 100_000_000})
         if pause: time.sleep(pause)
@@ -238,10 +238,17 @@ class ScriptedAdapter:
     def close(self): pass
 
 
+def eligible_snapshot(window='window-TEST_FIXTURE', sequence=1):
+    return {'source': 'TEST_FIXTURE', 'window_id': window, 'new_observations': 1,
+        'cumulative_unique_observations': sequence, 'identity_continuity': 'FIRST_WINDOW_UNVERIFIED',
+        'track': {'valid_frames': 1}, 'rows': [{'capture_sequence': sequence, 'xy_px': [28., 28.]}],
+        'diagnostic': {'code': 'PRELIMINARY_PIXELS_ONLY', 'guidance': 'TEST_FIXTURE observation; calibration still required.'}}
+
+
 def test_live_muse_requests_exact_operator_action_and_cannot_fit_pixels(live_factory, tmp_path):
     live, _ = live_factory(reasoner_factory=NoReasoning)
     science = LiveScientificSession(live, adapter_factory=ScriptedAdapter)
-    science.consume('operator', {})
+    science.consume('observation', eligible_snapshot())
     pending = live.pending_action
     assert pending['candidate']['action']['kind'] == 'STATIONARY_REFERENCE'
     assert live.scientific['state'] == 'PENDING_PHYSICAL_ACTION'
@@ -405,7 +412,7 @@ def test_muse_result_arriving_after_stop_cannot_change_hypotheses_or_request_act
             return reply
     live, _ = live_factory()
     science = LiveScientificSession(live, adapter_factory=HeldAdapter)
-    thread = threading.Thread(target=lambda: science.consume('operator', {}))
+    thread = threading.Thread(target=lambda: science.consume('observation', eligible_snapshot()))
     thread.start()
     assert entered.wait(timeout=5)
     live.stop(); release.set(); thread.join(timeout=5)

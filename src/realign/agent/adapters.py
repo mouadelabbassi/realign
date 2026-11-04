@@ -12,9 +12,16 @@ from realign.perception.meta_validation import strict_json
 
 
 class AdapterFailure(RuntimeError):
-    def __init__(self,message,*,code='MODEL_PROTOCOL_REJECTED'):
+    def __init__(self,message,*,code='MODEL_PROTOCOL_REJECTED',category='MODEL_PROTOCOL',http_status=None,error_type=None):
         super().__init__(message)
         self.code=code
+        self.category='SCIENTIFIC_VALIDATION' if code=='EXPERIMENT_BUDGET_EXPIRED' else category
+        self.http_status=http_status if type(http_status) is int and 100<=http_status<=599 else None
+        self.error_type=error_type
+
+    def diagnostic(self):
+        return {'code':self.code,'category':self.category,'http_status':self.http_status,
+                'error_type':self.error_type or type(self).__name__}
 
 
 class NotAuthorized(AdapterFailure):
@@ -165,14 +172,14 @@ class MuseAdapter:
     def from_environment(cls,*,budget,standard_tier_confirmed=False):
         key=os.environ.get('MODEL_API_KEY')
         if not key or not standard_tier_confirmed:
-            raise NotAuthorized('local authorization and Standard tier are required')
+            raise NotAuthorized('local authorization and Standard tier are required',code='LOCAL_AUTHORIZATION_REQUIRED',category='AUTHORIZATION')
         from openai import OpenAI
         return cls(OpenAI(base_url='https://api.meta.ai/v1',api_key=key,timeout=45,max_retries=0),budget=budget)
 
     def _request(self):
         count=self.stats['actual_api_requests']+self.stats['fixture_requests']
         if count>=self.budget.max_api_requests:
-            raise AdapterFailure('API request budget exhausted',code='API_BUDGET')
+            raise AdapterFailure('API request budget exhausted',code='API_BUDGET',category='BUDGET')
         if self.before_request is not None: self.before_request('muse','reasoning')
         self.stats['actual_api_requests' if self.source=='LIVE_MUSE' else 'fixture_requests']+=1
         start=time.monotonic()
@@ -192,8 +199,9 @@ class MuseAdapter:
             return r
         except Exception as exc:
             self.stats['failed_requests']+=1
+            status=getattr(exc,'status_code',None)
             self.receipts.append({'status':'failed','error_type':type(exc).__name__,
-                                  'http_status':getattr(exc,'status_code',None)})
+                                  'http_status':status if type(status) is int and 100<=status<=599 else None})
             raise
         finally:
             if self.source=='LIVE_MUSE':
@@ -204,7 +212,7 @@ class MuseAdapter:
             raise AdapterFailure('tool results must be delivered before the next request')
         self.messages.append({'role':'user','content':canonical(context).decode()})
         if len(canonical(self.messages))>250000:
-            raise AdapterFailure('context size budget exhausted',code='CONTEXT_BUDGET')
+            raise AdapterFailure('context size budget exhausted',code='CONTEXT_BUDGET',category='BUDGET')
         response=None
         for i in range(3):
             try:
@@ -213,10 +221,15 @@ class MuseAdapter:
             except AdapterFailure:
                 raise
             except Exception as exc:
+                if getattr(exc,'code',None)=='AUTHORIZED_LIMIT_REACHED':
+                    raise AdapterFailure('Authorized live request or spending limit reached',code='AUTHORIZED_LIMIT_REACHED',category='BUDGET') from None
                 status=getattr(exc,'status_code',None)
                 retryable=status in (408,429) or isinstance(status,int) and status>=500 or type(exc).__name__ in ('APIConnectionError','APITimeoutError')
                 if not retryable or i==2:
-                    raise AdapterFailure('Meta request failed: '+type(exc).__name__) from None
+                    category='META_HTTP' if type(status) is int else 'META_TRANSPORT' if type(exc).__name__ in ('APIConnectionError','APITimeoutError') else 'SDK_RUNTIME'
+                    code='META_HTTP_ERROR' if category=='META_HTTP' else 'META_TRANSPORT_ERROR' if category=='META_TRANSPORT' else 'SDK_RUNTIME_ERROR'
+                    raise AdapterFailure('Meta request failed; inspect safe diagnostic code',code=code,
+                        category=category,http_status=status,error_type=type(exc).__name__) from None
                 time.sleep(self.retry_delay*(2**i))
         try:
             choice=response.choices[0]; message=choice.message
@@ -259,7 +272,7 @@ class MuseAdapter:
         except AdapterFailure:
             raise
         except Exception as exc:
-            raise AdapterFailure('invalid structured model response: '+type(exc).__name__,code='INVALID_STRUCTURED_RESPONSE') from None
+            raise AdapterFailure('invalid structured model response',code='INVALID_STRUCTURED_RESPONSE',error_type=type(exc).__name__) from None
 
     def deliver(self,calls,results):
         if len(calls)!=len(results) or [(c.call_id,c.name) for c in calls]!=[(c.call_id,c.name) for c in self._pending]:
