@@ -68,7 +68,6 @@ def export_review_frames(video,metadata,track,output_dir,recording_id,n=20):
     rows=[]
     for i,frame in enumerate(iter_video_frames(video,metadata)):
         if i in selected:
-            # Clean original image for independent manual centers, without predicted-center hints.
             cv2.imwrite(str(output/f'{recording_id}_{i:06d}.png'),cv2.cvtColor(frame,cv2.COLOR_RGB2BGR))
             rows.append({'recording_id':recording_id,'frame_index':i,'pts_s':float(metadata.t_s[i]),
                          'center_px':None,'annotation_sigma_px':None,'reviewer':None})
@@ -269,7 +268,6 @@ async def _process_manifest(manifest_path,output_dir,result,*,run_api=False,expo
     review={'reviewed_frames':len(all_pred),'rmse_px':float(np.sqrt(np.mean(np.sum((all_pred-all_review)**2,axis=1)))) if len(all_pred) else None,
             'per_recording':per_recording}
     repeats=[t for t in training if next(r for r in records if r['id']==t.trial_id).get('repeat_group')]
-    # Only matched repeat groups are pooled; different prescribed amplitudes stay separate.
     groups={}
     for t in repeats:
         record=next(r for r in records if r['id']==t.trial_id)
@@ -294,7 +292,6 @@ async def process_manifest(manifest_path,output_dir,*,run_api=False,export_revie
         return await _process_manifest(manifest_path,output_dir,result,run_api=run_api,export_reviews=export_reviews,
                                        capture=capture,ingest_only=ingest_only)
     except Exception as exc:
-        # Retain actual call counts even if later calibration/annotation/fitting fails.
         result['g2_passed']=False
         result['failures'].append({'error_type':type(exc).__name__,'code':getattr(exc,'code','processing_failed')})
         result['blockers'].append('processing failed; inspect input schema/calibration and retained API receipts')

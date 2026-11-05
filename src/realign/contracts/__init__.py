@@ -96,7 +96,6 @@ class Observation:
             raise ValueError('positions need shape (N,2); validity must be Boolean (N,)')
         if not np.isfinite(xy[valid]).all():
             raise ValueError('valid positions must be finite')
-        # Invalid data never become measurements through interpolation.
         xy[~valid] = np.nan
         for name, value in [('t_s', t), ('xy_px', xy), ('valid', valid)]:
             value.flags.writeable = False

@@ -20,6 +20,29 @@ class Camera:
     def getBackendName(self): return 'INJECTED_TEST_CAMERA'
 
 
+def test_device_scan_finds_nonzero_indices_releases_probes_and_keeps_safe_errors(tmp_path):
+    released=[]
+    class Probe:
+        def __init__(self,index):self.index=index
+        def isOpened(self):return self.index in (2,5)
+        def getBackendName(self):return 'TEST_FIXTURE_DRIVER'
+        def release(self):released.append(self.index)
+    def factory(index,*args):
+        if index==1:raise RuntimeError('SENSITIVE_TEST_FIXTURE_DRIVER_DETAILS')
+        return Probe(index)
+    controller=CaptureController(LabLibrary(tmp_path),camera_factory=factory)
+    devices=controller.enumerate_devices()
+    assert [d['index'] for d in devices]==[2,5]
+    assert released==[0,2,3,4,5,6,7]
+    scan=controller.snapshot()['device_scan']
+    assert scan['checked_indices']==list(range(8)) and scan['new_meta_requests']==0
+    assert scan['probe_errors']==[{'index':1,'code':'DEVICE_PROBE_FAILED','error_type':'RuntimeError'}]
+    assert 'SENSITIVE' not in json.dumps(scan)
+    assert controller.camera is None and controller.live is None
+    for value in (True,0,17,'8'):
+        with pytest.raises(ValueError):controller.enumerate_devices(value)
+
+
 def test_interval_metrics_never_claim_known_drops():
     report = interval_summary([0, 33_000_000, 66_000_000, 170_000_000])
     assert report['gap_indicators'] == 1

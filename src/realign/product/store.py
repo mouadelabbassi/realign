@@ -88,6 +88,5 @@ def publish(root,bundles,status,external):
     write_json(root/'status.json',status); write_json(root/'external.json',external)
     index={'schema_version':1,'runs':entries,'status':{'file':'status.json','sha256':sha256_file(root/'status.json')},
            'external':{'file':'external.json','sha256':sha256_file(root/'external.json')}}
-    # Publish catalog last, so partially built arrays never masquerade as evidence.
     write_json(root/'catalog.json',index)
     return ProductStore(root)

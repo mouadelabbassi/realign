@@ -4,6 +4,7 @@ Pixel snapshots never become numerical trials. Only ingest_phone's independent
 admission can grant references to the bounded numerical tools.
 """
 from copy import deepcopy
+from collections import deque
 import asyncio
 import time
 import uuid
@@ -19,6 +20,7 @@ from realign.tools.client import ScientificSession, candidate
 from realign.tools.sandbox import WorkerClient
 from .ingestion import ingest_phone
 from .session import PhysicalEnvironment, PhysicalValidator
+from .live_observation import summarize_pixel_motion
 
 
 class ScientificGateRejection(ValueError):
@@ -48,7 +50,6 @@ def verify_window_timing(trial, window, reference):
     measured = np.asarray([r.get('exposure_time_s') for r in rows], dtype=float)
     if not np.isfinite(measured).all() or np.any(np.diff(measured) <= 0) or sigma > np.min(np.diff(measured)) / 10:
         raise ValueError('EXPOSURE_TIMING_UNCERTAINTY_OR_ORDER_INVALID')
-    # analysis_window preserves absolute integer PTS, including a nonzero origin.
     from fractions import Fraction
     encoded = np.array([r['window_pts'] for r in window['frames']]) * float(Fraction(window['frames'][0]['window_time_base']))
     if np.max(np.abs((measured - measured[0]) - (encoded - encoded[0]))) > 2 * sigma:
@@ -60,13 +61,14 @@ def verify_window_timing(trial, window, reference):
 class LiveScientificSession:
     def __init__(self, live, *, adapter_factory=None, worker_factory=None):
         self.live = live
-        self.budget = Budget(max_api_requests=live.ledger.policy['muse_requests'])
+        self.budget = Budget(max_api_requests=live.ledger.policy['muse_requests'] or 32)
         self.adapter_factory = adapter_factory
         self.worker_factory = worker_factory or WorkerClient
         self.adapter = None
         self.worker = None
         self.agent = None
         self.seen = set()
+        self.seen_order=deque()
         self.new_points = 0
         self.last_reasoning = -float('inf')
         self.stage = 'HYPOTHESIZE'
@@ -82,13 +84,15 @@ class LiveScientificSession:
             candidate(CameraCheck(reference_ref=digest({'live_session': live.root.name}))).model_dump(mode='json')]
 
     def consume(self, kind, value):
-        if self.terminal or self.live.cancel.is_set(): return
+        if self.terminal or self.live.cancel.is_set() or self.live.paused.is_set(): return
         if kind == 'admit':
             self._admit(value)
         elif kind == 'observation':
             ref = digest(value)
             if ref in self.seen: return
             self.seen.add(ref)
+            self.seen_order.append(ref)
+            if self.live.config.continuous and len(self.seen_order)>2048:self.seen.discard(self.seen_order.popleft())
             self.latest_diagnostic = value.get('diagnostic')
             total = value.get('cumulative_unique_observations', self.consumed_unique+value['new_observations'])
             self.new_points += max(0, total-self.consumed_unique)
@@ -106,9 +110,9 @@ class LiveScientificSession:
                 'identity_continuity': value['identity_continuity'], 'physical_fitting_allowed': False,
                 'target_prompt': (self.latest_diagnostic or {}).get('target_prompt'),
                 'target_identity_status': (self.latest_diagnostic or {}).get('target_identity_status', 'UNVERIFIED'),
+                'pixel_motion':value.get('pixel_motion') or summarize_pixel_motion(value['rows']),
                 'timing': 'SOFTWARE_CFR_PLAYBACK_IS_NOT_PHYSICAL_TIME'}
-            # Source identity changes are informative but never silently merge tracks.
-            informative = first_detection or value['identity_continuity'] == 'UNVERIFIED_OR_DISCONTINUOUS'
+            informative = first_detection or value['identity_continuity'] == 'UNVERIFIED_OR_DISCONTINUOUS' or value.get('behavior_changed',False)
             if not informative and self.new_points < 20: return
             if time.monotonic() - self.last_reasoning < 2: return
         elif kind != 'operator':
@@ -122,12 +126,13 @@ class LiveScientificSession:
         if basis == self.last_reasoning_basis:
             self._readiness('NO_NEW_ELIGIBLE_EVIDENCE')
             return
-        self.last_reasoning_basis = basis  # Failed protocol attempts also consume this evidence basis.
+        self.last_reasoning_basis = basis
         self.new_points = 0
         self.last_reasoning = time.monotonic()
         self.live.scientific['readiness'] = {'source': 'LOCAL_DETERMINISTIC_READINESS',
             'can_reason': True, 'code': 'NEW_ELIGIBLE_EVIDENCE', 'evidence_basis_sha256': basis,
             'operator_request': 'New visual or admitted scientific evidence is available. Any Muse call remains subject to authorized limits.'}
+        self.live.scientific['visual_observation'] = deepcopy(self.snapshot)
         self._advance()
 
     def _readiness(self, code):
@@ -149,6 +154,7 @@ class LiveScientificSession:
             self.adapter = (self.adapter_factory(self.budget) if self.adapter_factory else
                 MuseAdapter.from_environment(budget=self.budget, standard_tier_confirmed=True))
             self.adapter.before_request = self.live.ledger.reserve
+            self.adapter.external_request_gate = self.live.config.continuous
         return self.adapter
 
     def _context(self):
@@ -162,6 +168,7 @@ class LiveScientificSession:
                 'identifiability': None, 'discrepancy': None, 'scores': {}, 'coverage_max_rad': None,
                 'last_receipt': None, 'evidence_refs': [self.snapshot['snapshot_sha256']] if self.snapshot else []}
         context['live_observation'] = self.snapshot
+        context['prior_live_hypotheses']=deepcopy(self.live.scientific['hypotheses'])
         context['live_policy'] = ('Use only approved trial_refs in scientific tools. Preliminary pixels cannot support a physical '
             'fit or a repair. With no trial_refs, suggest one supplied reference action, or ABSTAIN. '
             'A human confirms and performs actions; no actuator exists. Prior hypotheses and budgets persist. '
@@ -175,11 +182,14 @@ class LiveScientificSession:
             self._readiness('NO_USABLE_OBSERVATIONS')
             return
         live.scientific['state'] = 'AGENT_INVESTIGATING'
-        for _ in range(4):  # Bounded burst, never one request per frame.
-            if live.cancel.is_set() or self.steps >= self.budget.max_steps: break
+        for _ in range(4):
+            if live.cancel.is_set() or (not live.config.continuous and self.steps >= self.budget.max_steps): break
             context = self._context()
+            epoch = live.request_epoch
             reply = self._adapter().next(deepcopy(context))
-            if live.cancel.is_set():
+            if live.cancel.is_set() or live.paused.is_set() or epoch != live.request_epoch:
+                if reply.calls and hasattr(self.adapter,'reject_pending'):
+                    self.adapter.reject_pending(reply.calls,code='LIVE_PAUSED_OR_STOPPED')
                 live.record('MUSE_RESULT_AFTER_STOP', {'context_sha256': digest(context), 'applied': False})
                 return
             self.steps += 1
@@ -265,7 +275,6 @@ class LiveScientificSession:
             live.scientific['blockers'] = data['blockers']
             live.record('ADMISSION_BLOCKED', {'blockers': data['blockers']})
             return
-        # Overlapping windows from a single recording are never independent trials.
         source_groups = {}
         live_windows = {}
         for path in live.root.glob('window-*/manifest.json'):
@@ -313,8 +322,6 @@ class LiveScientificSession:
             self.agent.machine.move('OBSERVE')
             self.agent._observe()
         else:
-            # Native Windows numerical isolation intentionally fails closed. Use
-            # the supported WSL bridge; the camera remains owned by Windows.
             from .live_worker import scientific_worker
             self.worker = scientific_worker(self.worker_factory, timeout_s=self.budget.worker_timeout_s)
             env = PhysicalEnvironment(data['trials'], data['checks'], deadline_utc=data['config'].get('experiment_deadline_utc'))
@@ -338,8 +345,6 @@ class LiveScientificSession:
             live.active_action = None
         live.scientific.update(state='CALIBRATED_OBSERVATION', blockers=[], physical_evidence_accepted=True,
                                calibration_grade=data['calibration_grade'])
-        # Reuse the validated free-model predictor solely for an admitted nominal
-        # overlay. No optimization, model selection, or holdout access occurs here.
         from realign.fit.robust_fit import predict_free
         nominal = PendulumParams(**data['config']['nominal_params'])
         trial = data['trials'][0]

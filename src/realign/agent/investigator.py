@@ -137,8 +137,6 @@ class Investigator:
         try:
             self._observe()
             for _ in range(self.session.budget.max_steps):
-                # Snapshot mutable session dictionaries before recording a step.
-                # Later fits/scores must not rewrite previously hashed evidence.
                 context=json.loads(canonical(self._context()))
                 from realign.audit.exposure import assert_public_context
                 assert_public_context(context)

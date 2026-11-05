@@ -62,7 +62,6 @@ def fit_circle(points_m, *, sigma_m: float, fixed_center=None):
                 bounds=([1e-6], [10.]), method='trf', loss='soft_l1', f_scale=1.)
             radius = float(sol.x[0])
         else:
-            # Center before algebraic initialization to avoid translation sensitivity.
             A = np.column_stack([2*centered, np.ones(len(points))])
             v, _, rank, _ = np.linalg.lstsq(A, np.sum(centered**2, axis=1), rcond=None)
             if rank < 3:
@@ -99,7 +98,6 @@ def _points(trials):
             scales.extend(1/np.sqrt(np.abs(np.linalg.det(jac))))
             continue
         scales.extend([trial.projection.scale_px_per_m]*int(obs.valid.sum()))
-        # Conservative largest localization standard deviation for anisotropic noise.
         sigma = np.sqrt(max(0., np.linalg.eigvalsh(obs.covariance_px2).max()))/trial.projection.scale_px_per_m
         sigmas.extend([max(float(sigma), 1e-9)]*int(obs.valid.sum()))
     return np.concatenate(points), np.array(scales), np.array(sigmas)
@@ -121,7 +119,6 @@ def _distances(points, first, second=None, threshold=None, side=None):
 def _fit_two(trials):
     points, _, sigmas = _points(trials)
     bearings = np.arctan2(points[:, 0], -points[:, 1])
-    # Hypothesis family fixed in advance: 25 thresholds x 2 wrap sides.
     thresholds = np.quantile(bearings, np.linspace(.18, .82, 25))
     best, failed = None, 0
     for threshold in thresholds:
@@ -175,9 +172,6 @@ def fit_geometry(trials):
             complete = False
     two, count = _fit_two(trials)
     failed += count
-    # Explicit conservative design penalty, NOT a calibrated p-value/LRT or G3 gate.
-    # 1 vs 5 continuous parameters, plus the fixed 50-candidate search cost.
-    # Correlated localization reduces effective evidence; raw CV scores are scaled.
     n_eff = sum(t.observation.valid.sum()*(1-abs(t.observation.ar1_phi))/(1+abs(t.observation.ar1_phi)) for t in trials)
     factor = n_eff/len(points)
     cv_one *= factor; cv_two *= factor

@@ -14,9 +14,9 @@ scrub trajectories and select the actual `Live Muse investigation · attempt 02`
 Synthetic investigations, external SAM footage and pending phone experiments have
 separate source views. A local external video can be restored using
 `python scripts/prepare_external_video.py --download`; no replacement is shown if
-it is absent. See the [Task 05 demo script](docs/TASK05_DEMO_SCRIPT.md),
-[implementation](docs/TASK05_IMPLEMENTATION.md) and
-[measured readiness](artifacts/task05/TASK05_READINESS.md).
+it is absent. See the [Task 05 demo script](TASK05_DEMO_SCRIPT.md),
+[implementation](TASK05_IMPLEMENTATION.md) and
+[measured readiness](../artifacts/task05/TASK05_READINESS.md).
 
 The successful live and deterministic synthetic runs both reach 0.819611 px
 post-freeze development RMSE. Actual SAM accepts 550/600 external-video centers;
@@ -72,7 +72,7 @@ Outputs: `artifacts/G1_REPORT.md`, `artifacts/g1_verification.json`,
 `artifacts/synthetic_trajectory_comparison.csv`, and (with matplotlib)
 `artifacts/synthetic_discrepancy.png`.
 
-The baseline command produces [POC0_BASELINES.md](artifacts/POC0_BASELINES.md),
+The baseline command produces [POC0_BASELINES.md](../artifacts/POC0_BASELINES.md),
 `poc0_baselines.json`, `poc0_baselines.png`, `poc0_observations.npz` and the separate
 post-fit `poc0_truth_evaluation.json`. It exits nonzero when its acceptance checks fail.
 Use `--output-dir PATH` to write a separate evidence run; the named default seed is
@@ -101,7 +101,7 @@ B0/B1 differences in no-fault data do not establish improvement. A low radial
 residual does not guarantee precise center recovery or a unique physical cause.
 
 Methods, verification results, scope resolutions and limitations are documented in
-[POC0_BASELINES_IMPLEMENTATION.md](docs/POC0_BASELINES_IMPLEMENTATION.md).
+[POC0_BASELINES_IMPLEMENTATION.md](POC0_BASELINES_IMPLEMENTATION.md).
 
 ## Scientific scope
 
@@ -132,9 +132,9 @@ GitHub Actions is configured to run offline tests and verifiers on pushes/pull r
 
     python scripts/verify_g2.py
 
-Read [G2_READINESS.md](artifacts/G2_READINESS.md),
-[G2_IMPLEMENTATION.md](docs/G2_IMPLEMENTATION.md) and the
-[real data collection protocol](docs/REAL_DATA_COLLECTION_PROTOCOL.md).
+Read [G2_READINESS.md](../artifacts/G2_READINESS.md),
+[G2_IMPLEMENTATION.md](G2_IMPLEMENTATION.md) and the
+[real data collection protocol](REAL_DATA_COLLECTION_PROTOCOL.md).
 The protocol specifies rig construction, phone placement, measured fiducials/pivot,
 stationary/repeated recordings, independent annotations and the frozen split.
 Tracked data folders contain empty markers; example inputs contain no invented
@@ -160,8 +160,8 @@ B3 fits the validated peg-contact dynamics with deterministic bounded multistart
 least squares, directed events, complete trajectories, explicit failed starts
 and local sensitivity diagnostics. Run python scripts/verify_structural.py for
 the fixed synthetic comparison on whole exploration/development trials. See
-[B3_BASELINES.md](artifacts/B3_BASELINES.md) and
-[TASK03_IMPLEMENTATION.md](docs/TASK03_IMPLEMENTATION.md). B2 radial error remains
+[B3_BASELINES.md](../artifacts/B3_BASELINES.md) and
+[TASK03_IMPLEMENTATION.md](TASK03_IMPLEMENTATION.md). B2 radial error remains
 a separate geometric statistic. Predictive accuracy alone does not identify a
 physical mechanism. Task 04 adds a finite synthetic null-calibration pilot;
 broad structural acceptance and full G3 remain pending.
@@ -184,8 +184,8 @@ without a locally configured key. No external clip is classified as self-recorde
 phone footage. Public external provenance is separate from synthetic test fixtures.
 
 The Task 03 design has five closed typed schema pairs in
-[INVESTIGATOR_TOOL_CONTRACTS.md](docs/INVESTIGATOR_TOOL_CONTRACTS.md) and
-[investigator_tool_schemas.json](docs/investigator_tool_schemas.json).
+[INVESTIGATOR_TOOL_CONTRACTS.md](INVESTIGATOR_TOOL_CONTRACTS.md) and
+[investigator_tool_schemas.json](investigator_tool_schemas.json).
 Those v1.0 schemas remain reproducible. Task 04 implements the five tools using
 the backwards-preserved numerical modules and closed runtime v1.1 contracts.
 
@@ -208,17 +208,17 @@ python scripts/replay_investigation.py artifacts/task04/traces/deterministic_off
 python scripts/verify_investigator.py --run-live --standard-tier-confirmed
 ```
 
-See [Task 04 implementation and operating limits](docs/TASK04_IMPLEMENTATION.md),
-[runtime schemas](docs/investigator_runtime_schemas.json) and the measured
-[investigation report](artifacts/task04/INVESTIGATOR_REPORT.md). The registered
+See [Task 04 implementation and operating limits](TASK04_IMPLEMENTATION.md),
+[runtime schemas](investigator_runtime_schemas.json) and the measured
+[investigation report](../artifacts/task04/INVESTIGATOR_REPORT.md). The registered
 pilot uses twenty synthetic null datasets and disjoint post-calibration seeds.
-The [readiness assessment](artifacts/task04/TASK04_READINESS.md) records exact
+The [readiness assessment](../artifacts/task04/TASK04_READINESS.md) records exact
 test outcomes, the noise-scale false comparison flag, conservative abstention,
 optimizer failures and live/real-world checks still pending.
 Calibration is environment-bound; regenerate it after numerical version changes.
 Task 05 verifies live Muse integration and real external SAM output in separate
 evidence streams. Controlled phone recordings and measured calibration are still
-needed under the [collection protocol](docs/REAL_DATA_COLLECTION_PROTOCOL.md).
+needed under the [collection protocol](REAL_DATA_COLLECTION_PROTOCOL.md).
 Broader matched live studies, power/coverage and G2/G3/G4/G5 acceptance remain open.
 
 ## Task 06 evidence closure
@@ -242,7 +242,7 @@ control passes. Both results are retained and reproducible; neither is real
 physical discovery. The phone example exits 2 with exact missing-input blockers.
 Default commands make no Meta API calls and do not refit cached product runs.
 
-See [Task 06 implementation and commands](docs/TASK06_IMPLEMENTATION.md),
-[readiness and exact test evidence](artifacts/task06/TASK06_READINESS.md),
-[event compliance record](docs/META_COMPLIANCE.md) and
-[demo storyboard](docs/TASK06_DEMO_STORYBOARD.md).
+See [Task 06 implementation and commands](TASK06_IMPLEMENTATION.md),
+[readiness and exact test evidence](../artifacts/task06/TASK06_READINESS.md),
+[event compliance record](META_COMPLIANCE.md) and
+[demo storyboard](TASK06_DEMO_STORYBOARD.md).

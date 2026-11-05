@@ -1,4 +1,4 @@
-# CODEX TASK 01 — Implement the POC-0 Classical Scientific Baselines
+# BASELINE IMPLEMENTATION PLAN — Implement the POC-0 Classical Scientific Baselines
 
 ## Objective
 Continue the existing REALIGN starter from its actual code state. Add reproducible synthetic observations and strong non-LLM comparators before agent coding. Preserve the numerical G1 kernel unless a test exposes an actual bug.
@@ -6,7 +6,7 @@ Continue the existing REALIGN starter from its actual code state. Add reproducib
 ## Read first
 1. `AGENTS.md`
 2. `docs/IMPLEMENTATION_CORRECTIONS.md`
-3. `docs/CODEX_EXECUTION_ROADMAP.md`
+3. `docs/DEVELOPMENT_ROADMAP.md`
 4. `docs/REALIGN_Build_Spec_v1.md`, especially Sections B, C, D, F and the known corrections
 5. Existing `src/realign/physics/*.py`, `tests/test_physics.py`, `scripts/verify_g1.py`, `README.md`, and `pyproject.toml`.
 

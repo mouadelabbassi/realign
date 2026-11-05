@@ -18,7 +18,6 @@ def test_exact_period_from_numerical_integration():
     p = PendulumParams(.68)
     out = trajectory(p, .78, 10, 5001)
     peak = find_peaks(out.q_rad, distance=300, prominence=.15)[0][0]
-    # Sampled peak location is only accurate to the sampling interval.
     assert abs(out.t_s[peak] - period_exact(.68, .78)) < .004
 
 
@@ -44,7 +43,6 @@ def test_peg_events_and_energy():
 def test_vertical_peg_period():
     p = PendulumParams(.75, peg=PegParams(.15))
     out = trajectory(p, .45, 12, 12001)
-    # Each free->contact event repeats once per full period.
     tt = [e.time_s for e in out.events if e.to_mode == "contact"]
     assert len(tt) >= 3
     np.testing.assert_allclose(np.diff(tt), vertical_peg_period(.75, .15, .45), atol=2e-7)

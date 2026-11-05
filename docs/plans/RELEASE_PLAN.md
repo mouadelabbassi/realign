@@ -1,8 +1,8 @@
-# CODEX TASK vFinal: staged engineering mandate
+# Release Implementation Plan
 
-> Release audit update (2026-11-03): the original planning text below retains its initial hypotheses/statuses. Current verified results are in [RELEASE_READINESS.md](RELEASE_READINESS.md) and [the gap closure ledger](../artifacts/release/gap_closure.json). Task 06 CI 41533276918 is confirmed green in all four jobs; it is not pending. The independent review addendum governs conflicts.
+> Release audit update (2026-11-03): the original planning text below retains its initial hypotheses/statuses. Current verified results are in [RELEASE_READINESS.md](../RELEASE_READINESS.md) and [the gap closure ledger](../../artifacts/release/gap_closure.json). Task 06 CI 41533276918 is confirmed green in all four jobs; it is not pending. The independent review addendum governs conflicts.
 
-**Baseline:** commit `88b1e13a756c369e4131769ce734ab4dff843ea4`. **Target repo path:** `docs/CODEX_TASK_VFINAL.md`.
+**Baseline:** commit `88b1e13a756c369e4131769ce734ab4dff843ea4`. **Target repo path:** `docs/plans/RELEASE_PLAN.md`.
 **Read first:** `AGENTS.md`, `docs/IMPLEMENTATION_CORRECTIONS.md`, `docs/TASK05_IMPLEMENTATION.md`, `docs/TASK06_IMPLEMENTATION.md`, `artifacts/task06/TASK06_READINESS.md`, `docs/META_COMPLIANCE.md`, `ARCHITECTURE_VFINAL.md`, `GAP_CLOSURE_MATRIX.md`.
 
 ## Source limits

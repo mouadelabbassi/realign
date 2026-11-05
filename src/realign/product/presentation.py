@@ -71,7 +71,6 @@ def materialize(trace_path,*,run_id,expected_policy):
             if candidate is None or experiment['requested']:
                 raise EvidenceError('unapproved or repeated experiment in bounded replay')
             experiment.update(requested=True,action=candidate['action'],score=c['scores'].get(candidate['experiment_ref']))
-            # A failed/missing receipt is shown as a request, never an execution.
             if receipt_index<len(receipt_events):
                 receipt=receipt_events[receipt_index]; receipt_index+=1
                 if receipt['experiment_ref']!=candidate['experiment_ref'] or receipt['source']!='SYNTHETIC_ENVIRONMENT':
@@ -126,7 +125,6 @@ def materialize(trace_path,*,run_id,expected_policy):
             'predictions':predictions,'round_predictions':by_round}
     for i,(t,when) in enumerate(zip(observations,admitted)):
         trials.append(convert(t,'trial-'+str(i+1),'exploration',when))
-    # Explicitly post-freeze, human-only. No development sample enters an agent.
     development=env.development_after_freeze()
     for i,t in enumerate(development):
         trials.append(convert(t,'development-'+str(i+1),'development',None))

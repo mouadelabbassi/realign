@@ -69,7 +69,6 @@ def test_expanded_review_can_lock_and_export_empty_visibility_decisions_locally(
     doc=json.loads(target.read_text());assert all(r['center_px'] is None for r in doc['rows'])
     from realign.perception.manual_review import verify_locked_annotations
     assert verify_locked_annotations(doc)
-    # Deliberately never use this automated file as a human reference assessment.
     context.close()
 
 def test_missing_media_is_visible_without_substitution(app):

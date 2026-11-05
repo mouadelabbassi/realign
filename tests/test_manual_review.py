@@ -36,7 +36,6 @@ def unit_declaration(prepared, *, count=20):
     doc.update(reviewer='SIMULATED_ATTESTATION_PARSER_TEST', reviewed_utc='2026-11-03T10:00:00Z',
                independent_of_sam=True)
     for row in doc['rows'][:count]:
-        # An arbitrary constant checks numerical accounting; no SAM center is copied.
         row.update(center_px=[100.,100.],annotation_sigma_px=1.5,contexts=['reversal'])
     return doc
 
@@ -119,7 +118,6 @@ def test_cached_assessment_metrics_and_identity_are_recomputed(prepared):
 
 
 def test_analytic_euclidean_errors_bias_percentiles_and_empty_state():
-    # Explicitly synthetic error vectors; this result is not external accuracy.
     result = localization_metrics([[3.,4.],[0.,0.],[-3.,4.]])
     assert result['rmse_px'] == pytest.approx(np.sqrt(50./3.))
     assert result['bias_px'] == pytest.approx([0.,8./3.])

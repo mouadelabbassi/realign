@@ -28,7 +28,6 @@ def verify_offline_g2(output_dir):
         f=render_fixture(media/f'SYNTHETIC_swing_{i}.mp4',angle_rad=angle)
         run=asyncio.run(parse_sam_events(f['events'],f['metadata'],source='SIMULATED_API_FIXTURE'))
         track=extract_track(run,f['metadata'])
-        # These are explicit simulated annotations of rendered shapes, not human review.
         review=reviewed_noise(track.xy_px[track.valid],f['reference_px'][track.valid],
             source_ids=(f'fixture_annotations_{i}',),provenance='SYNTHETIC')
         combined=combine_noise([noise,review])
@@ -50,7 +49,6 @@ def verify_offline_g2(output_dir):
           all(abs(t.release.time_s-.4)<.04 for t in trials))
     check('synthetic checkpoint calibration RMS below 0.001 px',cal.check_rms_px<.001)
     check('B1 converges using exploration recordings only',baseline['B1']['success'])
-    # Budget explicitly includes uncertain release, so this is not a tracking-noise claim.
     check('unseen B1 rollout within 10 px timing/measurement design allowance',
           baseline['B1']['success'] and baseline['B1']['heldout']['rmse_xy_px']<10.)
     check('no fabricated second pivot on a free pendulum',baseline['B2']['decision']=='one_circle_only')

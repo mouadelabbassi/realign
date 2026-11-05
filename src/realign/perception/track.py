@@ -82,7 +82,6 @@ def _translated_iou(a,b):
         y,x=np.nonzero(mask.pixels)
         if not len(x):
             return set()
-        # Align shapes, so rapid legitimate motion does not force IoU to zero.
         x=x-int(round(x.mean())); y=y-int(round(y.mean()))
         return set(zip(x.tolist(),y.tolist()))
     pa,pb=pixels(a),pixels(b)

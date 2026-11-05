@@ -37,7 +37,7 @@ def test_pts_are_original_and_variable_frame_rate():
     np.testing.assert_array_equal(m.t_s, [.1, .14, .22, .26])
     assert m.variable_frame_rate
     assert m.container_creation_utc == '2026-10-31T10:00:00Z'
-    assert m.recording_start_utc is None  # Container creation is not known capture start.
+    assert m.recording_start_utc is None
     assert m.time_base == '1/1000'
 
 
@@ -211,8 +211,6 @@ def test_release_covariance_is_common_not_independent_per_frame(rendered):
     velocity=np.gradient(prediction,m.t_s,axis=0)
     residual=velocity[track.valid]*trial.release.sigma_s
     z=whiten_video(residual,trial,prediction)
-    # A one-sigma shared time shift has <=1 squared Mahalanobis contribution,
-    # irrespective of the number of observed frames.
     assert np.sum(z*z)<=1.+1e-8
 
 
@@ -333,8 +331,6 @@ def test_full_offline_g2_pipeline_and_report(tmp_path):
     assert result['actual_api']['failed_calls']==0
     assert result['actual_api']['status']=='not_run'
     assert result['real_measurements']==[]
-    # Rollout allowance includes estimated release timing; center localization
-    # accuracy has its own separate 1 px test above.
     assert result['synthetic_fixture']['baseline']['B1']['heldout']['rmse_xy_px'] < 10.
     assert (tmp_path/'G2_READINESS.md').exists()
     assert (tmp_path/'g2_fixture_comparison.png').stat().st_size>10000

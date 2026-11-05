@@ -2,13 +2,13 @@
 
 **Review date:** 2026-11-02  
 **Verified GitHub baseline:** `mouadelabbassi/realign` @ `88b1e13a756c369e4131769ce734ab4dff843ea4`  
-**Role:** This addendum takes precedence over the four Claude vFinal documents **only where they conflict with verified source or scientific integrity**. It is not permission to redesign Architecture v1.1 or erase historical evidence.
+**Role:** This addendum takes precedence over the four original vFinal planning documents **only where they conflict with verified source or scientific integrity**. It is not permission to redesign Architecture v1.1 or erase historical evidence.
 
 ## Decision
 
-**Conditionally approve** `ARCHITECTURE_VFINAL.md`, `GAP_CLOSURE_MATRIX.md`, `CODEX_TASK_VFINAL.md` and `RELEASE_DEFINITION_OF_DONE.md` as a release-hardening specification. Preserve the five logical layers, the existing read-only offline replay, the authentic Task 05 traces, the Task 06 synthetic G5 pass and failure, and existing science code. No new agent, domain, compiler or service.
+**Conditionally approve** `ARCHITECTURE_VFINAL.md`, `GAP_CLOSURE_MATRIX.md`, `plans/RELEASE_PLAN.md` and `RELEASE_DEFINITION_OF_DONE.md` as a release-hardening specification. Preserve the five logical layers, the existing read-only offline replay, the authentic Task 05 traces, the Task 06 synthetic G5 pass and failure, and existing science code. No new agent, domain, compiler or service.
 
-Claude explicitly could not read the live repository. Codex must check every `VERIFY` and `NEW (proposed)` instruction against actual source before creating a module or changing a contract.
+The original planning review did not inspect the live repository. Developers must check every `VERIFY` and `NEW (proposed)` instruction against actual source before creating a module or changing a contract.
 
 ## Verified baseline corrections
 

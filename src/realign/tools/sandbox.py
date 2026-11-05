@@ -62,7 +62,6 @@ def _copy_runtime():
                     shutil.copytree(libs,packages/libs.name,dirs_exist_ok=True)
             else:
                 shutil.copy2(source,target)
-        # No editable .pth files, generators, project reports, credentials or data.
         if os.name=='nt':
             name='python'+str(sys.version_info.major)+str(sys.version_info.minor)+'._pth'
             (root/name).write_text('Lib\nDLLs\npackages\n',encoding='utf-8')
@@ -118,8 +117,6 @@ def _snapshot(root):
 class WorkerClient:
     def __init__(self, *, timeout_s=600):
         if os.name=='nt':
-            # The tested LPAC bootstrap requires registryRead, which can access
-            # private user keys. A missing probe key cannot make it secure.
             raise IsolationUnavailable('user_environment_registry_denied: native Windows is unsupported; use Linux/WSL')
         self.timeout_s=timeout_s; self._queue=queue.Queue(); self.closed=False
         root=_copy_runtime(); script=_snapshot(root)
@@ -137,7 +134,6 @@ class WorkerClient:
             if ready.get('status')!='READY':
                 raise IsolationUnavailable('isolated runtime did not start')
             self.isolation=ready['isolation']
-            # A real forbidden-file check, not a filename substring/import check.
             self.probe=self.request({'command':'probe','paths':[str(ROOT/'AGENTS.md'),
                                                                str(ROOT/'artifacts/b3_post_fit_evaluation.json')]})
             failed=[k for k,v in self.probe.items() if not (all(v) if isinstance(v,list) else v)]
@@ -158,7 +154,6 @@ class WorkerClient:
             self._queue.put(line)
 
     def _discard_stderr(self):
-        # Raw startup/SDK/library errors can contain paths. Never persist them.
         while self.process.stderr.read(4096):
             pass
 

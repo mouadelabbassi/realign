@@ -32,7 +32,6 @@ def export_bundle(output):
                  'artifacts/release/evidence_manifest.json','artifacts/release/evidence_summary.json',
                  'artifacts/release/meta_evidence_index.md'):
         if (ROOT/name).is_file():files.add(name)
-    # No external pixels by default: source data/metrics retain attribution.
     payload={p:(ROOT/p).read_bytes() for p in sorted(files)}
     manifest={'schema_version':1,'source_sha':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
         'ladder':evidence['ladder'],'contains_external_pixels':False,

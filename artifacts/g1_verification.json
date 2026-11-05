@@ -10,6 +10,6 @@
   "max_speed_jump_m_per_s": 4.440892098500626e-16,
   "vertical_peg_period_reference_s": 1.6373648615869487,
   "vertical_peg_period_abs_error_s": 6.247757866617576e-11,
-  "elapsed_seconds": 30.491,
+  "elapsed_seconds": 46.186,
   "passed": true
 }

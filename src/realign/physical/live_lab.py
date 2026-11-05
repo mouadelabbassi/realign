@@ -8,12 +8,15 @@ from datetime import datetime, timezone
 import json
 import math
 import os
+import re
 from pathlib import Path
 import shutil
 import subprocess
 import threading
 import time
 import uuid
+import logging
+from realign.audit.terminal import emit
 
 import numpy as np
 
@@ -88,7 +91,6 @@ class LabLibrary:
     def draft(self, folder, provenance):
         """Existing phone manifest grammar, deliberately incomplete and offline."""
         rid = folder.name
-        # Resolve relative to this draft on both native Windows and WSL.
         record = {'id': rid, 'video': 'recording.mp4',
                   'comparison_group': provenance.get('rig_id') or 'UNASSIGNED_RIG',
                   'release_bracket_pts_s': None, 'analysis_window_pts_s': None}
@@ -205,7 +207,6 @@ def read_catalog(root):
                 changed |= file_sha256(path.parent / 'arrivals.jsonl') != report['capture']['arrivals_sha256']
             if changed:
                 records.append({'id': path.parent.name, 'status': 'EVIDENCE_CHANGED'}); continue
-            # Local source paths/operator identity never enter the read-only product.
             report['provenance'].pop('source_path', None)
             report['provenance'].pop('operator', None)
             records.append(report)
@@ -217,11 +218,17 @@ def read_catalog(root):
 
 class CaptureController:
     """One explicit camera owner. Only the latest preview JPEG is retained."""
-    def __init__(self, library, *, camera_factory=None, live_factory=None):
+    def __init__(self, library, *, camera_factory=None, live_factory=None, camera_catalog=None, portable_detector=None):
         import cv2
         self.cv = cv2
         self.library = library
         self.camera_factory = camera_factory or cv2.VideoCapture
+        self.native_camera = camera_factory is None
+        self._native_factory = self.camera_factory
+        self._catalog_explicit = camera_catalog is not None
+        from .camera_devices import windows_cameras, windows_portable_devices
+        self.camera_catalog = camera_catalog or (windows_cameras if os.name == 'nt' and self.native_camera else None)
+        self.portable_detector = portable_detector or (windows_portable_devices if self.native_camera else lambda: [])
         self.lock = threading.RLock()
         self.camera = None
         self.writer = None
@@ -239,21 +246,49 @@ class CaptureController:
         self.device = None
         self.live = None
         self.live_factory = live_factory
+        self.auto_live = False
+        self.auto_capture = False
+        self.auto_clips = 0
+        self.auto_metadata = {}
+        self.device_scan = None
 
     def move(self, state):
         self.state = state
         self.history.append(state)
+        emit('CAPTURE_STATE',state=state)
+        if self.auto_live and len(self.history)>80:self.history=self.history[-80:]
 
     def snapshot(self):
         with self.lock:
             age = (time.monotonic_ns() - self.last_frame_ns) / 1e9 if self.last_frame_ns else None
-            return {'state': self.state, 'state_history': self.history[-40:], 'camera': self.device if self.camera is not None else None,
+            return {'state': self.state, 'camera_discovery_version': 2, 'state_history': self.history[-40:], 'camera': self.device if self.camera is not None else None,
                     'error': self.error, 'latest': deepcopy(self.latest),
                     'capture': interval_summary(self.arrivals), 'preview_age_s': age,
                     'camera_stalled': self.camera is not None and age is not None and age > 3,
+                    'device_scan':deepcopy(self.device_scan),
+                    'preview_size':list(self.frame.shape[1::-1]) if self.frame is not None else None,
                     'capture_time_scale_verified': False,
                     'new_meta_calls': self.live.ledger.snapshot()['total_requests'] if self.live else 0,
                     'investigation': self.live.snapshot() if self.live else None}
+
+    def authorize_auto_live(self, policy, config=None, metadata=None):
+        """Arm once before camera connection. No frame means no network request."""
+        from .live_investigation import LiveInvestigation, LiveConfig
+        settings = LiveConfig(**{**(config or {}),'mode':'AUTO_LIVE'})
+        options = dict(metadata or {})
+        if set(options)-{'operator','rig_id'} or any(not isinstance(v,str) or len(v)>200 for v in options.values()):
+            raise ValueError('Operator and rig metadata must be text of at most 200 characters')
+        with self.lock:
+            if self.live is not None: raise ValueError('One authorization per controller; restart for a new session')
+            self.live = (self.live_factory or LiveInvestigation)(self.library.root,policy,config=settings)
+            self.auto_live = True
+            self.auto_metadata = options
+            if self.camera is not None and self.frame is not None:
+                self.auto_capture = True
+                continuing = self.writer is not None
+                if continuing: self.stop(reason='AUTO_LIVE_SOURCE_BOUNDARY')
+                self.start(**self.auto_metadata,_continuation=continuing)
+            return self.live.snapshot()
 
     def authorize_live(self, policy, config=None):
         from .live_investigation import LiveInvestigation, LiveConfig
@@ -266,36 +301,84 @@ class CaptureController:
             self.live = (self.live_factory or LiveInvestigation)(self.library.root, policy, config=settings)
             return self.live.snapshot()
 
-    def enumerate_devices(self, maximum=6):
-        if not 1 <= maximum <= 16: raise ValueError('device scan limit must be 1..16')
+    def go_live(self, policy, config=None, metadata=None, *, index=0, backend=None):
+        if type(index) is not int or not 0<=index<=15:raise ValueError('camera index must be 0..15')
+        self._camera_backend(backend)
+        policy={**policy,'sam_requests':None,'muse_requests':None}
+        self.authorize_auto_live(policy,{**(config or {}),'continuous':True},metadata)
+        if self.camera is None:
+            if backend is None:self.connect(index)
+            else:self.connect(index,backend=backend)
+        return self.snapshot()
+
+    def enumerate_devices(self, maximum=8):
+        if type(maximum) is not int or not 1 <= maximum <= 16: raise ValueError('device scan limit must be 1..16')
         with self.lock:
             if self.camera is not None: raise ValueError('Disconnect before scanning camera devices')
-            devices = []
-            for index in range(maximum):
-                camera = self.camera_factory(index, self.cv.CAP_DSHOW if os.name == 'nt' else self.cv.CAP_ANY)
+            devices,errors = [],[]
+            catalog_used = False
+            native = self.native_camera and self.camera_factory is self._native_factory
+            if self.camera_catalog is not None and (native or self._catalog_explicit):
                 try:
+                    devices = self.camera_catalog(maximum)
+                    catalog_used = True
+                except Exception as exc:
+                    errors.append({'code':'NAMED_CAMERA_ENUMERATION_FAILED','error_type':type(exc).__name__})
+            backends = [self.cv.CAP_DSHOW, self.cv.CAP_MSMF] if os.name == 'nt' and native else [self.cv.CAP_DSHOW if os.name == 'nt' else self.cv.CAP_ANY]
+            for backend, index in ([] if catalog_used else [(b,i) for b in backends for i in range(maximum)]):
+                camera = None
+                try:
+                    camera = self.camera_factory(index, backend)
                     if camera.isOpened():
-                        devices.append({'index': index, 'backend': camera.getBackendName(),
-                                        'label': f'Camera {index} (operator must identify phone)'})
-                finally: camera.release()
+                        device={'index': index, 'backend': camera.getBackendName(),
+                            'label': f'Camera {index} (operator must identify phone)'}
+                        if native:device.update(backend_id=backend,id=f'{backend}:{index}')
+                        devices.append(device)
+                except Exception as exc:
+                    errors.append({'index':index,'code':'DEVICE_PROBE_FAILED','error_type':type(exc).__name__})
+                finally:
+                    if camera is not None:
+                        try: camera.release()
+                        except Exception: errors.append({'index':index,'code':'DEVICE_RELEASE_FAILED'})
+            self.device_scan = {'status':'COMPLETED','checked_indices':list(range(maximum)),
+                'detected_count':len(devices),'devices':deepcopy(devices),'probe_errors':errors,
+                'method':'SYSTEM_CATALOG' if catalog_used else 'INDEX_PROBE',
+                'portable_devices':self.portable_detector() if (native or self._catalog_explicit) and not any(re.search(r'\b(?:s\d{2}|iphone|pixel|android|galaxy|phone)\b',d.get('name',''),re.I) for d in devices) else [],
+                'identity':'OPERATOR_MUST_IDENTIFY_PHONE_IN_PREVIEW','new_meta_requests':0}
+            emit('CAMERA_SCAN_COMPLETED',detected_count=len(devices))
             return devices
 
-    def connect(self, index, *, threaded=True):
+    def _camera_backend(self, backend):
+        if backend is None:return self.cv.CAP_DSHOW if os.name == 'nt' else self.cv.CAP_ANY
+        if type(backend) is not int or backend not in (self.cv.CAP_ANY,self.cv.CAP_DSHOW,self.cv.CAP_MSMF):
+            raise ValueError('Unsupported camera backend')
+        return backend
+
+    def connect(self, index, *, threaded=True, backend=None):
         if type(index) is not int or not 0 <= index <= 15: raise ValueError('camera index must be 0..15')
         with self.lock:
             if self.camera is not None or self.writer is not None: raise ValueError('Disconnect the active camera first')
             if self.thread and self.thread.is_alive(): raise ValueError('Previous camera driver is still stopping; restart controller')
-            camera = self.camera_factory(index, self.cv.CAP_DSHOW if os.name == 'nt' else self.cv.CAP_ANY)
+            selected_backend = self._camera_backend(backend)
+            emit('CAMERA_CONNECTION_REQUESTED',camera_index=index,backend_id=selected_backend)
+            camera = self.camera_factory(index, selected_backend)
             if not camera.isOpened():
                 camera.release(); self.move('FAILED'); self.error = 'CAMERA_UNAVAILABLE'
-                raise ValueError('Camera unavailable; check Windows camera permissions and phone connection')
+                raise ValueError('Camera unavailable. Allow camera access on the phone; if another backend is listed for this device, select it and retry.')
             self.camera = camera
             self.device = {'index': index, 'backend': camera.getBackendName()}
+            self.device['backend_id'] = selected_backend
+            match = next((d for d in (self.device_scan or {}).get('devices',[]) if d['index']==index and d.get('backend_id')==selected_backend),None)
+            if match and match.get('name'):self.device['name']=match['name']
             self.error = None
             self.stop_event.clear()
-            camera.set(self.cv.CAP_PROP_BUFFERSIZE, 1)  # Driver may ignore this request.
+            camera.set(self.cv.CAP_PROP_BUFFERSIZE, 1)
             self.move('CAMERA_CONNECTED')
         self.read_once()
+        if self.auto_live and self.camera is not None and not self.live.cancel.is_set():
+            self.auto_capture = True
+            self.start(**self.auto_metadata)
+            self.live.record('AUTO_LIVE_CAMERA_CONNECTED',{'camera':self.device,'recording_id':self.recording.name})
         if threaded and self.camera is not None:
             self.thread = threading.Thread(target=self._loop, daemon=True)
             self.thread.start()
@@ -303,6 +386,7 @@ class CaptureController:
     def _loop(self):
         while not self.stop_event.is_set() and self.camera is not None:
             self.read_once()
+            if self.writer is None:self.stop_event.wait(.03)
 
     def read_once(self, *, arrival_ns=None):
         camera = self.camera
@@ -325,15 +409,22 @@ class CaptureController:
                     self.arrival_file.flush()
                     if self.live is not None: self.live.offer(frame, mapping)
                     self.arrivals.append(arrival)
+                    emit('FRAME_CAPTURED',level=logging.DEBUG,recording_id=self.recording.name,
+                        capture_sequence=mapping['capture_sequence'],frames=len(self.arrivals),width=frame.shape[1],height=frame.shape[0])
                     if (arrival - self.arrivals[0]) / 1e9 >= 55 or len(self.arrivals) >= int(self.fps * 55):
                         self.stop(reason='RECORDING_LIMIT_REACHED')
+                        if self.auto_capture and (self.live.config.continuous or self.auto_clips < 16):
+                            self.start(**self.auto_metadata,_continuation=True)
+                        elif self.auto_capture:
+                            self.auto_capture = False
+                            self.error = 'AUTO_CAPTURE_LIMIT_REACHED; 16 source clips saved'
                 self.sequence = getattr(self, 'sequence', 0) + 1
-                # Preview is downscaled for latency; saved recording remains full resolution.
                 height, width = frame.shape[:2]
                 preview = self.cv.resize(frame, (min(width, 800), max(1, round(height * min(1, 800 / width)))))
                 ok, encoded = self.cv.imencode('.jpg', preview, [self.cv.IMWRITE_JPEG_QUALITY, 75])
                 if ok: self.jpeg = encoded.tobytes()
         except Exception as exc:
+            emit('CAPTURE_FAILED',error_type=type(exc).__name__,code='CAMERA_OR_WRITE_FAILED')
             with self.lock:
                 self.error = str(exc) if isinstance(exc, ValueError) else 'CAMERA_OR_WRITE_FAILED'
                 try:
@@ -343,12 +434,12 @@ class CaptureController:
                     self.move('FAILED'); self.stop_event.set()
                     if self.live is not None: self.live.stop('CAMERA_DISCONNECTED')
 
-    def start(self, *, role='pilot', operator='', rig_id='', response_to_request_id=None):
+    def start(self, *, role='pilot', operator='', rig_id='', response_to_request_id=None, _continuation=False):
         if role not in ROLES: raise ValueError('invalid recording role')
         with self.lock:
             if self.camera is None or self.frame is None or self.writer is not None:
                 raise ValueError('Connect a working camera before starting a new recording')
-            if self.last_frame_ns and (time.monotonic_ns() - self.last_frame_ns) / 1e9 > 3:
+            if not _continuation and self.last_frame_ns and (time.monotonic_ns() - self.last_frame_ns) / 1e9 > 3:
                 raise ValueError('Camera has stalled; reconnect before recording')
             self.recording = self.library.new_folder()
             self.record_shape = self.frame.shape[:2]
@@ -367,6 +458,13 @@ class CaptureController:
             self.provenance = {'kind': 'LOCAL_CAMERA_CAPTURE', 'camera': self.device, 'started_utc': utc_now(),
                 'operator': operator, 'rig_id': rig_id, 'role': role, 'response_to_request_id': response_to_request_id,
                 'capture_time_scale_verified': False}
+            if self.auto_live:
+                self.auto_clips += 1
+                self.provenance['auto_live_session'] = self.live.root.name
+                self.provenance['source'] = self.live.source
+                if self.live.active_action:
+                    self.provenance['response_to_request_id'] = self.live.active_action
+                    self.provenance['role'] = 'requested_experiment'
             write_json(self.recording / 'capture_in_progress.json', self.provenance)
             self.writer = writer
             self.move('RECORDING')
@@ -374,6 +472,7 @@ class CaptureController:
 
     def stop(self, *, reason='MANUAL_STOP'):
         with self.lock:
+            if reason == 'MANUAL_STOP': self.auto_capture = False
             if self.writer is None: raise ValueError('No recording is active')
             try:
                 return self._finalize(reason=reason)
@@ -381,6 +480,14 @@ class CaptureController:
                 self.error = 'RECORDING_FINALIZATION_FAILED'
                 self.move('FAILED')
                 raise ValueError('Recording finalization failed; preserve the local folder and inspect disk/encoder availability') from exc
+
+    def confirm_action(self, request_id):
+        with self.lock:
+            if self.live is None: raise ValueError('No investigation')
+            self.live.confirm_action(request_id)
+            if self.auto_live and self.writer is not None:
+                self.stop(reason='EXPERIMENT_RESPONSE_BOUNDARY')
+                self.start(**self.auto_metadata,_continuation=True)
 
     def _finalize(self, *, reason):
         with self.lock:
@@ -398,7 +505,7 @@ class CaptureController:
             if self.live is not None:
                 self.live.record('SOURCE_RECORDING_FINALIZED', {'recording_id': self.recording.name,
                     'video_sha256': self.provenance['video_sha256'], 'capture': summary,
-                    'response_to_request_id': self.live.active_action})
+                    'response_to_request_id': self.provenance.get('response_to_request_id')})
             write_json(self.recording / 'provenance.json', self.provenance)
             self.move('SAVED'); self.move('ADMISSION')
             self.latest = self.library.analyze(self.recording)
@@ -414,7 +521,6 @@ class CaptureController:
     def close(self):
         if self.live is not None: self.live.close()
         self.stop_event.set()
-        # release() can unblock read() on supported camera backends.
         camera = self.camera
         if camera is not None: camera.release()
         if self.thread and self.thread is not threading.current_thread(): self.thread.join(timeout=3)

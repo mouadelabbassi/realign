@@ -136,7 +136,6 @@ def test_one_shot_predictive_scoring_then_valid_and_invalid_reveal(tmp_path,held
 def test_spent_registry_blocks_aliases_overlaps_and_retuning_across_challenge_ids(tmp_path,heldout):
     vault,_=prepared(tmp_path,heldout,name="first")
     renamed=tuple(replace(t,trial_id="renamed-"+str(i)) for i,t in enumerate(heldout))
-    # Register before the first evaluation to exercise the evaluate-time global guard.
     vault.prepare_challenge("second",renamed,geometry())
     first=frozen(vault,"first"); second=frozen(vault,"second")
     vault.evaluate("first",first)
@@ -177,8 +176,6 @@ def test_independent_scores_reproduce_from_same_frozen_params_without_refitting(
         vault=ValidationVault(tmp_path/name/"vault")
         vault.prepare_challenge(name,heldout,geometry())
         results.append(vault.evaluate(name,frozen(vault,name)))
-    # Distinct vaults are independent local exercises, not a loophole within a
-    # trusted deployment. A hostile operator replacing its vault is out of scope.
     assert results[0]["trajectory_rmse_px"]==results[1]["trajectory_rmse_px"]
     assert results[0]["per_trial"]==results[1]["per_trial"]
 
@@ -285,7 +282,6 @@ def test_actual_worker_cannot_read_nonce_geometry_heldout_or_ledger(tmp_path,hel
         assert proof["status"]=="PASS"
         assert proof["private_nonce_geometry_file_denied"] and proof["private_heldout_file_denied"]
         assert all(proof["checks"]["filesystem_denied"])
-        # A path supplied as a scientific call cannot become a file-read tool.
         with pytest.raises(ValueError):
             worker.request({"command":"open_file","path":str(vault.directory/"challenge.private.json")})
     assert "nonce_hex" not in canonical(commitment).decode()

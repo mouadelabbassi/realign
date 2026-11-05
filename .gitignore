@@ -25,3 +25,13 @@ configs/*.local.json
 artifacts/task04/native_windows_prototype/
 artifacts/task04/calibration_attempts.json
 artifacts/task04/null_calibration_progress.json
+
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+build/
+dist/
+.coverage
+htmlcov/
+node_modules/

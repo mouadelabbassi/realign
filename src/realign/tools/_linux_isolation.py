@@ -41,9 +41,6 @@ def restrict(read_paths):
             raise OSError(c.get_errno(),'Landlock enforcement failed')
     finally:
         os.close(fd)
-    # Deny network/process escape and alternative I/O interfaces. Allow ordinary
-    # library threading, but reject clone without CLONE_THREAD; clone3 returns
-    # ENOSYS so libc can use its existing pthread clone path.
     class Filter(c.Structure):
         _fields_=[('code',c.c_ushort),('jt',c.c_ubyte),('jf',c.c_ubyte),('k',c.c_uint32)]
     class Program(c.Structure):
@@ -53,7 +50,6 @@ def restrict(read_paths):
        Filter(0x06,0,0,0x00050000|errno.EPERM)]
     denied=[41,42,43,44,45,46,47,49,50,53,56,57,58,59,101,155,165,166,
             272,298,303,304,308,310,311,312,313,321,322,323,425,426,427,434,438]
-    # 56 clone is treated separately below.
     denied.remove(56)
     for number in denied:
         f.extend([Filter(0x15,0,1,number),Filter(0x06,0,0,0x00050000|errno.EPERM)])
@@ -65,8 +61,6 @@ def restrict(read_paths):
     prog=Program(len(f),array)
     if libc.prctl(22,2,c.byref(prog),0,0)!=0:
         raise OSError(c.get_errno(),'seccomp enforcement failed')
-    # x32 shares AUDIT_ARCH_X86_64; reject its syscall-number flag as well.
-    # This harmless getpid probe must be filtered, even when x32 is enabled.
     c.set_errno(0)
     if libc.syscall(0x40000027)!=-1 or c.get_errno()!=errno.EPERM:
         raise OSError('x32 syscall isolation failed')

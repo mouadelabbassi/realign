@@ -9,6 +9,7 @@ import pytest
 from realign.physical.live_lab import LabLibrary, CaptureController
 from realign.physical.lab_server import make_lab_server
 from realign.product.server import make_server
+from test_auto_live import auto_factory
 
 pytestmark = pytest.mark.skipif(os.environ.get('REALIGN_BROWSER_TESTS') != '1', reason='Opt-in local browser test')
 ROOT = Path(__file__).resolve().parents[1]
@@ -57,7 +58,6 @@ def test_preview_record_stop_and_pilot_admission(lab_ui):
     page.get_by_role('button', name='Start recording', exact=True).click()
     expect(page.locator('#camera-state')).to_have_text('RECORDING')
     expect(page.locator('#telemetry')).to_contain_text('recorded frames')
-    # Wait for actual encoded frames rather than a fixed browser delay.
     page.wait_for_function('async()=>{const s=await(await fetch("/api/status")).json();return s.capture.frames>=5;}')
     page.get_by_role('button', name='Stop and analyze', exact=True).click()
     expect(page.locator('#recordings')).to_contain_text('BLOCKED_INPUTS')
@@ -66,6 +66,7 @@ def test_preview_record_stop_and_pilot_admission(lab_ui):
     page.wait_for_function('()=>document.querySelector("video").readyState>=2')
     page.get_by_role('button', name='Disconnect', exact=True).click()
     expect(page.locator('#camera-state')).to_have_text('IDLE')
+    page.locator('.library-panel > summary').click()
     pilot=tmp/'WhatsApp-pilot.mp4'; pilot.write_bytes(b'not calibrated')
     page.locator('#path').fill(str(pilot));page.get_by_role('button',name='Import and analyze locally').click()
     expect(page.locator('#recordings')).to_contain_text('UNREADABLE_CONTAINER')
@@ -101,12 +102,13 @@ def test_phone_views_show_actual_local_blockers_and_keep_replay_available(lab_ui
 def test_authorized_concurrent_investigation_and_stop_keeps_recording(lab_ui):
     """TEST_FIXTURE camera + mocked Meta + official SAM parser, no remote calls."""
     from playwright.sync_api import expect
-    from test_live_investigation import MockMeta, ScriptedAdapter
+    from test_live_investigation import ScriptedAdapter
+    from test_auto_live import AutoMeta
     from realign.physical.live_investigation import LiveInvestigation
     from realign.physical.live_science import LiveScientificSession
     from realign.perception.sam_client import SamClient
     browser, controller, urls, tmp = lab_ui
-    transport = MockMeta()
+    transport = AutoMeta()
     holder = {}
     class Client(SamClient):
         async def segment_video(self, path, metadata):
@@ -124,24 +126,22 @@ def test_authorized_concurrent_investigation_and_stop_keeps_recording(lab_ui):
     context.route('**/*', lambda r: r.continue_() if r.request.url.startswith(urls[0] + '/') else r.abort())
     page = context.new_page(); errors = []; page.on('pageerror', lambda e: errors.append(str(e)))
     page.goto(urls[0])
-    page.get_by_role('button', name='Connect', exact=True).click()
-    page.get_by_role('button', name='Start recording', exact=True).click()
     assert controller.live is None
     page.locator('#authorization').evaluate('(e)=>e.open=true')
-    page.locator('#window-seconds').fill('1'); page.locator('#overlap-seconds').fill('0.2')
-    page.locator('#analysis-interval').fill('1')
     page.locator('#target-prompt').fill('circular test weight'); page.locator('#target-confirmed').check()
     page.locator('#spend-cap').fill('1'); page.locator('#sam-reserve').fill('0.01'); page.locator('#muse-reserve').fill('0.02')
     page.locator('#ai-consent').check()
     page.locator('#ai-start').click()
     expect(page.locator('#ai-state')).to_contain_text('TEST_FIXTURE')
+    expect(page.locator('#camera-state')).to_have_text('RECORDING')
     page.wait_for_function('async()=>{const s=await(await fetch("/api/status")).json();return s.investigation?.processed_windows>=1;}', timeout=30000, polling=250)
-    expect(page.locator('#processed')).to_be_visible(timeout=15000)
-    page.locator('#ai-reason').click()
+    expect(page.locator('#sam-overlay')).to_be_visible(timeout=15000)
+    assert transport.requests[0]['input'][0]['content'][1]['type']=='input_image'
+    assert page.locator('#ai-reason').count()==0
     expect(page.locator('#pending-action')).to_be_visible(timeout=15000)
     expect(page.locator('#action-text')).to_contain_text('STATIONARY_REFERENCE')
     page.locator('#confirm-action').click()
-    expect(page.locator('#action-text')).to_contain_text('confirmed_utc')
+    expect(page.locator('#action-text')).to_contain_text('Human intent confirmed')
     shots = Path(os.environ.get('REALIGN_SCREENSHOT_DIR', str(tmp / 'screenshots'))); shots.mkdir(parents=True, exist_ok=True)
     page.screenshot(path=str(shots / 'live_investigation_TEST_FIXTURE.png'), full_page=True)
     page.locator('#ai-stop').click()
@@ -179,13 +179,14 @@ def test_empty_masks_show_local_readiness_and_never_invoke_muse(lab_ui):
     page.goto(urls[0]);page.locator('#connect').click();page.locator('#start').click()
     page.locator('#authorization').evaluate('(e)=>e.open=true')
     page.locator('#target-prompt').fill('grey test weight');page.locator('#target-confirmed').check()
-    page.locator('#window-seconds').fill('1');page.locator('#analysis-interval').fill('12')
     page.locator('#spend-cap').fill('1');page.locator('#sam-reserve').fill('0.01');page.locator('#muse-reserve').fill('0.02');page.locator('#ai-consent').check()
     page.locator('#ai-start').click()
     expect(page.locator('#detection-guidance')).to_contain_text('SAM_NO_MASKS',timeout=30000)
     expect(page.locator('#ai-detection')).to_contain_text('0 masks returned')
     expect(page.locator('#target-identity')).to_contain_text('NO_TARGET_OBSERVED')
-    for _ in range(2): page.locator('#ai-reason').click()
+    before=len(controller.arrivals)
+    page.wait_for_function('(n)=>fetch("/api/status").then(r=>r.json()).then(s=>s.capture.frames>n+5)',arg=before)
+    assert page.locator('#ai-reason').count()==0
     expect(page.locator('#readiness-text')).to_contain_text('NO_USABLE_OBSERVATIONS')
     assert controller.live.ledger.snapshot()['attempted_requests']['muse']==0
     assert controller.live.pending_action is None
@@ -194,4 +195,221 @@ def test_empty_masks_show_local_readiness_and_never_invoke_muse(lab_ui):
     page.screenshot(path=str(shots/'live_empty_TEST_FIXTURE.png'),full_page=True)
     page.locator('#ai-stop').click();page.locator('#stop').click()
     assert not errors
+    page.close()
+
+
+def test_auto_live_partial_masks_slow_muse_checkpoint_and_independent_controls(lab_ui,auto_factory):
+    from playwright.sync_api import expect
+    from test_auto_live import AutoMeta
+    from test_live_investigation import ScriptedAdapter
+    entered,release=threading.Event(),threading.Event()
+    class SlowMuse(ScriptedAdapter):
+        def next(self,context):
+            reply=super().next(context)
+            entered.set();release.wait(timeout=15)
+            return reply
+    browser,controller,urls,tmp=lab_ui
+    factory,transport,_=auto_factory(AutoMeta(partial_hold=True),adapter_factory=SlowMuse)
+    controller.live_factory=factory
+    page=browser.new_page(viewport={'width':1440,'height':1050})
+    errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
+    page.route('**/*',lambda route:route.continue_() if route.request.url.startswith(urls[0]+'/') else route.abort())
+    page.goto(urls[0]);page.locator('#open-authorization').click()
+    expect(page.locator('.spark-symbol')).to_have_text('✳')
+    for selector,value in [('target-prompt','circular test weight'),('spend-cap','1'),('sam-reserve','0.01'),('muse-reserve','0.02')]:page.locator('#'+selector).fill(value)
+    page.locator('#target-confirmed').check();page.locator('#ai-consent').check();page.locator('#ai-start').click()
+    expect(page.locator('#camera-state')).to_have_text('RECORDING')
+    expect(page.locator('#sam-overlay')).to_be_visible(timeout=15000)
+    expect(page.locator('#tracking-label')).to_contain_text('partial stream')
+    assert not controller.live.trajectory
+    before=len(controller.arrivals)
+    page.wait_for_function('(n)=>fetch("/api/status").then(r=>r.json()).then(s=>s.capture.frames>n+10)',arg=before)
+    assert controller.live.ledger.snapshot()['attempted_requests']['muse']==0
+    transport.partial_hold.clear()
+    assert entered.wait(timeout=15)
+    before=len(controller.arrivals)
+    page.wait_for_function('(n)=>fetch("/api/status").then(r=>r.json()).then(s=>s.capture.frames>n+10)',arg=before)
+    release.set()
+    expect(page.locator('#pending-action')).to_be_visible(timeout=15000)
+    pending=controller.live.pending_action['request_id'];hypotheses=controller.live.scientific['hypotheses'][:]
+    before=len(controller.arrivals)
+    page.wait_for_function('(n)=>fetch("/api/status").then(r=>r.json()).then(s=>s.capture.frames>n+10)',arg=before)
+    assert controller.live.pending_action['request_id']==pending and controller.live.scientific['hypotheses']==hypotheses
+    assert page.locator('#ai-reason').count()==0
+    page.locator('#ai-pause').click();expect(page.locator('#ai-state')).to_contain_text('PAUSED')
+    count=controller.live.ledger.snapshot()['total_requests']
+    before=len(controller.arrivals)
+    page.wait_for_function('(n)=>fetch("/api/status").then(r=>r.json()).then(s=>s.capture.frames>n+10)',arg=before)
+    assert controller.live.ledger.snapshot()['total_requests']==count
+    page.locator('#ai-resume').click();expect(page.locator('#ai-state')).to_contain_text('PENDING_PHYSICAL_ACTION')
+    shots=Path(os.environ.get('REALIGN_SCREENSHOT_DIR',str(tmp/'screenshots')));shots.mkdir(parents=True,exist_ok=True)
+    page.screenshot(path=str(shots/'auto_live_TEST_FIXTURE_desktop.png'),full_page=True)
+    page.screenshot(path=str(shots/'auto_live_TEST_FIXTURE_preview.png'))
+    page.set_viewport_size({'width':390,'height':844})
+    assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
+    page.screenshot(path=str(shots/'auto_live_TEST_FIXTURE_mobile.png'),full_page=True)
+    page.locator('#ai-stop').click();expect(page.locator('#ai-state')).to_contain_text('STOPPED')
+    count=controller.live.ledger.snapshot()['total_requests'];before=len(controller.arrivals)
+    page.wait_for_function('(n)=>fetch("/api/status").then(r=>r.json()).then(s=>s.capture.frames>n+10)',arg=before)
+    assert controller.live.ledger.snapshot()['total_requests']==count
+    assert not errors
+    page.locator('#stop').click();page.close()
+
+
+def test_unauthorized_camera_connection_cannot_dispatch_meta(lab_ui,auto_factory):
+    from playwright.sync_api import expect
+    browser,controller,urls,tmp=lab_ui
+    factory,transport,_=auto_factory();controller.live_factory=factory
+    page=browser.new_page();page.goto(urls[0]);page.locator('#connect').click()
+    expect(page.locator('#camera-state')).to_have_text('CAMERA_CONNECTED')
+    page.locator('#start').click()
+    page.wait_for_function('()=>fetch("/api/status").then(r=>r.json()).then(s=>s.capture.frames>10)')
+    assert controller.live is None and not transport.dispatches
+    page.locator('#stop').click();page.close()
+
+
+def test_scientific_markdown_and_math_are_safe_in_both_workspaces(lab_ui):
+    from playwright.sync_api import expect
+    browser,controller,urls,tmp=lab_ui
+    source=r'''# Observation **review**
+
+Paragraph with *emphasis*, ~~discarded text~~, `inline code`, and $x^2$.
+
+> A source-backed quote.
+
+1. First observation
+2. Second observation
+
+- [x] Timing reviewed
+- [ ] Geometry missing
+
+| Quantity | Unit |
+| --- | --- |
+| Position | px |
+
+```python
+print("<source>")
+```
+
+$$\theta(t) = \sin(t)$$
+
+\(a+b\) and [reference](https://example.com/evidence).
+
+<img src=x onerror="window.markdownPwned=1"><script>window.markdownPwned=1</script>
+[unsafe](javascript:alert(1))
+'''
+    for url,selector in [(urls[0],'#science-status'),(urls[1],'#content')]:
+        page=browser.new_page(viewport={'width':1000,'height':950});errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
+        page.goto(url);page.wait_for_function('()=>Boolean(window.RealignMarkdown)')
+        if selector=='#content':page.wait_for_selector('#time-scrubber')
+        page.evaluate('([selector,text])=>RealignMarkdown.render(document.querySelector(selector),text)',[selector,source])
+        root=page.locator(selector)
+        expect(root.locator('h1 strong')).to_have_text('review')
+        expect(root.locator('table')).to_contain_text('Position')
+        expect(root.locator('blockquote')).to_contain_text('source-backed')
+        expect(root.locator('pre code')).to_contain_text('print("<source>")')
+        assert root.locator('.katex').count()==3
+        assert root.locator('script,img,iframe').count()==0
+        assert root.locator('a[href^="javascript:"]').count()==0
+        assert page.evaluate('window.markdownPwned===undefined')
+        assert root.locator('a[href="https://example.com/evidence"]').get_attribute('rel')=='noopener noreferrer'
+        page.set_viewport_size({'width':390,'height':844})
+        assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
+        assert not errors
+        page.close()
+
+
+def test_find_cameras_shows_search_results_and_no_device_guidance(lab_ui):
+    from playwright.sync_api import expect
+    browser,controller,urls,tmp=lab_ui
+    available={2,5}
+    class Probe(InjectedCamera):
+        def __init__(self,index):self.index=index
+        def isOpened(self):return self.index in available
+    controller.camera_factory=lambda index,*args:Probe(index)
+    original=controller.enumerate_devices
+    def slower(maximum=8):time.sleep(.3);return original(maximum)
+    controller.enumerate_devices=slower
+    page=browser.new_page(viewport={'width':390,'height':844});page.goto(urls[0])
+    button=page.get_by_role('button',name='Find cameras',exact=True)
+    expect(button).to_be_visible();button.click()
+    expect(page.locator('#camera-discovery')).to_contain_text('Searching camera inputs')
+    expect(page.locator('#camera-discovery')).to_contain_text('2 cameras found')
+    assert page.locator('#devices option').all_text_contents()==['Camera 2 · INJECTED_BROWSER_FIXTURE','Camera 5 · INJECTED_BROWSER_FIXTURE']
+    page.locator('#connect').click()
+    expect(page.locator('#camera-state')).to_have_text('CAMERA_CONNECTED')
+    assert controller.device['index']==2
+    expect(button).to_be_disabled()
+    page.locator('#disconnect').click();available.clear()
+    button.click();expect(page.locator('#camera-discovery')).to_contain_text('No cameras found')
+    expect(page.locator('#camera-discovery')).to_contain_text('Windows camera permissions')
+    expect(page.locator('#connect')).to_be_disabled()
+    assert controller.live is None and controller.snapshot()['new_meta_calls']==0
+    assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
+    page.close()
+
+
+def test_named_phone_camera_selects_its_actual_backend(lab_ui):
+    from playwright.sync_api import expect
+    from test_camera_devices import catalog
+    browser,controller,urls,tmp=lab_ui
+    opened=[]
+    controller.camera_catalog=catalog;controller._catalog_explicit=True
+    def factory(index,backend):opened.append((index,backend));return InjectedCamera()
+    controller.camera_factory=factory
+    page=browser.new_page();page.goto(urls[0]);page.locator('#scan').click()
+    expect(page.locator('#camera-discovery')).to_contain_text('2 camera inputs found')
+    expect(page.locator('#devices')).to_have_value('1400:1')
+    page.locator('#connect').click()
+    expect(page.locator('#camera-state')).to_have_text('CAMERA_CONNECTED')
+    assert opened==[(1,1400)]
+    assert controller.device['name']=='S22 Windows virtual camera'
+    expect(page.locator('#camera-discovery')).to_contain_text('Connected:')
+    assert controller.live is None and controller.snapshot()['new_meta_calls']==0
+    page.close()
+
+
+def test_old_camera_backend_requires_restart_instead_of_silent_failure(lab_ui):
+    from playwright.sync_api import expect
+    browser,controller,urls,tmp=lab_ui
+    page=browser.new_page();scans=[]
+    def old_status(route):
+        response=route.fetch();body=response.json();body.pop('camera_discovery_version',None);route.fulfill(json=body)
+    page.route('**/api/status',old_status)
+    page.on('request',lambda request:scans.append(request.url) if request.url.endswith('/api/scan') else None)
+    page.goto(urls[0])
+    expect(page.locator('#camera-discovery')).to_contain_text('needs a restart')
+    page.locator('#scan').click()
+    expect(page.locator('#error')).to_contain_text('Restart the Live Lab backend')
+    assert not scans and controller.live is None
+    page.close()
+
+
+def test_controls_recover_after_controller_token_changes(lab_ui):
+    from playwright.sync_api import expect
+    browser,controller,urls,tmp=lab_ui
+    attempts=[]
+    page=browser.new_page()
+    def stale_once(route):
+        attempts.append(1)
+        headers=dict(route.request.headers)
+        if len(attempts)==1:headers['x-live-lab-token']='STALE_TEST_FIXTURE_TOKEN'
+        route.continue_(headers=headers)
+    page.route('**/api/connect',stale_once)
+    page.goto(urls[0]);page.locator('#connect').click()
+    expect(page.locator('#camera-state')).to_have_text('CAMERA_CONNECTED')
+    assert len(attempts)==2 and controller.live is None
+    page.close()
+
+
+def test_camera_controls_work_when_markdown_renderer_is_unavailable(lab_ui):
+    from playwright.sync_api import expect
+    browser,controller,urls,tmp=lab_ui
+    page=browser.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
+    page.add_init_script("Object.defineProperty(window,'RealignMarkdown',{configurable:true,get(){return null},set(value){}})")
+    page.goto(urls[0]);page.locator('#connect').click()
+    expect(page.locator('#camera-state')).to_have_text('CAMERA_CONNECTED')
+    page.locator('#open-authorization').click()
+    assert page.locator('#authorization').evaluate('(e)=>e.open')
+    assert not errors and controller.live is None
     page.close()

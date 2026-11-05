@@ -46,7 +46,6 @@ def write_g2_report(output_dir,result):
         try: versions[package]=version(package)
         except PackageNotFoundError: versions[package]='not installed'
     result['implementation_provenance']={'source_sha256':digest.hexdigest(),'versions':versions}
-    # No completed offline test is promoted into a real-world gate.
     if not result.get('real_measurements'):
         result['g2_passed']=False
     (output/'g2_readiness.json').write_text(json.dumps(result,indent=2,allow_nan=False)+'\n',encoding='utf-8')

@@ -10,6 +10,9 @@ The five-view product replays authentic Meta investigations on **synthetic
 observations** beside actual SAM tracking on **licensed external footage**.
 Controlled phone physics and independent localization accuracy remain unvalidated.
 
+See the [documentation index](docs/README.md) for run guides and evidence, and the
+[developer guide](docs/DEVELOPER_GUIDE.md) for the code layout and control flow.
+
 ## Two-minute replay
 
 Use Python 3.11+ from this repository. After dependencies are installed:
@@ -17,10 +20,11 @@ Use Python 3.11+ from this repository. After dependencies are installed:
 ```powershell
 python -m venv .venv
 .venv\Scripts\Activate.ps1
-# Linux/macOS: source .venv/bin/activate
 python -m pip install -e ".[perception]"
 python scripts/run_realign.py --port 8766 --no-browser
 ```
+
+On Linux/macOS, activate the environment with `source .venv/bin/activate`.
 
 Open **http://127.0.0.1:8766**. Playback needs **no API key, paid calls, WSL or
 refitting**. Select "Live Muse investigation - attempt 02" and inspect:
@@ -44,9 +48,8 @@ Launch capture explicitly in a second native Windows terminal (FFmpeg and
 python scripts/run_live_lab.py --port 8770
 ```
 
-Open **http://127.0.0.1:8770**. Find and connect the camera, start/stop a clip,
-or use **Import Video / Analyze Pilot** with your original local MP4 path.
-No API key or paid calls are needed. The controller stores MP4 bytes, SHA-256,
+Open **http://127.0.0.1:8770**. Offline preview, manual recording and importing
+an original local MP4 need no API key or paid calls. The controller stores MP4 bytes, SHA-256,
 ordered software arrival timestamps, source provenance and original container
 PTS separately under ignored `data/raw/live_lab/`. Software CFR playback is
 **not independently verified physical time**. A saved or WhatsApp-compressed
@@ -59,18 +62,24 @@ local evidence after recording. To show an existing phone investigation output:
 python scripts/run_realign.py --port 8766 --phone-output data/processed/phone_investigation --no-browser
 ```
 
-The evidence product stays read-only. The separate Live Investigation workspace
-can now process bounded overlapping MP4 windows while recording continues.
-Review models, upload strategy, request caps, owner-reviewed USD reserves and the
-estimated spending ceiling, then explicitly select **Start AI-assisted Live
-Investigation**. Ordinary recording never authorizes Meta calls. **Stop AI calls**
-revokes further attempts while recording continues. Actual billing may differ
-from the reserved estimates.
+The evidence product stays read-only. In the redesigned Live Lab, select
+**Find cameras** to select your input, then open **Go Live** and review the target,
+owner-reviewed USD reserves and finite spending cap. The setup's **Go Live**
+authorizes and connects in one action. Capture, a startup SAM image request,
+background video tracking and eligible Muse reasoning start automatically.
+Continuous Live has no session-duration or API request-count cutoff; each paid
+attempt still reserves against the spending cap. **Pause AI**, **Stop and analyze**
+and **Revoke API calls** are independent. Ordinary preview, camera discovery and
+manual capture remain offline. Run `python scripts/run_live_lab.py --port 8772 --log-level DEBUG`
+for timestamped terminal diagnostics including frame traces. Credentials and raw
+payloads are excluded; billing remains unverified. Scientific prose now renders safe Markdown, tables, code and math
+in both workspaces, with raw JSON retained in an expandable audit view.
 
 SAM results remain preliminary pixels until independent timing, measured
 calibration, release review and the existing phone admission all pass. Muse uses
 the same bounded scientific tools and waits for human experiment responses.
 Original MP4 import and the existing Task 06 workflow remain available. See the
+[Auto-Live run guide and verification boundary](docs/TASK09_2_AUTO_LIVE.md), the
 [concurrent investigation guide, verification and limitations](docs/TASK09_LIVE_INVESTIGATION.md)
 and the [capture/import guide](docs/TASK08_LIVE_LAB.md).
 

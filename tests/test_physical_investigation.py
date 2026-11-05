@@ -93,7 +93,6 @@ def test_baseline_export_uses_current_actual_tool_results_without_invented_error
     assert summary['B1']['fit']==fit and summary['B1']['exploration_cross_validation']==score
     assert summary['B3']=={'status':'NOT_RUN'}
     assert summary['B2']=={'radial_rmse_m':.001}
-    # Later failed fits cannot inherit an earlier model's cross-validation score.
     trace['tool_results'].append(call('fit_candidate_model',{'status':'FAILED','fitted_model_ref':None},
                                      trial_refs=['current'],candidate='FREE'))
     assert 'exploration_cross_validation' not in baseline_summary(trace,['current'],'nominal',{})['B1']

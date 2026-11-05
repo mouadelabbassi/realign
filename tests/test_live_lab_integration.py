@@ -47,6 +47,24 @@ def test_controls_require_same_origin_and_unpredictable_token(lab_http):
     assert request(url, '/files/../../.env')[0] == 404
 
 
+def test_camera_discovery_endpoint_is_authorized_local_only_and_reports_detected_inputs(lab_http):
+    controller,url=lab_http
+    probes=[]
+    class Probe:
+        def __init__(self,index):self.index=index
+        def isOpened(self):return self.index in (2,5)
+        def getBackendName(self):return 'INJECTED_TEST_CAMERA'
+        def release(self):probes.append(self.index)
+    controller.camera_factory=lambda index,*args:Probe(index)
+    assert request(url,'/api/scan',{'maximum':8})[0]==403
+    assert probes==[]
+    token=request(url,'/api/status')[1]['control_token']
+    code,result=request(url,'/api/scan',{'maximum':8},{'X-Live-Lab-Token':token})
+    assert code==200 and [d['index'] for d in result['devices']]==[2,5]
+    assert probes==list(range(8)) and result['scan']['new_meta_requests']==0
+    assert controller.camera is None and controller.writer is None and controller.live is None
+
+
 def test_import_endpoint_and_read_only_projection_share_blockers(lab_http, tmp_path):
     controller, url = lab_http
     source = tmp_path / 'WhatsApp-pilot.mp4'; source.write_bytes(b'invalid pilot')

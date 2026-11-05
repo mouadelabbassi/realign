@@ -1,4 +1,4 @@
-# REALIGN — Repository Instructions for Codex
+# REALIGN — Repository Engineering Guidelines
 
 ## Mission
 Build REALIGN, a reality-grounded AI investigator that compares phone-video measurements with executable physics models, diagnoses discrepancies, requests informative experiments, proposes typed model revisions, and subjects frozen decisions to independent evaluation. Optimize for actual Meta hackathon evidence, not feature count.
@@ -6,7 +6,7 @@ Build REALIGN, a reality-grounded AI investigator that compares phone-video meas
 ## Source of truth
 1. Existing repository code and tests establish **what has been implemented**, never what was merely planned.
 2. `docs/REALIGN_Build_Spec_v1.md` contains the detailed proposed design; `docs/IMPLEMENTATION_CORRECTIONS.md` overrides its six known blocking issues.
-3. This file and `docs/CODEX_EXECUTION_ROADMAP.md` define scope and phase ordering.
+3. This file and `docs/DEVELOPMENT_ROADMAP.md` define scope and phase ordering.
 4. If these sources conflict, inspect the affected code and document the smallest defensible resolution. Don't silently rewrite the architecture.
 
 ## Frozen architecture
@@ -37,7 +37,7 @@ The starter contains a **tested G1 numerical kernel**, not the completed project
 - Don't conflate predictive performance with identification of the true physical mechanism.
 
 ## Development method
-- Implement one verified vertical slice at a time from `docs/CODEX_EXECUTION_ROADMAP.md`; the requested task file defines the current phase.
+- Implement one verified vertical slice at a time from `docs/DEVELOPMENT_ROADMAP.md`; the requested task file defines the current phase.
 - Inspect the repository and `git status` first. Preserve user changes. Prefer small, testable patches with a clear diff.
 - Add tests before claiming a feature is complete. Run existing tests and report exact commands/results.
 - No credentials in source, artifacts, tests, prompts, logs, commits, or chat. Read `MODEL_API_KEY` only from local environment.

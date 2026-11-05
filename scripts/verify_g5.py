@@ -25,8 +25,6 @@ def demo(output,vault_dir,seed):
     private_random=secrets.SystemRandom()
     truth=PendulumParams(.72,gamma_per_s=.06,quadratic_drag_per_m=.02,
         peg=PegParams(private_random.uniform(.14,.18),private_random.uniform(-.45,-.35)))
-    # Trusted synthetic challenge setup. These trials/geometry are never passed
-    # to the investigator. Commitment precedes its creation and all tool calls.
     heldout=[generate_trial(truth,Experiment(a,1.6,20.),seed=seed+10000+i,
         trial_id='holdout-'+str(i),noise=NoiseConfig(),zone='development')[0] for i,a in enumerate((.4,.56,.62))]
     geometry=GeometryMeasurements(string_length_m=truth.length_m,string_length_sigma_m=0.,
@@ -54,7 +52,7 @@ def demo(output,vault_dir,seed):
     frozen=vault.freeze_model(ident,trace['freeze'],resource,start_receipt=start)
     write_json(output/'frozen_model.json',frozen.public_receipt())
     vault.evaluate(ident,frozen)
-    vault.reveal(ident)  # Only now may the public report contain the random nonce.
+    vault.reveal(ident)
     report=vault.final_report(ident);write_json(output/'validation.json',report)
     assert report['full_physical_G5_passed'] is False
     print(report['independent_verdict'],flush=True)
@@ -94,7 +92,6 @@ def reproduce(output,vault_dir=None):
         raise ValueError('public frozen model does not match the evaluated content hash')
     result=score_predictions(parameters(resource['params']),trials,
         EvaluationProtocol.model_validate_json(canonical(report['commitment']['protocol'])))
-    # Exact prediction/timestamp digests and numerical values, not a new fit.
     if any(result[k]!=report['evaluation'][k] for k in result):
         raise ValueError('post-reveal reproduction differs from the spent evaluation')
     write_json(output/'reproduction.json',{'status':'PASS','scope':'PUBLIC_POST_REVEAL_REPRODUCTION; NOT_NEW_EVALUATION',
@@ -135,9 +132,6 @@ if __name__=='__main__':
         from dataclasses import replace
         from realign.physical.ingestion import ingest_phone
         from realign.validation import RealQualification
-        # Dedicated custodian invocation BEFORE investigation. The private
-        # manifest uses exploration-shaped ingestion records solely as a codec;
-        # they are immediately sealed as development and never registered with tools.
         ingested=asyncio.run(ingest_phone(args.private_manifest,args.private_output_dir,run_api=args.run_api))
         if ingested['status']!='READY':
             print('NOT_PREPARED: '+', '.join(ingested['blockers']));raise SystemExit(2)

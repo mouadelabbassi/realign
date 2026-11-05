@@ -1,0 +1,23 @@
+[
+  {
+    "package": "marked",
+    "version": "18.1.3",
+    "tarball": "https://registry.npmjs.org/marked/-/marked-18.1.3.tgz",
+    "integrity": "sha512-9ChMH8EVVgjgID49nsL6IWxWk5c6GtAsq/xw7U1ggkjkU5AGuv68oLTVlFRtvcUYZtpbNyjyvGo3YDu0fGapiw==",
+    "tarball_sha256": "5ca94887c584f7a67b27acd6b08e0a19da651418b627295d82d57fe63a56c82b"
+  },
+  {
+    "package": "dompurify",
+    "version": "3.4.17",
+    "tarball": "https://registry.npmjs.org/dompurify/-/dompurify-3.4.17.tgz",
+    "integrity": "sha512-B/pSlYVHQ58kqISD/yDjuJ1yfzI34m1gF4lAod2bwSRhiN4K5Cl3H8Af7hqB2PmTL911tdEudnnXn5FnhRoz0w==",
+    "tarball_sha256": "056cbdae276897208b88c21d1d779adfa09ad7be488a2f510a28e900d3bbffe7"
+  },
+  {
+    "package": "katex",
+    "version": "0.19.1",
+    "tarball": "https://registry.npmjs.org/katex/-/katex-0.19.1.tgz",
+    "integrity": "sha512-jG8uKntjSEcm2EpQOh0XturpPuuC9r3Sq5HLHdsFdWZT27E672SF19QEi+of0/YeOy15lDgRhKvr5614uRrEfA==",
+    "tarball_sha256": "24da5a599eb2fcede2e270b99a6ff48bca816beecc95feeb84e8cccbd1bb34fd"
+  }
+]

@@ -79,7 +79,6 @@ def test_browser_lock_is_required_for_new_reference_set_and_cannot_turn_ai_into_
     with pytest.raises(ManualReviewError):verify_locked_annotations(doc)
 
 def test_existing_physical_environment_admission_states_and_expiry():
-    # Reuse the earlier explicit SIMULATED_CONTRACT_ONLY VideoTrial factory.
     import runpy
     from realign.physical.session import PhysicalEnvironment
     from realign.tools.client import candidate
