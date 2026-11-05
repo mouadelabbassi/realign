@@ -28,5 +28,8 @@ Dependencies retain upstream licenses: [NumPy](https://github.com/numpy/numpy/bl
 [pytest](https://github.com/pytest-dev/pytest/blob/main/LICENSE),
 [Playwright](https://github.com/microsoft/playwright/blob/main/LICENSE),
 [OpenAI SDK](https://github.com/openai/openai-python/blob/main/LICENSE).
+Windows camera enumeration uses
+[cv2-enumerate-cameras](https://github.com/lukehugh/cv2_enumerate_cameras),
+distributed under the MIT license as an optional Windows perception dependency.
 Meta hosted models are API services; using them does not establish an open-weight
 license or bonus. This notice does not relicense upstream software or model APIs.

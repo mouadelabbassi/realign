@@ -13,7 +13,7 @@ dependencies = ["numpy>=1.26", "scipy>=1.11", "pydantic>=2.10,<3"]
 dev = ["pytest>=8", "matplotlib>=3.8"]
 ui-test = ["playwright>=1.58,<2"]
 meta = ["openai>=1.0"]
-perception = ["opencv-python-headless>=4.10,<5", "meta-sam-parser==0.1.0", "openai>=1.109.1,<3"]
+perception = ["opencv-python-headless>=4.10,<5", "meta-sam-parser==0.1.0", "openai>=1.109.1,<3", "cv2-enumerate-cameras>=1.4,<2; sys_platform == 'win32'"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

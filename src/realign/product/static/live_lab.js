@@ -1,30 +1,43 @@
 "use strict";
 (() => {
-  const $=id=>document.getElementById(id), md=(id,value)=>RealignMarkdown.render($(id),value);
-  const el=(tag,text,cls)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined){if(['pre','code','option'].includes(tag))n.textContent=text;else {n.classList.add('markdown');n.append(RealignMarkdown.fragment(text));}}return n;};
+  const $=id=>document.getElementById(id);
+  const md=(id,value)=>{const n=$(id);if(!n)return;try{if(window.RealignMarkdown?.render){window.RealignMarkdown.render(n,value);return;}}catch(e){console.warn('Text rendering failed',e.name);}n.textContent=String(value??'');};
+  const el=(tag,text,cls)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined){if(['pre','code','option'].includes(tag))n.textContent=text;else {n.classList.add('markdown');try{if(window.RealignMarkdown?.fragment)n.append(window.RealignMarkdown.fragment(text));else n.textContent=String(text);}catch{n.textContent=String(text);}}}return n;};
   const human=value=>String(value??'Unknown').replaceAll('_',' ').toLowerCase().replace(/^\w/,c=>c.toUpperCase());
   const short=value=>value?String(value).slice(0,12)+'…':'Unavailable';
   const sec=value=>Number.isFinite(value)?value.toFixed(1)+' s':'Unknown';
-  let token=null,busy=false,polling=false,connected=false,scanning=false,hasScanned=false,previewTimer=null,lastLive=null,lastScan=null,lastOverlay=null,lastScience=null,lastHistory=null,lastEvents=null,pendingRequest=null;
-  function error(message){$('error').hidden=!message;md('error',message||'');}
-  async function api(path,body){
-    const response=await fetch(path,{cache:'no-store',...(body!==undefined?{method:'POST',headers:{'Content-Type':'application/json','X-Live-Lab-Token':token},body:JSON.stringify(body)}:{})});
-    const result=await response.json();if(!response.ok)throw Error(result.error||`HTTP ${response.status}`);return result;
+  let token=null,busy=false,polling=false,connected=false,scanning=false,hasScanned=false,previewTimer=null,lastLive=null,lastScan=null,lastOverlay=null,lastScience=null,lastHistory=null,lastEvents=null,pendingRequest=null,cameraAPIReady=null;
+  const cameraChoice=()=>{const o=$('devices').selectedOptions[0];return {index:Number(o?.dataset.index??$('devices').value),...(o?.dataset.backend!==undefined?{backend:Number(o.dataset.backend)}:{})};};
+  function cameraOption(d){const o=el('option',d.name?`${d.name} · ${d.backend}`:`Camera ${d.index} · ${d.backend}`);o.value=d.id??String(d.index);o.dataset.index=d.index;if(d.backend_id!==undefined)o.dataset.backend=d.backend_id;return o;}
+  function error(message){const n=$('error'),fresh=Boolean(message)&&n.dataset.message!==message;n.hidden=!message;md('error',message||'');n.dataset.message=message||'';if(message){md('camera-discovery',message);if(fresh)n.scrollIntoView({behavior:'smooth',block:'center'});}}
+  async function api(path,body,retried=false){
+    const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),body===undefined?10000:30000);
+    try{
+      const response=await fetch(path,{cache:'no-store',signal:controller.signal,...(body!==undefined?{method:'POST',headers:{'Content-Type':'application/json','X-Live-Lab-Token':token},body:JSON.stringify(body)}:{})});
+      const result=await response.json();
+      if(response.status===403&&body!==undefined&&!retried&&result.error==='CONTROL_AUTHORIZATION_REQUIRED'){const state=await api('/api/status');token=state.control_token;return await api(path,body,true);}
+      if(!response.ok)throw Error(result.error||`HTTP ${response.status}`);return result;
+    }catch(e){if(e.name==='AbortError')throw Error('The controller did not respond in time. Check the camera connection and retry.');throw e;}finally{clearTimeout(timer);}
   }
   const metadata=()=>({role:$('role').value,operator:$('operator').value,rig_id:$('rig').value,...($('request').value?{response_to_request_id:$('request').value}:{})});
   async function action(path,body={}){
     if(busy){error('A local capture control is still finishing. Retry after it completes.');return;}
-    busy=true;error('');try{const r=await api(path,body);await status();await recordings();return r;}catch(e){error(e.message);}finally{busy=false;}
+    busy=true;$('connect').disabled=true;$('scan').disabled=true;error('');try{const r=await api(path,body);await status();await recordings();return r;}catch(e){error(e.message);}finally{busy=false;await status();}
   }
   async function priority(path,body={}){try{error('');await api(path,body);await status();}catch(e){error(e.message);}}
   async function status(){
     if(polling)return;polling=true;
     try{
       const s=await api('/api/status');token=s.control_token;connected=Boolean(s.camera)&&!['IDLE','FAILED'].includes(s.state);
+      cameraAPIReady=Number(s.camera_discovery_version||0)>=2;
+      if(!cameraAPIReady)md('camera-discovery','The running controller needs a restart to load named Windows phone-camera support. Refreshing this page alone cannot update it.');
+      if(connected&&s.camera.name&&!Array.from($('devices').options).some(o=>o.textContent.includes(s.camera.name))){const d={...s.camera,id:`${s.camera.backend_id}:${s.camera.index}`};$('devices').replaceChildren(cameraOption(d));}
+      if(connected&&s.camera.name&&!scanning)md('camera-discovery',`**Connected:** \`${String(s.camera.name).replaceAll('`','')}\` · ${s.camera.backend}. Verify the preview is your intended camera. A phone/pause icon means video is paused in Windows: resume it in the phone camera control window on the taskbar. Disconnect to search again.`);
       md('camera-state',s.state+(s.error?` · ${s.error}`:'')+(s.camera_stalled?' · CAMERA_STALLED':''));$('camera-state').classList.toggle('live',s.state==='RECORDING');
       const c=s.capture;md('telemetry',`${c.frames.toLocaleString()} recorded frames · arrival FPS ${c.effective_fps?.toFixed(2)??'unknown'} · ${c.gap_indicators} gap indicators · physical timing unverified`);
       md('capture-indicator',s.state==='RECORDING'?'● RECORDING':connected?'● LIVE PREVIEW':'CAMERA OFFLINE');
       $('start').disabled=busy||!connected||s.state==='RECORDING'||s.camera_stalled;$('stop').disabled=busy||s.state!=='RECORDING';$('connect').disabled=busy||connected||scanning||(hasScanned&&!$('devices').options.length);$('scan').disabled=busy||connected||scanning;$('devices').disabled=busy||connected||scanning||(hasScanned&&!$('devices').options.length);$('disconnect').disabled=busy||!s.camera;$('import').disabled=busy||s.state==='RECORDING';
+      md('connect',connected?'Connected':'Connect');
       $('preview').hidden=!connected;$('preview-empty').hidden=connected;
       if(connected&&!previewTimer)nextPreview();if(!connected&&previewTimer){clearTimeout(previewTimer);previewTimer=null;}
       lastScan=s.device_scan;renderInvestigation(s.investigation,s.state);
@@ -113,19 +126,25 @@
   }
   $('open-authorization').onclick=()=>{$('authorization').open=!$('authorization').open;if($('authorization').open)$('authorization').scrollIntoView({behavior:'smooth',block:'start'});};
   $('scan').onclick=async()=>{
+    if(cameraAPIReady===false)return error('Restart the Live Lab backend to enable the updated Windows phone-camera scanner.');
     if(busy)return error('A local control is still finishing. Retry Find cameras when it completes.');
     scanning=true;$('scan').disabled=true;$('connect').disabled=true;$('devices').disabled=true;$('scan').setAttribute('aria-busy','true');md('scan-label','Searching…');
-    md('camera-discovery','Searching camera inputs 0–7. This may take a few seconds; no video is uploaded.');
+    md('camera-discovery','Searching camera inputs and registered Windows phone cameras. No video is uploaded.');
     try{
-      const r=await action('/api/scan',{maximum:8});if(!r){md('camera-discovery','Camera search could not complete. Review the local error above, then try Find cameras again.');return;}
-      hasScanned=true;$('devices').replaceChildren();
-      for(const d of r.devices){const o=el('option',`Camera ${d.index} · ${d.backend}`);o.value=d.index;$('devices').append(o);}
-      md('camera-discovery',r.devices.length?`**${r.devices.length} camera${r.devices.length===1?'':'s'} found.** Select a device, then Connect to identify your phone in the preview. ${r.scan?.probe_errors?.length?'Some inputs could not be probed; their safe codes are in the audit.':''}`:'**No cameras found on inputs 0–7.** Check Windows camera permissions, connect your phone through its webcam app/USB, close other apps using it, then try Find cameras again. You can also import the original MP4.');
+      const r=await action('/api/scan',{maximum:16});if(!r){md('camera-discovery','Camera search could not complete. Review the local error above, then try Find cameras again.');return;}
+      const previous=$('devices').value;hasScanned=true;$('devices').replaceChildren(...r.devices.map(cameraOption));
+      const preferred=r.devices.find(d=>/\b(s\d{2}|iphone|pixel|android|galaxy|phone)\b/i.test(d.name||''));
+      if(Array.from($('devices').options).some(o=>o.value===previous))$('devices').value=previous;else if(preferred)$('devices').value=preferred.id??String(preferred.index);
+      const portable=(r.scan?.portable_devices||[]).map(d=>String(d.name).replaceAll('`','')).map(n=>'`'+n+'`').join(', ');
+      const setup='[Set up an Android phone camera in Windows](https://support.microsoft.com/en-gb/windows/apps/phonelink/use-your-mobile-device-s-camera): Settings → Bluetooth & devices → Mobile devices → select your phone → Use as connected camera. Approve camera access on the phone. A USB file-transfer connection alone is not a webcam.';
+      let message=r.devices.length?`**${r.devices.length} ${r.scan?.method==='SYSTEM_CATALOG'?'camera inputs':'cameras'} found.** Select your phone by name, then Connect. If one backend fails, choose the other entry for the same phone. No API calls occur during preview.`:'**No cameras found.** Check Windows camera permissions and phone setup, then search again.';
+      if(portable)message+=`\n\n**Windows portable devices:** ${portable}. These are listed separately from camera inputs.\n\n${setup}`;else if(!r.devices.length)message+='\n\n'+setup;
+      md('camera-discovery',message);
     }finally{scanning=false;$('scan').removeAttribute('aria-busy');md('scan-label','Find cameras');await status();}
   };
-  $('connect').onclick=()=>action('/api/connect',{index:Number($('devices').value)});$('disconnect').onclick=()=>action('/api/disconnect');$('start').onclick=()=>action('/api/start',metadata());$('stop').onclick=()=>action('/api/stop');$('import').onclick=()=>action('/api/import',{...metadata(),path:$('path').value});
+  $('connect').onclick=()=>action('/api/connect',cameraChoice());$('disconnect').onclick=()=>action('/api/disconnect');$('start').onclick=()=>action('/api/start',metadata());$('stop').onclick=()=>action('/api/stop');$('import').onclick=()=>action('/api/import',{...metadata(),path:$('path').value});
   $('ai-start').onclick=async()=>{
-    const r=await action('/api/auto-live/go',{index:Number($('devices').value),authorization:{consent:$('ai-consent').checked,standard_tier_confirmed:$('ai-consent').checked,sam_requests:null,muse_requests:null,ceiling_usd:$('spend-cap').value,sam_reserve_usd:$('sam-reserve').value,muse_reserve_usd:$('muse-reserve').value},windowing:{window_s:4,overlap_s:0,analysis_interval_s:12,processing_width:640,target_prompt:$('target-prompt').value,target_confirmed:$('target-confirmed').checked},metadata:{operator:$('operator').value,rig_id:$('rig').value}});
+    const r=await action('/api/auto-live/go',{...cameraChoice(),authorization:{consent:$('ai-consent').checked,standard_tier_confirmed:$('ai-consent').checked,sam_requests:null,muse_requests:null,ceiling_usd:$('spend-cap').value,sam_reserve_usd:$('sam-reserve').value,muse_reserve_usd:$('muse-reserve').value},windowing:{window_s:4,overlap_s:0,analysis_interval_s:12,processing_width:640,target_prompt:$('target-prompt').value,target_confirmed:$('target-confirmed').checked},metadata:{operator:$('operator').value,rig_id:$('rig').value}});
     if(r){$('authorization').open=false;$('workspace').scrollIntoView({behavior:'smooth',block:'start'});}
   };
   $('ai-stop').onclick=()=>priority('/api/ai/stop');$('ai-pause').onclick=()=>priority('/api/ai/pause');$('ai-resume').onclick=()=>priority('/api/ai/resume');

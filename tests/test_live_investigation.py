@@ -126,10 +126,14 @@ def test_invalid_authorization_cannot_start_workers(patch):
 def test_four_second_overlapping_windows_under_slow_sam_keep_accepting_frames(live_factory):
     transport = MockMeta(); transport.hold.set()
     live, _ = live_factory(transport)
-    frames(live, 43)
+    def capture(count,start=0):
+        for i in range(start,start+count):
+            frames(live,1,start=i,pause=0)
+            until(live.frames.empty)
+    capture(43)
     until(transport.entered.is_set)
     before = live.finalized
-    frames(live, 90, start=43)
+    capture(90, start=43)
     until(lambda: live.finalized > before)
     assert live.processed == 0
     assert live.frames.qsize() <= live.config.frame_queue

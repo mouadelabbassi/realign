@@ -84,6 +84,7 @@ def make_lab_server(controller, *, port=8770):
 
         def do_POST(self):
             if not self.trusted() or not secrets.compare_digest(self.headers.get('X-Live-Lab-Token', ''), token):
+                emit('CONTROL_AUTHORIZATION_REJECTED',code='CONTROL_AUTHORIZATION_REQUIRED')
                 return self.send({'error': 'CONTROL_AUTHORIZATION_REQUIRED'}, status=403)
             if self.headers.get('Content-Type', '').split(';')[0] != 'application/json':
                 return self.send({'error': 'JSON_REQUIRED'}, status=415)
@@ -106,7 +107,7 @@ def make_lab_server(controller, *, port=8770):
                 if path == '/api/scan':
                     devices = controller.enumerate_devices(body.get('maximum',8))
                     result = {'devices':devices,'scan':controller.device_scan}
-                elif path == '/api/connect': controller.connect(body.get('index')); result = controller.snapshot()
+                elif path == '/api/connect': controller.connect(body.get('index'),backend=body.get('backend')); result = controller.snapshot()
                 elif path == '/api/disconnect': controller.close(); result = controller.snapshot()
                 elif path in ('/api/start', '/api/import'):
                     options = {k: body[k] for k in ('role', 'operator', 'rig_id', 'response_to_request_id') if k in body}
@@ -128,7 +129,7 @@ def make_lab_server(controller, *, port=8770):
                 elif path == '/api/auto-live/authorize':
                     result = controller.authorize_auto_live(body.get('authorization',{}),body.get('windowing'),body.get('metadata'))
                 elif path == '/api/auto-live/go':
-                    result = controller.go_live(body.get('authorization',{}),body.get('windowing'),body.get('metadata'),index=body.get('index',0))
+                    result = controller.go_live(body.get('authorization',{}),body.get('windowing'),body.get('metadata'),index=body.get('index',0),backend=body.get('backend'))
                 elif path == '/api/ai/resume':
                     if controller.live is None: raise ValueError('No AI investigation')
                     controller.live.resume(); result = controller.live.snapshot()

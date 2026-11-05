@@ -10,7 +10,7 @@ FIELDS = frozenset(('session','window_id','recording_id','source','mode','state'
     'total_requests','reserved_usd','ceiling_usd','reason','request_id','result_sha256','manifest_sha256',
     'video_sha256','image_sha256','audit_head','received_masks','parser_revision','source_frame_index',
     'completed_scientific_evidence','step','action','outcome','tool','evidence_ref','detected_count',
-    'queued_frames','queued_windows','dropped_frames','dropped_windows','continuous'))
+    'queued_frames','queued_windows','dropped_frames','dropped_windows','continuous','camera_index','backend_id'))
 
 
 def configure_terminal(level='INFO'):

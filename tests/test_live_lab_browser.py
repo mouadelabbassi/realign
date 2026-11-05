@@ -347,3 +347,69 @@ def test_find_cameras_shows_search_results_and_no_device_guidance(lab_ui):
     assert controller.live is None and controller.snapshot()['new_meta_calls']==0
     assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
     page.close()
+
+
+def test_named_phone_camera_selects_its_actual_backend(lab_ui):
+    from playwright.sync_api import expect
+    from test_camera_devices import catalog
+    browser,controller,urls,tmp=lab_ui
+    opened=[]
+    controller.camera_catalog=catalog;controller._catalog_explicit=True
+    def factory(index,backend):opened.append((index,backend));return InjectedCamera()
+    controller.camera_factory=factory
+    page=browser.new_page();page.goto(urls[0]);page.locator('#scan').click()
+    expect(page.locator('#camera-discovery')).to_contain_text('2 camera inputs found')
+    expect(page.locator('#devices')).to_have_value('1400:1')
+    page.locator('#connect').click()
+    expect(page.locator('#camera-state')).to_have_text('CAMERA_CONNECTED')
+    assert opened==[(1,1400)]
+    assert controller.device['name']=='S22 Windows virtual camera'
+    expect(page.locator('#camera-discovery')).to_contain_text('Connected:')
+    assert controller.live is None and controller.snapshot()['new_meta_calls']==0
+    page.close()
+
+
+def test_old_camera_backend_requires_restart_instead_of_silent_failure(lab_ui):
+    from playwright.sync_api import expect
+    browser,controller,urls,tmp=lab_ui
+    page=browser.new_page();scans=[]
+    def old_status(route):
+        response=route.fetch();body=response.json();body.pop('camera_discovery_version',None);route.fulfill(json=body)
+    page.route('**/api/status',old_status)
+    page.on('request',lambda request:scans.append(request.url) if request.url.endswith('/api/scan') else None)
+    page.goto(urls[0])
+    expect(page.locator('#camera-discovery')).to_contain_text('needs a restart')
+    page.locator('#scan').click()
+    expect(page.locator('#error')).to_contain_text('Restart the Live Lab backend')
+    assert not scans and controller.live is None
+    page.close()
+
+
+def test_controls_recover_after_controller_token_changes(lab_ui):
+    from playwright.sync_api import expect
+    browser,controller,urls,tmp=lab_ui
+    attempts=[]
+    page=browser.new_page()
+    def stale_once(route):
+        attempts.append(1)
+        headers=dict(route.request.headers)
+        if len(attempts)==1:headers['x-live-lab-token']='STALE_TEST_FIXTURE_TOKEN'
+        route.continue_(headers=headers)
+    page.route('**/api/connect',stale_once)
+    page.goto(urls[0]);page.locator('#connect').click()
+    expect(page.locator('#camera-state')).to_have_text('CAMERA_CONNECTED')
+    assert len(attempts)==2 and controller.live is None
+    page.close()
+
+
+def test_camera_controls_work_when_markdown_renderer_is_unavailable(lab_ui):
+    from playwright.sync_api import expect
+    browser,controller,urls,tmp=lab_ui
+    page=browser.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
+    page.add_init_script("Object.defineProperty(window,'RealignMarkdown',{configurable:true,get(){return null},set(value){}})")
+    page.goto(urls[0]);page.locator('#connect').click()
+    expect(page.locator('#camera-state')).to_have_text('CAMERA_CONNECTED')
+    page.locator('#open-authorization').click()
+    assert page.locator('#authorization').evaluate('(e)=>e.open')
+    assert not errors and controller.live is None
+    page.close()

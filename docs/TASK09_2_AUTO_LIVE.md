@@ -24,11 +24,13 @@ python scripts/run_live_lab.py --port 8772
 Open **http://127.0.0.1:8772**. Stop an older Python controller or choose a free
 port; refreshing static files alone cannot load new backend code.
 
-1. Select **Find cameras** to search camera inputs 0–7. This local scan never
-   uploads, records or authorizes paid calls. Select the detected input; **Connect**
-   is available to identify your phone in an offline preview. The backend supports
-   an extended scan of up to 16 indices. A driver-open result alone cannot identify
-   the phone. No-device guidance covers permissions, USB and webcam apps.
+1. Select **Find cameras**. Windows lists registered cameras by name across
+   DirectShow and Media Foundation; each backend is a separate selectable input.
+   The selected index and backend are preserved when connecting or going live.
+   This scan never uploads, records or authorizes paid calls. **Connect** opens
+   offline preview and becomes **Connected** once attached. A registered device
+   does not prove that its video is active: verify the image in the preview.
+   On other supported capture paths, the bounded index probe remains available.
 2. Open **Go Live**, enter and confirm your intended visible target, set a finite
    USD spending reserve cap and owner-reviewed per-attempt SAM/Muse estimates,
    and confirm upload consent and Standard tier. Select the setup's **Go Live**.
@@ -55,6 +57,24 @@ for that controller and prevents further reservations; in-flight calls may still
 bill. A new controller is needed for a fresh session authorization. Offline
 preview, manual capture, MP4 import and the original five-view read-only evidence
 product remain available (`python scripts/run_realign.py --port 8765`).
+
+## Windows phone camera setup
+
+A USB file-transfer connection is not a webcam. For a supported Android device,
+follow [Microsoft's connected-camera setup](https://support.microsoft.com/en-gb/windows/apps/phonelink/use-your-mobile-device-s-camera):
+Windows Settings → Bluetooth & devices → Mobile devices → add/select the phone →
+Use as connected camera. Approve camera access on the phone, then search again.
+Portable USB devices are reported separately and are never fabricated as cameras.
+
+Select the phone's named DirectShow or Media Foundation entry. If one backend
+cannot open it, try the other entry for that same phone. A black phone/pause icon
+is a Windows paused feed: open the phone camera control window from the taskbar
+and resume video. Receiving that placeholder is not proof of an active scene.
+
+Restart an older controller to load named-camera support. The page reports a
+missing backend capability, refreshes stale control tokens after a restart, and
+shows control errors visibly. Text-renderer failures fall back to plain text
+without disabling camera controls.
 
 ## Provenance and presentation
 

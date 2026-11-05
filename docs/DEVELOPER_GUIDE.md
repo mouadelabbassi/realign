@@ -57,9 +57,17 @@ Restart the backend to load Python changes.
 ## Live control flow
 
 `CaptureController` in `physical/live_lab.py` owns the camera and original MP4s.
+`physical/camera_devices.py` enumerates named Windows cameras through both
+DirectShow and Media Foundation. Camera selection carries an explicit backend;
+the browser must not reduce a backend-qualified identifier to a numeric index.
+Portable USB devices are separate from registered camera inputs. Device discovery
+does not open a paid model client or certify that a virtual camera is unpaused.
 It records source frame indices and host arrival timestamps separately from
 container presentation timestamps. Continuous capture rotates source clips at
-most every 55 seconds; rotation does not end the session.
+most every 55 seconds; rotation does not end the session. Internal continuation
+excludes controlled local finalization time from the manual stale-frame guard.
+New manual recordings still reject stale input. Preview-only reads yield between
+frames so a virtual placeholder cannot monopolize the local camera thread.
 
 `LiveInvestigation` in `physical/live_investigation.py` runs separate encoding,
 SAM and science workers. The first recorded frame produces a startup image
