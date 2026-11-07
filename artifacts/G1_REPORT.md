@@ -10,7 +10,7 @@
 | Failures | 0 |
 | Total contact/free transitions | 1516 |
 | Maximum absolute energy drift, J/kg | 1.710e-09 |
-| Maximum Cartesian position jump at contact, m | 1.985e-15 |
+| Maximum Cartesian position jump at contact, m | 1.611e-15 |
 | Maximum Cartesian speed jump (lossless), m/s | 4.441e-16 |
 | Vertical peg period error against elliptic-integral oracle, s | 6.247757866617576e-11 |
 
