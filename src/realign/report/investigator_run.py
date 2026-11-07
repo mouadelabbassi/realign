@@ -79,7 +79,6 @@ def execute(label, *, arm='deterministic', gate=None, seed=51000, sigma=.5,
         result=Investigator(s,adapter,env).run()
         elapsed=time.monotonic()-start
         assert result['state_history'][-1]=='FREEZE' and AuditChain.verify(result['audit'])
-        # No development trial exists until after the frozen result above.
         final=result['numerical_details']['model']
         development=env.development_after_freeze()
         error=None

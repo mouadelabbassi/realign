@@ -208,7 +208,7 @@ Created implementation:
 - The five baseline artifacts listed above under `artifacts/`.
 
 Modified documentation/metadata: `README.md`, `pyproject.toml`,
-`docs/CODEX_EXECUTION_ROADMAP.md`, `docs/ENGINEERING_DECISIONS.md`, and
+`docs/DEVELOPMENT_ROADMAP.md`, `docs/ENGINEERING_DECISIONS.md`, and
 `docs/PROVENANCE.md`. `artifacts/g1_verification.json` was regenerated; only its
 machine-dependent elapsed time changed. The other three G1 artifacts reproduced
 without changes. The working tree contains 27 new/modified files, all local and

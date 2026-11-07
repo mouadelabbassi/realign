@@ -125,7 +125,6 @@ async def process_external(video,manifest_path,output,cache,*,run_api=False,stan
         elif run_api and standard_tier_confirmed and (os.environ.get('MODEL_API_KEY') or client_factory):
             client=(client_factory() if client_factory else SamClient.from_environment(standard_tier_confirmed=True,concept=concept))
             run=await client.segment_video(video,metadata)
-            # Reject simulated masks before any real-labelled export or cache.
             if run.source!='REAL_API':raise EvidenceError('simulated API masks cannot become real SAM evidence')
             save_sam_cache(cache,run)
             result['sam']['execution']='LIVE_META_API'
@@ -149,8 +148,6 @@ async def process_external(video,manifest_path,output,cache,*,run_api=False,stan
             try:
                 await client.close()
             except Exception as exc:
-                # Cleanup cannot erase a completed result or the original failure.
-                # Retain only the local exception type, never transport text.
                 result['sam']['cleanup_error']={'code':'CLIENT_CLOSE_FAILED','error_type':type(exc).__name__}
         write_json(output/'external_verification.json',result)
     return result

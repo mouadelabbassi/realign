@@ -8,16 +8,16 @@ from urllib.parse import urlsplit,unquote
 from realign.audit.chain import canonical
 from .evidence import EvidenceError,sha256_file
 from .store import ProductStore
+from .static_assets import shared_assets
 
 STATIC=Path(__file__).with_name('static')
 ASSETS={'/':('index.html','text/html; charset=utf-8'),
         '/app.css':('app.css','text/css; charset=utf-8'),'/app.js':('app.js','text/javascript; charset=utf-8')}
 ASSETS.update({'/static/app.css':ASSETS['/app.css'],'/static/app.js':ASSETS['/app.js']})
+ASSETS.update(shared_assets(STATIC))
 CSP="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"
 
 class LoopbackServer(ThreadingHTTPServer):
-    # Windows SO_REUSEADDR can route traffic to an older listener after a
-    # seemingly successful bind. Fail visibly instead of sharing the port.
     allow_reuse_address=os.name!='nt'
     def server_bind(self):
         if os.name=='nt':self.socket.setsockopt(socket.SOL_SOCKET,socket.SO_EXCLUSIVEADDRUSE,1)
@@ -36,7 +36,7 @@ def make_server(data_root,*,port=8765,media=None,closure_root=None,review_root=N
     media={name:(Path(p),sha256_file(p)) for name,p in media.items()}
     class Handler(BaseHTTPRequestHandler):
         def log_message(self,*args):
-            pass  # Do not log query strings, request bodies or local file paths.
+            pass
 
         def _headers(self,status,content_type,size,extra=None,policy=None):
             self.send_response(status); self.send_header('Content-Type',content_type)
@@ -59,7 +59,6 @@ def make_server(data_root,*,port=8765,media=None,closure_root=None,review_root=N
         do_DELETE=do_POST
 
         def do_GET(self):
-            # Prevent DNS rebinding from exposing loopback evidence to other sites.
             host=self.headers.get('Host','').split(':')[0]
             if host not in ('127.0.0.1','localhost'):
                 self._json({'status':'FORBIDDEN'},403); return

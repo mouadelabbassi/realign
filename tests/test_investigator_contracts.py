@@ -138,7 +138,6 @@ def proposal(outcome='REPAIR_STRUCTURE',model='b'*64):
 
 
 def test_low_training_loss_does_not_grant_structural_acceptance():
-    # Protocol fixture only: no scientific fit or empirical score is claimed.
     s=NS(results=[{'result':{'evidence_ref':'a'*64}}],discrepancy={'quality_ok':True},
          comparison=None,fits={'PEG_ONE_SIDE':{'robust_cost':0.,'fitted_model_ref':'b'*64}})
     ok,reason=ScientificValidator().assess(proposal(),s,coverage=.65,receipt=None)
@@ -236,7 +235,6 @@ def test_model_turn_cannot_mix_hypothesis_and_physical_execution():
 
 
 def test_current_decision_views_cannot_be_rebound_to_other_model_or_subset():
-    # Plumbing fixture only: validates capability binding, not numerical claims.
     from realign.tools.client import ScientificSession
     s=ScientificSession.__new__(ScientificSession)
     s.nominal_model_ref='a'*64; s.trial_refs=['b'*64,'c'*64]; s.results=[]
@@ -256,7 +254,6 @@ def test_current_decision_views_cannot_be_rebound_to_other_model_or_subset():
 
 def test_failed_null_fit_cannot_make_structural_tail_more_significant():
     from realign.tools.registry import empirical_tail
-    # Formula fixture, not an empirical calibration or benchmark score.
     assert empirical_tail([0.]*20,1.)==1/21
     assert empirical_tail([0.]*19+[None],1.)==2/21
     assert empirical_tail([0.]*19+[None],1.)>.05

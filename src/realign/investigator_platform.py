@@ -31,8 +31,6 @@ def delegate(script):
     mapped=linux_path(str(root))
     command=['wsl.exe','-d','Ubuntu','--cd',mapped,'--exec','python3',mapped+'/scripts/_wsl_entry.py',
              script,*[linux_path(a) for a in sys.argv[1:]]]
-    # Credentials travel only in a local process environment, never arguments,
-    # source, reports or the numerical worker's stripped environment.
     env=dict(os.environ)
     if os.environ.get('MODEL_API_KEY'):
         env['WSLENV']='MODEL_API_KEY/u'

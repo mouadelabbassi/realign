@@ -8,9 +8,11 @@ import threading
 from urllib.parse import urlsplit, parse_qs
 
 from realign.product.server import LoopbackServer
+from realign.product.static_assets import shared_assets
+from realign.audit.terminal import emit
 
 STATIC = Path(__file__).resolve().parents[1] / 'product' / 'static'
-CSP = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; media-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'"
+CSP = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self'; media-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'"
 
 
 def make_lab_server(controller, *, port=8770):
@@ -44,6 +46,7 @@ def make_lab_server(controller, *, port=8770):
             assets = {'/': ('live_lab.html', 'text/html; charset=utf-8'),
                       '/live_lab.js': ('live_lab.js', 'text/javascript; charset=utf-8'),
                       '/live_lab.css': ('live_lab.css', 'text/css; charset=utf-8')}
+            assets.update(shared_assets(STATIC))
             if path in assets:
                 name, kind = assets[path]
                 return self.send((STATIC / name).read_bytes(), kind)
@@ -60,6 +63,11 @@ def make_lab_server(controller, *, port=8770):
             if path == '/preview.jpg':
                 with controller.lock: jpeg = controller.jpeg
                 return self.send(jpeg or b'', 'image/jpeg', status=200 if jpeg else 404)
+            if path == '/sam-frame.jpg':
+                live = controller.live
+                with live.lock if live else controller.lock:
+                    jpeg = live.overlay_jpeg if live else None
+                return self.send(jpeg or b'', 'image/jpeg',status=200 if jpeg else 404)
             match = re.fullmatch(r'/files/(clip-[a-f0-9]{32})/(frame-\d+\.png|recording\.mp4|phone_manifest\.draft\.json|report\.json)', path)
             if match:
                 folder = controller.library.root / match[1]
@@ -76,6 +84,7 @@ def make_lab_server(controller, *, port=8770):
 
         def do_POST(self):
             if not self.trusted() or not secrets.compare_digest(self.headers.get('X-Live-Lab-Token', ''), token):
+                emit('CONTROL_AUTHORIZATION_REJECTED',code='CONTROL_AUTHORIZATION_REQUIRED')
                 return self.send({'error': 'CONTROL_AUTHORIZATION_REQUIRED'}, status=403)
             if self.headers.get('Content-Type', '').split(';')[0] != 'application/json':
                 return self.send({'error': 'JSON_REQUIRED'}, status=415)
@@ -85,16 +94,20 @@ def make_lab_server(controller, *, port=8770):
                 body = json.loads(self.rfile.read(length))
                 if type(body) is not dict: raise ValueError('JSON object required')
             except (ValueError, TypeError): return self.send({'error': 'INVALID_REQUEST'}, status=400)
-            # Revocation cannot wait behind media finalization or another control.
-            if urlsplit(self.path).path == '/api/ai/stop':
+            if urlsplit(self.path).path in ('/api/ai/stop','/api/ai/pause'):
                 if controller.live is None: return self.send({'error': 'No AI investigation'}, status=409)
-                controller.live.stop()
+                if urlsplit(self.path).path == '/api/ai/stop': controller.live.stop()
+                else:
+                    try: controller.live.pause()
+                    except ValueError as exc: return self.send({'error':str(exc)},status=409)
                 return self.send(controller.live.snapshot())
             if not actions.acquire(blocking=False): return self.send({'error': 'CONTROLLER_BUSY'}, status=409)
             try:
                 path = urlsplit(self.path).path
-                if path == '/api/scan': result = {'devices': controller.enumerate_devices()}
-                elif path == '/api/connect': controller.connect(body.get('index')); result = controller.snapshot()
+                if path == '/api/scan':
+                    devices = controller.enumerate_devices(body.get('maximum',8))
+                    result = {'devices':devices,'scan':controller.device_scan}
+                elif path == '/api/connect': controller.connect(body.get('index'),backend=body.get('backend')); result = controller.snapshot()
                 elif path == '/api/disconnect': controller.close(); result = controller.snapshot()
                 elif path in ('/api/start', '/api/import'):
                     options = {k: body[k] for k in ('role', 'operator', 'rig_id', 'response_to_request_id') if k in body}
@@ -113,6 +126,17 @@ def make_lab_server(controller, *, port=8770):
                 elif path == '/api/stop': result = controller.stop()
                 elif path == '/api/ai/start':
                     result = controller.authorize_live(body.get('authorization', {}), body.get('windowing'))
+                elif path == '/api/auto-live/authorize':
+                    result = controller.authorize_auto_live(body.get('authorization',{}),body.get('windowing'),body.get('metadata'))
+                elif path == '/api/auto-live/go':
+                    result = controller.go_live(body.get('authorization',{}),body.get('windowing'),body.get('metadata'),index=body.get('index',0),backend=body.get('backend'))
+                elif path == '/api/ai/resume':
+                    if controller.live is None: raise ValueError('No AI investigation')
+                    controller.live.resume(); result = controller.live.snapshot()
+                elif path == '/api/ai/reselect':
+                    if controller.live is None: raise ValueError('No AI investigation')
+                    controller.live.reselect_target(body.get('target_prompt'),body.get('target_confirmed'),body.get('consent'))
+                    result = controller.live.snapshot()
                 elif path == '/api/ai/stop':
                     if controller.live is None: raise ValueError('No AI investigation')
                     controller.live.stop(); result = controller.live.snapshot()
@@ -120,7 +144,7 @@ def make_lab_server(controller, *, port=8770):
                     live = controller.live
                     if live is None or live.cancel.is_set(): raise ValueError('Authorize an active AI investigation first')
                     accepted = True
-                    if path == '/api/ai/confirm-action': live.confirm_action(body.get('request_id'))
+                    if path == '/api/ai/confirm-action': controller.confirm_action(body.get('request_id'))
                     elif path == '/api/ai/admit':
                         from realign.perception.workflow import _path
                         source = body.get('manifest')
@@ -131,9 +155,14 @@ def make_lab_server(controller, *, port=8770):
                     else: accepted = live.enqueue_science('operator', {})
                     result = {'status': 'CONFIRMED' if path == '/api/ai/confirm-action' else 'QUEUED' if accepted else 'COALESCED', 'investigation': live.snapshot()}
                 else: return self.send({'error': 'NOT_FOUND'}, status=404)
+                emit('CONTROL_COMPLETED',operation=path)
                 self.send(result)
-            except ValueError as exc: self.send({'error': str(exc)}, status=409)
-            except Exception: self.send({'error': 'LOCAL_IO_FAILED; inspect disk, encoder and camera permissions'}, status=422)
+            except ValueError as exc:
+                emit('CONTROL_REJECTED',operation=path,code='INVALID_CONTROL_INPUT',error_type=type(exc).__name__)
+                self.send({'error': str(exc)}, status=409)
+            except Exception as exc:
+                emit('CONTROL_FAILED',operation=path,code='LOCAL_IO_FAILED',error_type=type(exc).__name__)
+                self.send({'error': 'LOCAL_IO_FAILED; inspect disk, encoder and camera permissions'}, status=422)
             finally: actions.release()
 
         def do_PUT(self): self.send({'error': 'METHOD_NOT_ALLOWED'}, status=405)

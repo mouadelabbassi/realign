@@ -200,7 +200,7 @@ REAL_DATA_COLLECTION_PROTOCOL.md and the G2 readiness artifacts.
 
 Modified implementation: observation/camera.py and noise.py; fit/robust_fit.py,
 baselines.py and circle_fit.py. Modified metadata/docs: pyproject.toml,
-.gitignore, README.md, CODEX_EXECUTION_ROADMAP.md, META_SMOKE.md and PROVENANCE.md.
+.gitignore, README.md, DEVELOPMENT_ROADMAP.md, META_SMOKE.md and PROVENANCE.md.
 Reproduced G1/POC-0 artifacts may update source hashes/elapsed times; numerical
 results are checked against the prior committed evidence.
 

@@ -32,9 +32,6 @@ def rendered(tmp_path_factory):
 
 
 def _configuration(tmp_path, metadata):
-    # A schema-only manifest stub used to exercise rejection/error branches.
-    # Its physical_recording assertion has NOT been verified and the fixture
-    # metadata retains SYNTHETIC_RENDER throughout the test.
     source = ExternalVideoSource(
         source_page_url='https://example.org/SIMULATED_FIXTURE',
         original_video_url='https://example.org/SIMULATED_FIXTURE.mp4',

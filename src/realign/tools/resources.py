@@ -32,7 +32,6 @@ def encode_trial(trial):
     if len(trial.observation.t_s)>256 or trial.experiment.duration_s>4:
         raise ValueError('runtime observation size/duration budget exceeded')
     value = {'kind':'VIDEO' if type(trial) is VideoTrial else 'DIRECT', 'trial':_clean(asdict(trial))}
-    # Do not expose caller filenames or semantic rig IDs.
     identity = digest({'t':value['trial']['observation'].get('t_s', value['trial']['observation'].get('metadata')),
                        'xy':value['trial']['observation']['xy_px']})[:16]
     value['trial']['trial_id'] = 'obs-'+identity

@@ -1,6 +1,6 @@
 # Implementation Corrections — Blocking errata for Build Spec v1
 
-These decisions were made by independent review of Claude's Build Spec. They override conflicting statements in that spec without changing the frozen five-layer architecture.
+These decisions were made by independent review of the Build Spec. They override conflicting statements in that spec without changing the frozen five-layer architecture.
 
 1. **Fixed geometry within a mode.** The proposed expression DSL must not allow state-/velocity-/time-dependent pivot or string length while compiling with the constant-length pendulum equation. Reject those dependencies, or derive a valid general Lagrangian before supporting them. Potential must not depend on velocity; check dissipation sign and dimensions.
 2. **Contact reachability.** The simplified `abs(release angle) > abs(peg angle)` condition is not a general criterion with damping, arbitrary release side or nonzero initial velocity. Use integration with directed guards, energy/feasibility constraints, and explicit supported initial configurations.

@@ -51,7 +51,6 @@ def main(argv=None):
         print(report['status']+':',args.output_dir/'measurement_validation.json')
         return 0 if report['status'] == 'VALIDATED_MANUAL_REFERENCES' else 2
     except (ManualReviewError,OSError,ValueError,TypeError) as exc:
-        # Do not dump annotation documents or arbitrary exception details.
         print('Review workflow rejected input ('+type(exc).__name__+').',file=sys.stderr)
         return 1
 

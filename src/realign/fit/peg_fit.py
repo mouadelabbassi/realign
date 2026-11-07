@@ -83,8 +83,6 @@ def residuals_peg(params, trials):
 
 
 def _sensitivity(residual, x, lo, hi):
-    # Independent central differences of RAW whitened residuals, not robust-loss
-    # modified solver Jacobian. Coordinates are scaled to their search ranges.
     columns = []
     for j in range(len(x)):
         a, b = x.copy(), x.copy()
@@ -154,7 +152,6 @@ def fit_peg(trials, nominal, options=PegFitOptions(), *, initializer=None):
     if initial.peg is not None:
         raise FitError('initializer must be a free-model exploration fit')
     base = np.array([math.log(initial.length_m), initial.gamma_per_s, initial.quadratic_drag_per_m, .22, 0.])
-    # Geometric initialization uses only measured positions; no labels/events.
     geometric, _ = _fit_two(trials)
     if geometric is not None:
         _, first, second, _, side = geometric

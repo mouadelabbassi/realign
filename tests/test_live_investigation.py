@@ -126,11 +126,14 @@ def test_invalid_authorization_cannot_start_workers(patch):
 def test_four_second_overlapping_windows_under_slow_sam_keep_accepting_frames(live_factory):
     transport = MockMeta(); transport.hold.set()
     live, _ = live_factory(transport)
-    frames(live, 43)
+    def capture(count,start=0):
+        for i in range(start,start+count):
+            frames(live,1,start=i,pause=0)
+            until(live.frames.empty)
+    capture(43)
     until(transport.entered.is_set)
     before = live.finalized
-    # SAM is still blocked, yet encoding/capture continue on independent workers.
-    frames(live, 90, start=43)
+    capture(90, start=43)
     until(lambda: live.finalized > before)
     assert live.processed == 0
     assert live.frames.qsize() <= live.config.frame_queue
@@ -261,7 +264,6 @@ def test_live_muse_requests_exact_operator_action_and_cannot_fit_pixels(live_fac
     until(lambda: list(live.root.glob('window-*/manifest.json')))
     manifest = json.loads(next(live.root.glob('window-*/manifest.json')).read_text())
     assert all(r['response_to_request_id'] == pending['request_id'] for r in manifest['frames'])
-    # Confirming an action never bypasses calibration admission or resets budget.
     path = tmp_path / 'missing-calibration.json'; path.write_text('{"source_kind":"REAL_PHONE"}')
     science.consume('admit', {'manifest': str(path)})
     assert science.agent is None and live.pending_action['request_id'] == pending['request_id']
@@ -271,7 +273,6 @@ def test_live_muse_requests_exact_operator_action_and_cannot_fit_pixels(live_fac
 
 
 def test_sam_and_muse_guards_count_every_retry_and_prevent_sdk_dispatch(tmp_path):
-    # SAM's real SDK boundary is also exercised by all MockMeta pipeline tests.
     ledger = RequestLedger({**POLICY, 'muse_requests': 1}, lambda *a: None)
     dispatched = []
     def failure(**kwargs): dispatched.append(1); raise OSError('TEST_FIXTURE')
@@ -330,7 +331,6 @@ def test_known_admitted_observations_enter_existing_tools_in_same_live_session(l
     assert science.agent.machine.stage == 'HYPOTHESIZE'
     assert live.scientific['physical_evidence_accepted'] is True
     assert live.scientific['trajectory_comparison']['scope'].startswith('ADMITTED_EXPLORATION')
-    # Approved references belong to the unchanged existing scientific kernel.
     context = science._context()
     assert context['trial_refs'] == science.agent.session.trial_refs
     assert len(context['trial_refs']) == 2 and context['evidence_refs']
@@ -338,8 +338,6 @@ def test_known_admitted_observations_enter_existing_tools_in_same_live_session(l
     with pytest.raises(ValueError, match='approved experiment'):
         science._admit({'manifest': 'TEST_FIXTURE.json'})
     assert science.agent is original_agent
-    # Resume the SAME numerical session through the original physical admission
-    # contract, preserving its validated transition history and one-action budget.
     from realign.contracts.investigation import CameraCheck
     from realign.tools.client import candidate
     selected = candidate(CameraCheck(reference_ref=science.agent.session.checks_ref)).model_dump(mode='json')
@@ -350,12 +348,17 @@ def test_known_admitted_observations_enter_existing_tools_in_same_live_session(l
     config['response_to_request_id'] = live.pending_action['request_id']
     science.agent.machine.move('TEST'); science.agent.machine.move('REQUEST_EVIDENCE')
     science.experiments = science.agent.experiments = 1
-    science._admit({'manifest': 'TEST_FIXTURE_RESPONSE.json'})
+    science.steps = science.budget.max_steps - 1
+    science.consume('admit', {'manifest': 'TEST_FIXTURE_RESPONSE.json'})
     assert science.agent is original_agent and science.agent.round == 2
     assert science.agent.experiments == 1
     assert env.admission_history == ['REQUESTED', 'AWAITING_RECORDING', 'VALIDATING', 'ADMITTED']
     assert live.pending_action is None and live.history[-1]['state'] == 'ADMITTED'
     assert live.scientific['physical_evidence_accepted'] is True
+    assert science.adapter.contexts[-1]['stage'] == 'HYPOTHESIZE'
+    assert science.adapter.contexts[-1]['trial_refs'] == science.agent.session.trial_refs
+    assert science.agent.machine.stage == 'TEST'
+    assert live.ledger.snapshot()['attempted_requests']['muse'] == 1
     science.close()
 
 
@@ -387,7 +390,9 @@ def test_actual_capture_controller_keeps_recording_under_slow_sam_and_disconnect
     controller.live = live
     folder = controller.start(operator='TEST_FIXTURE')
     try:
-        for i in range(43): controller.read_once(arrival_ns=1_000_000_000 + i * 100_000_000)
+        for i in range(43):
+            controller.read_once(arrival_ns=1_000_000_000 + i * 100_000_000)
+            until(live.frames.empty)
         until(transport.entered.is_set)
         for i in range(43, 65): controller.read_once(arrival_ns=1_000_000_000 + i * 100_000_000)
         assert len(controller.arrivals) == 65 and live.processed == 0

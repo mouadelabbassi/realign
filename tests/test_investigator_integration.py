@@ -94,8 +94,6 @@ def test_unavailable_isolation_abstains_without_fallback(monkeypatch):
 
 @pytest.fixture(scope='module')
 def two_round_trace(worker):
-    # No empirical gate is supplied in CI. Actual fits and requested evidence run,
-    # but structural acceptance MUST remain unavailable rather than using a fake gate.
     return execute('off_vertical_peg',arm='mock',gate=None,seed=84000,worker=worker)
 
 
@@ -110,7 +108,6 @@ def test_genuine_two_round_observation_only_investigation(two_round_trace):
     initial=[x for x in r['tool_results'] if x['name']=='inspect_identifiability'][0]['result']
     final=[x for x in r['tool_results'] if x['name']=='inspect_identifiability'][-1]['result']
     assert not initial['globally_identified'] and not final['globally_identified']
-    # The human post-freeze label/evaluation never appear in an agent context.
     text=json.dumps(contexts)
     assert 'off_vertical_peg' not in text and 'development' not in text
     assert 'hidden_parameters' not in text and 'label_post_freeze_only' not in text

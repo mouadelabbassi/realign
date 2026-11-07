@@ -45,7 +45,6 @@ def _replicate(index, parameter_fault, seed, sigma):
 
 def run_calibration(output_dir, *, progress=None):
     output=Path(output_dir); output.mkdir(parents=True,exist_ok=True)
-    # Prepare the immutable runtime once before concurrent read-only launches.
     with WorkerClient(timeout_s=90) as worker:
         isolation=worker.isolation; isolation_probe=worker.probe
     specs=[(fault,seed,sigma) for fault in (False,True) for seed in SEEDS for sigma in SIGMAS]

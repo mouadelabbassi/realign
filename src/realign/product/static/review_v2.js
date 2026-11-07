@@ -1,4 +1,4 @@
-// Expanded review extension. Human input only; tracker/AI outputs never loaded.
+
 let lockedDocument=null;
 $('not-visible').addEventListener('click',()=>{rows[frame].center_px=null;rows[frame].annotation_sigma_px=null;rows[frame].not_visible=true;$('sigma').value='';draw();$('coordinate').textContent='Marked not visible.';});
 canvas.addEventListener('click',()=>{rows[frame].not_visible=false;draw();});

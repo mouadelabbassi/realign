@@ -18,7 +18,6 @@ def _paired(b1, b3, trials, seed):
         m3 = float(np.mean(np.sum(e3**2, axis=1)))
         null_mse.append(m1); differences.append(m1-m3)
     differences = np.array(differences)
-    # Resample whole paired trials, never individual correlated frames.
     rng = np.random.default_rng(seed)
     bootstrap = differences[rng.integers(0, len(trials), (2000, len(trials)))].mean(axis=1)
     disagreement = np.concatenate([np.sum((predict_free(b1, t)[t.observation.valid]-

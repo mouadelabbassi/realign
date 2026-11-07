@@ -24,7 +24,6 @@ def estimate_release(t_s,xy_px,valid,covariance_px2,*,manual_bracket=None):
     crossing=next((i for i in range(5,len(t)-2) if np.all(distance[i:i+3]>threshold)),None)
     if crossing is None:
         raise ValueError('no observed release onset; stationary or insufficient motion')
-    # Local from-rest quadratic, not an assumed full pendulum mechanism.
     end=min(t[crossing]+.20,t[-1])
     used=t<=end
     grid=np.linspace(t[4],t[crossing],81)

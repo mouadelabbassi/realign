@@ -1,4 +1,4 @@
-# REALIGN — Codex Execution Roadmap
+# REALIGN — Development Roadmap
 
 **Status on starter handoff:** G1 physics kernel implemented, initial tests and synthetic verifier present. Everything else must be inspected/implemented and verified, not assumed.
 
@@ -11,7 +11,7 @@
 - Implement deterministic synthetic observation generation, well-defined noise and experiment conditions, B0/B1 fixed-structure fitting, B2 one-versus-two-circle geometric fitting.
 - Include unexcited/ambiguous and no-fault cases; do not leak true fault labels into algorithms.
 - Write a reproducible baseline report and comprehensive test coverage.
-- Task: `tasks/CODEX_TASK_01_POC0_BASELINES.md`.
+- Task: `docs/plans/01_BASELINES.md`.
 - Implemented Task 01 evidence: `artifacts/POC0_BASELINES.md`, reproduced by
   `python scripts/verify_baselines.py`. This completes the bounded synthetic
   baseline slice, not the full POC-0/G3 research program. See

@@ -10,7 +10,6 @@ from .truth import SyntheticTruth
 def generate_trial(params: PendulumParams, experiment: Experiment, *, seed: int,
                    trial_id: str, noise: NoiseConfig = NoiseConfig(),
                    projection: PlaneProjection = PlaneProjection(), zone='exploration'):
-    # Kernel enforces directed contact, free-side release and string tension.
     t = experiment.times()
     out = simulate(params, experiment.release_angle_rad, experiment.release_velocity_rad_per_s, t)
     rng = np.random.default_rng(seed)

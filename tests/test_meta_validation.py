@@ -56,7 +56,7 @@ def test_failed_tool_round_trips_not_promoted_to_api_success(kwargs):
 
 def test_api_errors_are_sanitized_and_counted_separately():
     client, _ = fake_client(error=True)
-    r = probe_muse(client, source='REAL_API')  # transport is still a TEST DOUBLE
+    r = probe_muse(client, source='REAL_API')
     assert r['status'] == 'FAIL' and r['failed_calls'] == 2
     assert 'SENSITIVE_SERVER_CONTENT' not in json.dumps(r)
 

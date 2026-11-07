@@ -16,7 +16,6 @@ from realign.perception.sam_client import SamClient, SamError, SamRun
 
 @pytest.fixture(autouse=True)
 def isolated_test_key(monkeypatch):
-    # Prevent tests from reading or using the authorized key in the launch shell.
     monkeypatch.delenv("MODEL_API_KEY", raising=False)
 
 

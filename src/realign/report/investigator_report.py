@@ -53,10 +53,8 @@ def _safe_execute(label, **kwargs):
 
 
 def _runs(specs, arm, gate, progress, standard_tier_confirmed=False):
-    # Independent study replicates: one investigator/session in each, no shared
-    # evidence or extra compute within any investigation. Live runs stay serial.
     with WorkerClient(timeout_s=90):
-        pass  # Warm immutable runtime before concurrent read-only launches.
+        pass
     with ThreadPoolExecutor(max_workers=1 if arm=='live' else 4) as pool:
         pending={pool.submit(_safe_execute,s['label'],arm=arm,gate=gate,
                     seed=s['seed'],sigma=s['sigma'],
@@ -94,8 +92,6 @@ def build_report(output_dir, *, calibrate=False, progress=None, run_live=False,
             'completed_runs':sum(x['status']=='COMPLETED' for x in rows),
             'not_run_runs':sum(x['status']=='NOT_RUN' for x in rows),
             'failed_runs':sum(x['failed'] for x in rows)}
-    # These seeds are disjoint from the calibration seeds. Labels are consulted
-    # only here, after every individual investigation has frozen.
     specs=[]
     for family_index,label in enumerate(('no_fault','parameter_mismatch','vertical_peg','off_vertical_peg')):
         seeds=(41000,42000) if label in ('no_fault','parameter_mismatch') else (43000,)

@@ -32,7 +32,6 @@ def test_excited_peg_fits_full_disjoint_trajectory(phi, side):
     assert fitted.identifiability['numerical_rank'] == 5
     assert fitted.identifiability['conditional_gaussian_std'] is not None
     assert all(s['residual_calls'] <= 7*60+1 for s in fitted.starts)
-    # A frozen model makes the entire temporal prediction without seeing positions.
     corrupt = replace(trials[2], observation=replace(trials[2].observation, xy_px=trials[2].observation.xy_px+100.))
     np.testing.assert_array_equal(predict_peg(fitted.params, trials[2]), predict_peg(fitted.params, corrupt))
 
@@ -43,8 +42,6 @@ def test_negative_controls_are_predictable_without_proving_a_peg(params):
     trials = data(params, angles=(.22, .32, .27))
     f = fit_peg(trials[:2], NOMINAL)
     assert score_peg(f.params, trials[2:])['rmse_xy_px'] < 1.5
-    # The constrained peg fit can choose an unexcited geometry or hit a bound;
-    # either way this is not independent mechanism evidence.
     assert not f.identifiability['locally_identifiable']
     assert f.identifiability['conditional_gaussian_std'] is None
 

@@ -33,8 +33,6 @@ def agent_value(matched):
     accepted=[r for r in matched.get('live_attempts',[]) if r.get('accepted') and r.get('matched_initial_observations')]
     if not accepted:return {'status':'UNAVAILABLE','label':'Matched comparison unavailable','billed_cost_status':'UNVERIFIED'}
     live=accepted[-1];det=matched['deterministic'];difference=live['prediction_rmse_px']-det['prediction_rmse_px']
-    # Fixed descriptive display rule, not a retrospective significance test or
-    # a prospective registration made before these historical results existed.
     return {'status':'DESCRIPTIVE_MATCHED_CASE','label':'No predictive advantage demonstrated',
         'difference_px':difference,'equality_tolerance_px':1e-9,'within_display_tolerance':abs(difference)<=1e-9,
         'scope':matched['scope'],'live_run_id':live['id'],'live_rmse_px':live['prediction_rmse_px'],
@@ -49,7 +47,6 @@ def compute_ladder(artifacts):
     live=baseline and muse.get('policy')=='LIVE_MUSE' and muse.get('decision',{}).get('accepted') is True and muse.get('api',{}).get('actual_api_requests',0)>0
     sam=artifacts.get('sam',{})
     tracking=sam.get('observation_source')=='REAL_EXTERNAL' and sam.get('track') is not None and sam.get('sam',{}).get('source')=='REAL_API'
-    # Some historic reports call the receipt source REAL_API inside receipt.
     tracking=tracking or (sam.get('observation_source')=='REAL_EXTERNAL' and sam.get('track') is not None and
         sam.get('sam',{}).get('receipt',{}).get('source')=='REAL_API')
     manual=artifacts.get('manual',{})

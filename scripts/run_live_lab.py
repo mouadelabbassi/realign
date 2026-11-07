@@ -14,6 +14,7 @@ def main():
     parser.add_argument('--port', type=int, default=8770)
     parser.add_argument('--library', type=Path, default=ROOT / 'data/raw/live_lab')
     parser.add_argument('--no-browser', action='store_true')
+    parser.add_argument('--log-level',choices=('DEBUG','INFO','WARNING','ERROR'),default='INFO')
     parser.add_argument('--list-devices', action='store_true')
     parser.add_argument('--import-video', type=Path)
     parser.add_argument('--role', choices=('pilot', 'stationary', 'free', 'peg', 'requested_experiment'), default='pilot')
@@ -21,6 +22,9 @@ def main():
     parser.add_argument('--rig-id', default='')
     parser.add_argument('--response-to-request-id')
     args = parser.parse_args()
+    from realign.audit.terminal import configure_terminal, emit
+    configure_terminal(args.log_level)
+    emit('LIVE_LAB_STARTING',operation='local_controller')
     from realign.physical.live_lab import LabLibrary, CaptureController
     library = LabLibrary(args.library)
     if args.import_video:
@@ -31,7 +35,7 @@ def main():
             print('Import refused:', exc); return 1
         print(json.dumps({'id': report['id'], 'status': report['status'], 'media': report['media'],
                           'blockers': report['blockers']}, indent=2))
-        return 2  # Valid media alone is never accepted physical evidence.
+        return 2
     controller = CaptureController(library)
     if args.list_devices:
         print(json.dumps({'devices': controller.enumerate_devices(),
@@ -43,7 +47,7 @@ def main():
         print('Live Lab port unavailable. Choose --port or stop the old controller.'); return 1
     url = f'http://127.0.0.1:{server.server_port}'
     print('REALIGN Live Lab:', url, flush=True)
-    print('Offline until explicit AI authorization in the workspace. No camera until Connect. Ctrl+C saves an interrupted clip.', flush=True)
+    print('Offline until Go Live authorizes API calls and starts capture. Connect is available for offline preview. Ctrl+C saves an interrupted clip.', flush=True)
     if not args.no_browser: webbrowser.open(url)
     try: server.serve_forever()
     except KeyboardInterrupt: pass

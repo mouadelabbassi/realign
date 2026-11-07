@@ -35,7 +35,6 @@ def ui():
 def open_page(ui,*,mobile=False):
     browser,url=ui
     context=browser.new_context(viewport={'width':390,'height':844} if mobile else {'width':1440,'height':1050})
-    # No external request can be made by a replay test.
     context.route('**/*',lambda route:route.continue_() if route.request.url.startswith(url+'/') else route.abort())
     page=context.new_page(); errors=[]; page.on('pageerror',lambda e:errors.append(str(e)))
     page.goto(url); page.wait_for_selector('#time-scrubber')

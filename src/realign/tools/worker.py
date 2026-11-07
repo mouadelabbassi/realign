@@ -42,8 +42,6 @@ def isolation_probe(paths):
         memory_denied=not h
         if h:
             k.CloseHandle.argtypes=[c.c_void_p]; k.CloseHandle(h)
-        # Check the real user's environment key via HKEY_USERS, not the
-        # AppContainer-redirected HKCU. Never read or return registry values.
         import winreg
         from ctypes import wintypes as w
         adv=c.WinDLL('advapi32',use_last_error=True)
@@ -131,7 +129,6 @@ def main(isolation):
                 raise PermissionError('private protocol command rejected')
             print(canonical({'ok':True,'result':answer}).decode(),flush=True)
         except Exception as exc:
-            # Never send raw exception bodies, paths, or record contents.
             print(json.dumps({'ok':False,'error_type':type(exc).__name__}),flush=True)
 
 

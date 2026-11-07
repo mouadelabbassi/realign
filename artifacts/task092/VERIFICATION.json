@@ -1,0 +1,109 @@
+{
+  "task": "09.2",
+  "baseline_commit": "f3413d86b7b3856f23b2da3252b93ed58f760942",
+  "baseline_tree_equivalent_to": "c46e18089a23433cd6d7c5e5f2fcd7c6a8a0d581",
+  "baseline_full_regression": {
+    "passed": 424,
+    "skipped": 19,
+    "failures": 0
+  },
+  "mocked_end_to_end": "PASS; TEST_FIXTURE camera and mocked Meta transport only",
+  "real_hardware": "NOT_TESTED",
+  "real_meta_sam": "NOT_TESTED",
+  "real_muse": "NOT_TESTED",
+  "independent_physical_G2_G5": "BLOCKED_INPUTS",
+  "new_paid_meta_requests": 0,
+  "real_world_milestone_complete": false,
+  "targeted_live_tests": {
+    "tests": "101",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "68.204"
+  },
+  "full_browser_regression": {
+    "tests": "21",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "215.085",
+    "commit": "a6a6fb2; UI identical; final CI browser recheck pending"
+  },
+  "full_regression_and_remote_ci": "PENDING_FOR_FINAL_FIXTURE_CORRECTION_AT_COMMIT; final result is recorded in PR and delivered receipt",
+  "source_python_sha256": "368a50d53bf71c3eb8077fbba6e3682084adf94897a3ee6673faa8b91e827a02",
+  "source_hash_mode": "SORTED_RELATIVE_PATH_NUL_LF_NORMALIZED_PYTHON_BYTES",
+  "scientific_kernel_and_historical_G5": "UNCHANGED; git diff checked",
+  "original_owner_artifact_changes": "PRESERVED_UNCOMMITTED",
+  "protocol_references": [
+    "https://dev.meta.ai/docs/sam/segmenting",
+    "https://dev.meta.ai/docs/sam/client-libraries"
+  ],
+  "run_command": "python scripts/run_live_lab.py --port 8772 --log-level DEBUG",
+  "guide": "docs/TASK09_2_AUTO_LIVE.md",
+  "camera_discovery": "PASS; injected indices 2 and 5, safe per-device failures, no-camera guidance, no API requests",
+  "fixture_reliability": "Initial window inputs coordinate with the local encoder, never SAM. Held SAM still permits 65 source frames to be recorded before disconnect.",
+  "packaging": {
+    "status": "PASS",
+    "wheel": "realign_poc0-0.1.0-py3-none-any.whl",
+    "bundled_katex_fonts": 20,
+    "markdown_math_libraries_and_licenses": "PRESENT",
+    "runtime_CDN_dependencies": 0
+  },
+  "python_and_tests_tree_sha256": "e5b2cf96a941df7c3c8ec200d6c04522539bfe8017b7b9b032539a64da5509b0",
+  "numerical_validation_checkout": "Final continuous Live checkout pending; original numerical kernel and validation unchanged",
+  "legacy_sam_contract": "PASS; unchanged default upload/request shape; partial callback and confidence remain opt-in",
+  "prior_complete_regression": {
+    "commit": "e92ed8f05a79bd074b89b5f76164a4f842412e52",
+    "tests": "458",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "23",
+    "time": "1321.769"
+  },
+  "prior_complete_ci": {
+    "commit": "e92ed8f05a79bd074b89b5f76164a4f842412e52",
+    "run_id": 41867577715,
+    "jobs_passed": 4
+  },
+  "continuous_live": "PASS; no session-duration, recording-count, window-count or paid-request-count cutoff; finite spending reserve gate retained",
+  "terminal_logging": "PASS; INFO lifecycle/API/science diagnostics, DEBUG frame traces; credentials and raw request/response bodies excluded",
+  "continuous_precision_tests": {
+    "tests": "12",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "9.182"
+  },
+  "unique_targeted_tests_passed": 102,
+  "prior_full_matrix": {
+    "commit": "a6a6fb2d884e86eaae94aba30153992607b40288",
+    "python_3_11": {
+      "passed": 442,
+      "skipped": 23,
+      "time_s": 558.5
+    },
+    "python_3_12": {
+      "passed": 442,
+      "skipped": 23,
+      "time_s": 699.37
+    },
+    "numerical_reproduction": "PASS_BOTH",
+    "browser": {
+      "passed": 20,
+      "skipped": 1
+    }
+  },
+  "continuous_money_precision": "PASS; minimum .001 USD, microdollar precision; every accepted reservation advances exactly",
+  "final_fixture_and_precision_tests": {
+    "tests": "13",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "11.920"
+  },
+  "superseded_ci_failure": {
+    "run_id": 41918921345,
+    "python_3_11": "446 passed, 23 skipped, one timing-sensitive injected-camera fixture failed",
+    "correction": "Pace initial fixture against local encoder; retain held-SAM concurrency and all 65 original-frame assertions"
+  }
+}

@@ -94,8 +94,6 @@ def review_page(directory):
     if len(data)>32_000_000:raise EvidenceError('review package too large')
     scripts=re.findall(rb'<script>(.*?)</script>',data,re.S)
     if len(scripts)!=1:raise EvidenceError('unexpected annotation page script structure')
-    # HTML parsers normalize CRLF/CR before applying CSP to inline script text.
-    # Hash that same text so a package written on Windows remains executable.
     script=scripts[0].replace(b'\r\n',b'\n').replace(b'\r',b'\n')
     signature=base64.b64encode(hashlib.sha256(script).digest()).decode()
     policy="default-src 'none'; script-src 'sha256-"+signature+"'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"
